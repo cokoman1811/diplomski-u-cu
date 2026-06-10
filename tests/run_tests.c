@@ -7,6 +7,7 @@
 #include "preprocessing.h"
 #include "interpolation.h"
 #include "knn_methods.h"
+#include "knn_upgraded.h"
 #include "rf_methods.h"
 #include "evaluation.h"
 
@@ -139,6 +140,38 @@ static void test_knn(void) {
     check_near(out[2], 12.0, 2.0, "rupa na poziciji 2 ~ 12");
     check_near(out[4], 14.0, 2.0, "rupa na poziciji 4 ~ 14");
     check(isnan(sample.temp[2]), "original i dalje ima NaN (nije mutiran)");
+
+    series_free(&sample);
+}
+
+static void test_knn_upgraded(void) {
+    printf("\n== KNN upgraded imputacija ==\n");
+
+    Series sample = {0};
+    if (build_sample_series(&sample) != 0) {
+        check(0, "alokacija sample niza");
+        return;
+    }
+
+    double out[8];
+    KnnUpgradedConfig cfg = knn_upgraded_default();
+    cfg.n_neighbors = 3;
+    cfg.weight_hour = 3.0;
+
+    int ok = knn_imputation_upgraded(&sample, sample.temp, &cfg, out);
+    check(ok == 0, "knn_imputation_upgraded uspjeh");
+    check(count_nan(out, 8) == 0, "nema NaN nakon imputacije");
+
+    int known_unchanged = 1;
+    for (size_t i = 0; i < sample.n; i++) {
+        if (!isnan(sample.temp[i]) && out[i] != sample.temp[i]) {
+            known_unchanged = 0;
+            break;
+        }
+    }
+    check(known_unchanged, "poznate vrijednosti nepromijenjene");
+    check_near(out[2], 12.0, 2.0, "rupa na poziciji 2 ~ 12");
+    check_near(out[4], 14.0, 2.0, "rupa na poziciji 4 ~ 14");
 
     series_free(&sample);
 }
@@ -331,6 +364,7 @@ int main(void) {
     printf("======================================================================\n");
 
     test_knn();
+    test_knn_upgraded();
     test_rf();
     test_preprocessing();
     test_interpolation();

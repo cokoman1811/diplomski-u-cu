@@ -25,7 +25,7 @@ if errorlevel 1 (
 )
 
 echo Kompajliram tests.exe...
-"%GCC%" -std=c99 -O2 -Wall -Wextra -Isrc tests\run_tests.c src\dataset.c src\evaluation.c src\interpolation.c src\knn_methods.c src\rf_methods.c src\preprocessing.c -o tests.exe -lm
+"%GCC%" -std=c99 -O2 -Wall -Wextra -Isrc tests\run_tests.c src\dataset.c src\evaluation.c src\interpolation.c src\knn_methods.c src\knn_upgraded.c src\rf_methods.c src\preprocessing.c -o tests.exe -lm
 if errorlevel 1 (
     echo Greska pri kompajliranju tests.exe.
     exit /b 1
