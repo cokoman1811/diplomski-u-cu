@@ -1,4 +1,4 @@
-#include "ml_methods.h"
+#include "knn_methods.h"
 
 #include <math.h>
 #include <stdlib.h>

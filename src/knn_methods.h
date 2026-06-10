@@ -1,5 +1,5 @@
-#ifndef ML_METHODS_H
-#define ML_METHODS_H
+#ifndef KNN_METHODS_H
+#define KNN_METHODS_H
 
 #include "series.h"
 
@@ -19,4 +19,4 @@
  */
 int knn_imputation(const Series *series, const double *temp, int n_neighbors, double *out);
 
-#endif /* ML_METHODS_H */
+#endif /* KNN_METHODS_H */

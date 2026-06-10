@@ -4,6 +4,7 @@ Kratki popis promjena po datumu.
 
 ## 2026-06-10
 
+- Preimenovano `ml_methods` → `knn_methods` (samo KNN; RF ide u zasebni modul)
 - Dodan `docs/dan6.md` — predložak za sljedeći radni dan
 - Dodan `.vscode/tasks.json` — Build, Test, Compare, Git sync iz Cursora
 - Proširen `docs/cesta_pitanja.md` — odjeljak „Česte greške“

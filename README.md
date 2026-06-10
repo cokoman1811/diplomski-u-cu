@@ -14,7 +14,7 @@ diplomski c/
 │   ├── series.h / dataset.c    # struktura niza, učitavanje CSV-a, parsiranje datuma
 │   ├── preprocessing.*         # umjetno uklanjanje vrijednosti (RNG)
 │   ├── interpolation.*         # forward fill, linear, time, cubic, spline
-│   ├── ml_methods.*            # KNN imputacija
+│   ├── knn_methods.*           # KNN imputacija
 │   ├── evaluation.*            # MAE, RMSE, R²
 │   └── main.c                  # CLI
 ├── data/                       # kopije ulaznih CSV podataka

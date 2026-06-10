@@ -6,7 +6,7 @@
 #include "series.h"
 #include "preprocessing.h"
 #include "interpolation.h"
-#include "ml_methods.h"
+#include "knn_methods.h"
 #include "evaluation.h"
 
 #include <math.h>

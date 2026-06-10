@@ -7,7 +7,7 @@ Sljedeći radni dan na C verziji. Ispuni kad nastaviš rad.
 
 ## Plan (označi što radiš)
 
-- [ ] **Random Forest imputacija** (`src/ml_methods.c` / `.h`)
+- [ ] **Random Forest imputacija** (`src/rf_methods.c` / `.h` — novi modul)
 - [ ] **Grafovi usporedbe** (opcionalno — export CSV ili vanjski alat)
 - [ ] **MAPE metrika** u `evaluation.c`
 - [ ] **Download / quick mode** za Jena (kao Python `main.py --download`)

@@ -252,7 +252,7 @@ Osim deklaracija funkcija, header često sadrži:
 | `series.h` | `dataset.c` | `Series`, učitavanje CSV-a |
 | `preprocessing.h` | `preprocessing.c` | `create_missing_values` |
 | `interpolation.h` | `interpolation.c` | forward, linear, time, cubic, spline |
-| `ml_methods.h` | `ml_methods.c` | `knn_imputation` |
+| `knn_methods.h` | `knn_methods.c` | `knn_imputation` |
 | `evaluation.h` | `evaluation.c` | `Metrics`, `evaluate_reconstruction` |
 | — | `main.c` | samo `main`, ostalo je `static` |
 
@@ -293,14 +293,14 @@ Kratka mapa projekta: koja datoteka za što služi i redoslijed čitanja.
 | `dataset.c` | Kako se CSV učita |
 | `preprocessing` | Kako se umjetno brišu vrijednosti |
 | `evaluation` | Kako se računaju MAE / RMSE / R² |
-| `interpolation` / `ml_methods` | Kako se rupe popunjavaju |
+| `interpolation` / `knn_methods` | Kako se rupe popunjavaju |
 | `tests` | Što sve mora raditi |
 
 ### Preporučeni redoslijed
 
 ```
 main.c  →  series.h  →  dataset.c  →  preprocessing  →  evaluation
-    →  interpolation / ml_methods  →  tests
+    →  interpolation / knn_methods  →  tests
 ```
 
 ### Tok u jednoj rečenici
@@ -480,7 +480,7 @@ i=2: temp=NAN,  epoch=..., hour=2,  yday=1   ← nedostaje
 ### Gdje se koristi?
 
 - `main.c` — `Series s;` pa `series_load_csv(&s, ...)`
-- `ml_methods.c` — KNN koristi `hour`, `yday` i poziciju kao značajke
+- `knn_methods.c` — KNN koristi `hour`, `yday` i poziciju kao značajke
 - `interpolation.c` — uglavnom `temp`; `time_interpolation` koristi i `epoch`
 
 ### Ukratko

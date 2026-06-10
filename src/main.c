@@ -1,7 +1,7 @@
 #include "series.h"
 #include "preprocessing.h"
 #include "interpolation.h"
-#include "ml_methods.h"
+#include "knn_methods.h"
 #include "evaluation.h"
 
 #include <stdio.h>
@@ -30,7 +30,7 @@ static void print_metric_row(const char *name, Metrics m, int ok) {
         return;
     }
     printf("  %-22s %10.4f %10.4f %10.4f\n", name, m.mae, m.rmse, m.r2);
-}
+}  
 
 static int run_compare(const char *source, const char *city, double missing_rate) {
     const char *path;
