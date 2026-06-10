@@ -256,6 +256,23 @@ Osim deklaracija funkcija, header često sadrži:
 | `evaluation.h` | `evaluation.c` | `Metrics`, `evaluate_reconstruction` |
 | — | `main.c` | samo `main`, ostalo je `static` |
 
+### Analogija (restoran)
+
+Konkretno na primjeru učitavanja podataka:
+
+| Datoteka | Uloga | Analogija |
+|----------|-------|-----------|
+| `series.h` | Što postoji, što možeš pozvati | **Jelovnik:** „Imamo `Series`, možete naručiti učitavanje CSV-a“ |
+| `dataset.c` | Stvarni kod funkcija | **Kuhinja:** kako se to stvarno kuha |
+| `main.c` | Poziva funkcije i koristi rezultat | **Konobar / gost:** naručuje i koristi rezultat |
+| `cesta_pitanja.md` | Objašnjenja za čovjeka | **Vodič za gosta:** što je `Series`, zašto postoji |
+
+`main.c` ne vidi kod iz `dataset.c` — vidi samo **jelovnik** (`series.h`).
+Kompajler pri buildu spoji sve u jedan program.
+
+**Napomena:** `.h` nije dokumentacija — to je tehnički ugovor za kompajler.
+`cesta_pitanja.md` je prava dokumentacija za tebe.
+
 ### Ukratko
 
 - **`.h`** = „ugovor“ — što modul nudi ostatku programa
