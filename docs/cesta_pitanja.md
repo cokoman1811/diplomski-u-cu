@@ -15,6 +15,7 @@ Ovdje se zapisuju pitanja koja se ponavljaju tijekom rada na kodu.
 6. [Što što radi — što pročitati](#6-što-što-radi--što-pročitati)
 7. [Automatski Git sync](#7-automatski-git-sync)
 8. [Česte greške](#8-česte-greške)
+9. [Što je `Series`?](#9-što-je-series)
 
 ---
 
@@ -407,6 +408,67 @@ Promjene ostaju lokalno u commitu čak i ako push padne.
 
 **Rješenje:** `Terminal` → `Run Task...` → odaberi **Build** ili **Test**.
 Taskovi su u `.vscode/tasks.json`. Zahtijevaju PowerShell/CMD u korijenu projekta.
+
+---
+
+## 9. Što je `Series`?
+
+**Datoteka:** `src/series.h` (definicija), `src/dataset.c` (funkcije)
+
+```c
+typedef struct {
+    size_t n;
+    double *temp;
+    long long *epoch;
+    int *hour;
+    int *yday;
+} Series;
+```
+
+### Što je to?
+
+`Series` je glavna struktura projekta — **temperaturni vremenski niz** u C-u.
+Odgara Python `pd.Series` s vremenskim indeksom, ali ovdje su podaci u paralelnim poljima.
+
+Svi elementi na istom indeksu `i` (od `0` do `n-1`) opisuju **jedno mjerenje**.
+
+### Što znače polja?
+
+| Polje | Tip | Značenje |
+|-------|-----|----------|
+| `n` | `size_t` | Broj mjerenja u nizu |
+| `temp[i]` | `double` | Temperatura; `NAN` = nedostaje |
+| `epoch[i]` | `long long` | Vrijeme u sekundama od 1970-01-01 (UTC) |
+| `hour[i]` | `int` | Sat u danu (0–23); značajka za KNN |
+| `yday[i]` | `int` | Dan u godini (1–366); značajka za KNN |
+
+### Primjer u glavi
+
+Za 3 mjerenja:
+
+```
+i=0: temp=9.2,  epoch=..., hour=0,  yday=1
+i=1: temp=9.0,  epoch=..., hour=1,  yday=1
+i=2: temp=NAN,  epoch=..., hour=2,  yday=1   ← nedostaje
+```
+
+### Funkcije uz `Series`
+
+| Funkcija | Datoteka | Što radi |
+|----------|----------|----------|
+| `series_alloc` | `dataset.c` | Alocira memoriju za `n` elemenata |
+| `series_free` | `dataset.c` | Oslobađa memoriju |
+| `series_load_csv` | `dataset.c` | Učitava niz iz CSV-a u `Series` |
+
+### Gdje se koristi?
+
+- `main.c` — `Series s;` pa `series_load_csv(&s, ...)`
+- `ml_methods.c` — KNN koristi `hour`, `yday` i poziciju kao značajke
+- `interpolation.c` — uglavnom `temp`; `time_interpolation` koristi i `epoch`
+
+### Ukratko
+
+`Series` = tablica temperatura + vrijeme + pomoćne značajke za ML, sve usklađeno po indeksu `i`.
 
 ---
 
