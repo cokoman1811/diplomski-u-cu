@@ -16,6 +16,7 @@ Tehnička dokumentacija i dnevni log rada na diplomskom projektu.
 | Dan 3 | [dan3.md](dan3.md) | Centralni data loader, testovi, run.bat |
 | Dan 4 | [dan4.md](dan4.md) | Klasične interpolacijske metode |
 | Dan 5 | [dan5.md](dan5.md) | KNN imputacija |
+| Dan 6 | [dan6.md](dan6.md) | Predložak za nastavak (C) |
 | — | [progress.md](progress.md) | Pregled svih dana |
 
 ## Ostalo
@@ -25,3 +26,4 @@ Tehnička dokumentacija i dnevni log rada na diplomskom projektu.
 | `../KORACI.md` | Log koraka (visoka razina) |
 | [active_context.md](active_context.md) | Pravila i znanstveni tok projekta |
 | [cesta_pitanja.md](cesta_pitanja.md) | FAQ — C verzija |
+| `../CHANGELOG.md` | Popis promjena po datumu |

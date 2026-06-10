@@ -1,0 +1,56 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": ".\\build.bat",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "Test",
+      "type": "shell",
+      "command": ".\\test.bat",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "test",
+      "dependsOn": "Build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Compare (demo Split)",
+      "type": "shell",
+      "command": ".\\run.bat --compare --source demo --city Split",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Compare (jena_quick)",
+      "type": "shell",
+      "command": ".\\run.bat --compare --source jena_quick",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Git sync",
+      "type": "shell",
+      "command": ".\\git-sync.bat",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

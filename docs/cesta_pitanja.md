@@ -14,6 +14,7 @@ Ovdje se zapisuju pitanja koja se ponavljaju tijekom rada na kodu.
 5. [Zašto funkcije idu u `.h` i `.c`?](#5-zašto-funkcije-idu-u-h-i-c)
 6. [Što što radi — što pročitati](#6-što-što-radi--što-pročitati)
 7. [Automatski Git sync](#7-automatski-git-sync)
+8. [Česte greške](#8-česte-greške)
 
 ---
 
@@ -332,6 +333,80 @@ Možeš reći agentu: **„uploadaj na git“** ili **„pokreni git-sync“**.
 
 - `.exe`, `build/` i sl. **ne idu** na git (vidi `.gitignore`)
 - Za prvi push trebaš biti prijavljen na GitHub (`gh auth login` ili git credential)
+
+---
+
+## 8. Česte greške
+
+### `gcc nije pronaden`
+
+**Uzrok:** MinGW nije u PATH-u.
+
+**Rješenje:**
+
+```powershell
+winget install -e --id BrechtSanders.WinLibs.POSIX.UCRT
+```
+
+Zatvori i ponovo otvori terminal. `build.bat` automatski traži gcc i u WinGet mapi ako nije u PATH-u.
+
+---
+
+### `Greska: ne mogu otvoriti datoteku: data/...`
+
+**Uzrok:** Program pokrenut iz krive mape (relativne putanje `data/...`).
+
+**Rješenje:** Pokreni iz korijena projekta:
+
+```powershell
+cd "diplomski u cu"
+.\run.bat --compare
+```
+
+Ili koristi `run.bat` / `build.bat` — oni sami rade `cd` u pravu mapu.
+
+---
+
+### `[preskoceno: premalo poznatih tocaka]`
+
+**Uzrok:** `cubic_interpolation`, `spline_interpolation` ili `knn_imputation` nisu mogli raditi — premalo poznatih vrijednosti u nizu.
+
+**Rješenje:** Normalno na vrlo malim nizovima. Na demo/Jena 48h obično ne bi trebalo. Smanji `--missing-rate` ili koristi veći dataset.
+
+---
+
+### Testovi padaju nakon izmjene koda
+
+**Rješenje:**
+
+```powershell
+.\build.bat
+.\test.bat
+```
+
+Provjeri koji `[FAIL]` red ispisuje `tests.exe` i usporedi s `tests/run_tests.c`.
+
+---
+
+### Git sync ne radi / `push` odbijen
+
+**Uzrok:** Nisi prijavljen na GitHub ili nema interneta.
+
+**Rješenje:**
+
+```powershell
+gh auth login
+.\git-sync.bat
+```
+
+Promjene ostaju lokalno u commitu čak i ako push padne.
+
+---
+
+### Cursor taskovi (Build / Test) ne rade
+
+**Rješenje:** `Terminal` → `Run Task...` → odaberi **Build** ili **Test**.
+Taskovi su u `.vscode/tasks.json`. Zahtijevaju PowerShell/CMD u korijenu projekta.
 
 ---
 
