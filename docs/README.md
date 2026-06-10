@@ -16,7 +16,8 @@ Tehnička dokumentacija i dnevni log rada na diplomskom projektu.
 | Dan 3 | [dan3.md](dan3.md) | Centralni data loader, testovi, run.bat |
 | Dan 4 | [dan4.md](dan4.md) | Klasične interpolacijske metode |
 | Dan 5 | [dan5.md](dan5.md) | KNN imputacija |
-| Dan 6 | [dan6.md](dan6.md) | Predložak za nastavak (C) |
+| Dan 6 | [dan6.md](dan6.md) | Testovi, FAQ, RF, osnovni KNN (C) |
+| Dan 7 | [dan7.md](dan7.md) | KNN upgraded, razumijevanje ML (C) |
 | — | [progress.md](progress.md) | Pregled svih dana |
 
 ## Ostalo

@@ -2,6 +2,13 @@
 
 Kratki popis promjena po datumu.
 
+## 2026-06-11 (Dan 7)
+
+- Dodan `knn_upgraded.c` / `.h` — normalizacija, težine, težinski prosjek
+- Usporedba `knn_imputation` vs `knn_upgraded` u `--compare`
+- Test `test_knn_upgraded()`
+- Ažurirani `docs/dan6.md`, `docs/dan7.md`, `docs/progress.md`
+
 ## 2026-06-10 (Dan 6)
 
 - KNN: komentari u `knn_methods.c` / `.h`, test dokumentiran

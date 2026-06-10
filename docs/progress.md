@@ -9,65 +9,64 @@ Dnevni log napretka. Svaki dan ima svoju datoteku.
 | 2 | 2026-06-07 | Degradacija, interpolacija, evaluacija | [dan2.md](dan2.md) |
 | 3 | 2026-06-08 | Centralni data loader, testovi, run.bat | [dan3.md](dan3.md) |
 | 4 | 2026-06-08 | Klasične interpolacijske metode | [dan4.md](dan4.md) |
-| 5 | 2026-06-09 | KNN imputacija (`src/ml_methods.py`) | [dan5.md](dan5.md) |
+| 5 | 2026-06-09 | KNN imputacija (Python ref.) | [dan5.md](dan5.md) |
+| 6 | 2026-06-10 | Testovi, FAQ, RF, osnovni KNN (C) | [dan6.md](dan6.md) |
+| 7 | 2026-06-11 | KNN upgraded, razumijevanje ML (C) | [dan7.md](dan7.md) |
 
-## Trenutni status
+---
 
-**Zadnji završeni dan: Dan 5** — KNN imputacija u `src/ml_methods.py`, testovi u `tests/test_ml_methods.py`. Random Forest i `--compare` integracija — sljedeće.
+## Trenutni status (C verzija)
 
-### Dan 4 — sažetak
+**Zadnji završeni dan: Dan 7** — `knn_upgraded`, usporedba s osnovnim KNN-om, 40 testova prolazi.
 
-- [x] Proširen **`src/interpolation_methods.py`**
-- [x] Klasične metode: forward fill, linear, time, cubic, spline
-- [x] Metode rade nad `pd.Series` i **ne mijenjaju** originalni niz
-- [x] Pomoćna funkcija **`run_classical_interpolations()`**
-- [x] Testovi u **`tests/test_interpolation_methods.py`**
-- [x] **`main.py --compare`** ispisuje usporedbu metoda (MAE, RMSE, R²)
-- [x] Popravljen **`src/evaluation.py`** (sklearn importi)
-- [x] **`docs/najcesca_pitanja.md`** — FAQ, tutorial izvora (`demo`, `jena_quick`, …), scipy, run.bat
-- [x] **Testirano:** pytest 11/11 passed, `--compare` radi na demo i jena_quick
-- [x] **ML metode još nisu dodane** — ostaju za Dan 5
+**Razumijevanje:** ML dio (KNN/RF) još se uči — normalno za 2 dana. Osnovni tok projekta je jasan.
 
-### Rezultati testiranja (2026-06-09)
+### Dan 6 — sažetak (C)
+
+- [x] Testovi `tests/run_tests.c`, FAQ `cesta_pitanja.md`, git-sync
+- [x] `knn_methods` + `rf_methods` u `--compare`
+- [x] Dokumentacija po danima prenesena iz Python projekta
+
+### Dan 7 — sažetak (C)
+
+- [x] `knn_upgraded` — normalizacija, težine, težinski prosjek, adaptivno k
+- [x] Usporedba `knn_imputation` vs `knn_upgraded` u tablici
+- [x] Demo Split: MAE KNN 0.54 → upgraded 0.25
+
+### Rezultati testiranja (2026-06-11)
 
 ```
-pytest: 11 passed in ~1.5s
-main.py --compare --source demo --city Split: OK (5 metoda u tablici)
+.\test.bat → 40/40 SVE PROLAZI
+.\run.bat --compare --source demo --city Split   → 8 metoda
+.\run.bat --compare --source jena_quick          → 8 metoda
 ```
 
-### Pokretanje
+### Pokretanje (C)
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest -v
-python main.py --compare
-python main.py --compare --source jena_quick
-python main.py --compare --source demo --city Split
-.\run.bat --compare
+.\build.bat
+.\test.bat
+.\run.bat --compare --source demo --city Split
+.\run.bat --compare --source jena_quick
 ```
 
 ---
 
-## Plan — Dan 5: Machine learning metode
+## Plan — Dan 8
 
-**Cilj:** dodati KNN i Random Forest imputaciju te usporediti s klasičnim metodama.
-
-### Koraci (plan)
-
-1. Novi modul ili proširenje za ML metode (npr. `src/ml_methods.py`)
-2. `knn_imputation(series)` — KNN imputacija
-3. `random_forest_imputation(series)` — Random Forest pristup
-4. Integrirati u `--compare` ili novu naredbu
-5. Ista evaluacija: MAE, RMSE, R² samo na `missing_mask`
-6. Grafovi usporedbe (opcionalno)
+- [ ] CLI parametri za KNN (`--knn-k`, težine)
+- [ ] Export tablice rezultata u CSV (za grafove)
+- [ ] Kratki tekst u radu: usporedba osnovnog i upgraded KNN-a
+- [ ] (opcionalno) poboljšati RF
 
 ### Izvan opsega (za sada)
 
-- Neural networks / MLP
+- LSTM / neuronske mreže
 - Veliki refactor projekta
 
 ---
 
-## C verzija — napomena
+## Python referenca (dan0–dan5)
 
-C port (`diplomski u cu`) pokriva Dan 0–5 funkcionalno (uključujući KNN u `--compare` i testove u `tests/run_tests.c`).
-Ažuriraj ovaj odjeljak kad nastaviš rad na C projektu.
+Zapisi `dan0`–`dan5` su iz Python projekta (`diplomski-kopija`).
+C verzija je na razini Dana 7 po funkcionalnosti (KNN + RF + upgraded KNN u compare).
