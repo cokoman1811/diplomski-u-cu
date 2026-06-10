@@ -144,6 +144,14 @@ static void test_knn(void) {
     series_free(&sample);
 }
 
+/*
+ * test_knn_upgraded provjerava:
+ *   - funkcija vraca uspjeh (0)
+ *   - poznate vrijednosti ostaju iste
+ *   - NaN mjesta su popunjena (nema NaN u out)
+ *   - damaged niz nije mutiran
+ *   - radi na malom vremenskom nizu (8 satnih zapisa)
+ */
 static void test_knn_upgraded(void) {
     printf("\n== KNN upgraded imputacija ==\n");
 
@@ -170,8 +178,12 @@ static void test_knn_upgraded(void) {
         }
     }
     check(known_unchanged, "poznate vrijednosti nepromijenjene");
+
+    check(!isnan(out[2]), "NaN na poziciji 2 popunjen");
+    check(!isnan(out[4]), "NaN na poziciji 4 popunjen");
     check_near(out[2], 12.0, 2.0, "rupa na poziciji 2 ~ 12");
     check_near(out[4], 14.0, 2.0, "rupa na poziciji 4 ~ 14");
+    check(isnan(sample.temp[2]), "original i dalje ima NaN (nije mutiran)");
 
     series_free(&sample);
 }

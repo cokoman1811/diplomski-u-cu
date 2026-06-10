@@ -1,37 +1,156 @@
-# Dan 7 — KNN upgraded + dublje razumijevanje ML dijela (C)
+# Dan 7 — Naprednija KNN funkcija (`knn_upgraded`)
 
 **Datum:** 2026-06-11  
 **Autor:** Toni Jakelić  
-**Fokus:** popraviti KNN greške, usporediti dvije KNN varijante, shvatiti zašto ML ponekad gori od interpolacije
+**Tema dana:** rad na naprednijoj KNN funkciji za imputaciju temperature
 
-Drugi dan rada na ML dijelu. Nastavak Dana 6 — nije završetak projekta, nego
-**učvršćivanje razumijevanja** jer KNN/RF nisu intuitivni kao linear interpolacija.
+Drugi dan rada na ML dijelu. Nastavak Dana 6 — cilj je imati **dvije KNN varijante**
+(osnovnu i upgraded) za usporedbu u diplomskom radu, bez brisanja postojećeg koda.
 
 ---
 
 ## Što je napravljeno
 
-- [x] Analiza mana osnovnog KNN-a (1:1:1 značajke, loš rezultat na malom nizu)
-- [x] Novi modul **`knn_upgraded.c`** / **`.h`**
-  - normalizirane značajke (pozicija, hour, yday)
-  - podesive težine (`KnnUpgradedConfig`)
-  - težinski prosjek susjeda (bliži = veći utjecaj)
-  - adaptivno k na malom nizu (k=2 ili 3)
+- [x] Novi modul **`knn_upgraded.c`** / **`knn_upgraded.h`** (osnovni KNN netaknut)
+- [x] Cikličke značajke za `hour` i `yday` (sin/cos)
+- [x] Normalizirana pozicija `index / (n - 1)`
+- [x] Podesive težine značajki (`KnnUpgradedConfig`)
+- [x] Težinski prosjek susjeda `1 / (distance + epsilon)`
 - [x] Usporedba u **`main.c --compare`**: `knn_imputation` vs `knn_upgraded`
-- [x] Test **`test_knn_upgraded()`**
-- [x] Proširen FAQ i README
+- [x] Test **`test_knn_upgraded()`** u `tests/run_tests.c`
+- [x] Build i testovi prolaze
 
 ---
 
-## Zašto smo napravili `knn_upgraded`?
+## Problem osnovne KNN verzije
 
 Osnovni KNN (`knn_methods.c`) koristi **sirove** vrijednosti značajki:
-- pozicija 0–287 dominira nad satom 0–23
-- svi susjedi jednako važe u prosjeku
-- k=5 fiksno — previše za 12 zapisa (demo Split)
 
-Upgraded verzija to popravlja **bez mijenjanja** originalnog KNN-a — možeš u radu
-usporediti „prije i poslije“.
+| Značajka | Problem |
+|----------|---------|
+| `position` (indeks 0–287) | Dominira udaljenost jer ima veći numerički raspon od sata (0–23) |
+| `hour` | **Ciklička** — sat 23 i sat 0 su blizu, ali \|23 − 0\| = 23 |
+| `yday` | **Ciklička** — 365. dan i 1. dan su blizu, ali \|365 − 1\| = 364 |
+
+Dodatno: osnovni KNN daje **jednaki prosjek** svih k susjeda — bliski i daleki
+susjedi imaju isti utjecaj.
+
+Na malom nizu (demo Split, 12 zapisa) to daje loš MAE jer pozicija „pobjeđuje“
+nad satom i danom.
+
+---
+
+## Zašto normalizacija pozicije?
+
+```c
+position_norm = index / (n - 1)   /* raspon [0, 1] */
+```
+
+Bez normalizacije indeks 287 i indeks 0 imaju udaljenost 287, dok sat 10 i sat 11
+imaju udaljenost 1. Pozicija dominira i KNN traži „slične indekse“, a ne nužno
+„slično vrijeme dana“.
+
+Normalizacija stavlja sve značajke u usporediv raspon prije množenja težinama.
+
+---
+
+## Zašto sin/cos za hour i yday?
+
+**Hour je ciklička značajka** — 23:00 i 00:00 su jedan sat razlike, ne 23 sata.
+
+**Yday je ciklička značajka** — kraj godine i početak godine su blizu u kalendaru.
+
+Obična normalizacija `hour/24` i `(yday-1)/365` **ne hvata** tu cikličnost:
+udaljenost između 23/24 ≈ 0.96 i 0/24 = 0 je ~0.96, iako su sati susjedni.
+
+Rješenje — mapiranje na krug:
+
+```c
+hour_sin = sin(2π * hour / 24)
+hour_cos = cos(2π * hour / 24)
+
+yday_sin = sin(2π * (yday - 1) / 365)
+yday_cos = cos(2π * (yday - 1) / 365)
+```
+
+Dva susjedna sata daju bliske točke na krugu → mala euklidska udaljenost u
+(sin, cos) prostoru.
+
+---
+
+## Težinski prosjek susjeda
+
+Osnovni KNN: `out[i] = (T₁ + T₂ + … + Tₖ) / k` — svi susjedi jednako.
+
+Upgraded KNN:
+
+```c
+weight = 1 / (distance + epsilon)
+out[i] = Σ(weight_j * T_j) / Σ(weight_j)
+```
+
+Bliži susjedi (manja udaljenost u prostoru značajki) imaju **veći utjecaj** na
+predikciju. `epsilon` sprječava dijeljenje s nulom kad je susjed vrlo blizak.
+
+---
+
+## Što nova funkcija prima i vraća
+
+```c
+int knn_imputation_upgraded(
+    const Series *series,      /* znacajke: hour[i], yday[i], epoch[i] */
+    const double *temp,        /* damaged niz s NaN — NE mijenja se */
+    const KnnUpgradedConfig *cfg,  /* NULL = zadane vrijednosti */
+    double *out                /* popunjeni rezultat */
+);
+```
+
+| Parametar | Značenje |
+|-----------|----------|
+| `series` | Vremenski niz sa značajkama po indeksu |
+| `temp` | Ulaz s rupe (NaN) — original `s.temp` ostaje netaknut |
+| `cfg` | k, težine značajki, epsilon (opcionalno) |
+| `out` | Izlaz: poznate vrijednosti kopirane, NaN popunjeni |
+| **povrat** | `0` = uspjeh, `1` = greška |
+
+Tok unutar funkcije:
+
+1. Kopira `temp` → `out`
+2. Za svaku NaN poziciju traži k najbližih **poznatih** temperatura
+3. Udaljenost računa u 5D prostoru (position, hour_sin/cos, yday_sin/cos)
+4. Predikcija = težinski prosjek temperatura susjeda
+5. `fill_remaining_gaps()` ako nešto ostane NaN
+
+---
+
+## Razlika od osnovne KNN funkcije
+
+| | `knn_imputation` | `knn_imputation_upgraded` |
+|--|------------------|---------------------------|
+| Pozicija | sirovi indeks | `index / (n-1)` |
+| Hour | sirovi sat 0–23 | sin/cos (ciklički) |
+| Yday | sirovi dan 1–365 | sin/cos (ciklički) |
+| Težine značajki | implicitno 1:1:1 | `weight_position`, `weight_hour`, `weight_yday` |
+| Predikcija | jednostavan prosjek | `1/(d+ε)` težinski prosjek |
+| k | fiksno (npr. 5) | adaptivno na malom nizu (k≤3 ili k≤2) |
+| Config | samo `n_neighbors` | `KnnUpgradedConfig` struct |
+
+---
+
+## Testovi (`test_knn_upgraded`)
+
+U `tests/run_tests.c`, mali niz od 8 satnih zapisa s 2 NaN rupe:
+
+| Provjera | Što testira |
+|----------|-------------|
+| `knn_imputation_upgraded uspjeh` | funkcija vraća 0 |
+| `nema NaN nakon imputacije` | sve rupe popunjene |
+| `poznate vrijednosti nepromijenjene` | indeksi bez NaN ostaju isti |
+| `NaN na poziciji 2/4 popunjen` | eksplicitno da su rupe popunjene |
+| `rupa ~ 12 / ~ 14` | razumna predikcija na malom nizu |
+| `original i dalje ima NaN` | damaged niz nije mutiran |
+
+Paralelno postoji `test_knn()` za osnovnu verziju — ista struktura provjera.
 
 ---
 
@@ -48,9 +167,6 @@ Isti eksperiment: seed 42, 40% obrisanih, evaluacija samo na maski.
 | **knn_upgraded** | **0.2488** | **0.2765** | **0.4208** |
 | rf_imputation | 0.4106 | 0.5052 | -0.9336 |
 
-**Zaključak:** upgraded KNN je **puno bolji** od osnovnog na malom nizu, ali i dalje
-ispod linear interpolacije. To je OK za diplomski — pokazuješ zašto treba paziti na značajke.
-
 ### Jena 48h (288 zapisa)
 
 | Metoda | MAE | RMSE | R² |
@@ -60,62 +176,35 @@ ispod linear interpolacije. To je OK za diplomski — pokazuješ zašto treba pa
 | **knn_upgraded** | **0.1068** | **0.1541** | **0.9944** |
 | rf_imputation | 0.2136 | 0.2921 | 0.9801 |
 
-**Zaključak:** na većem nizu KNN upgraded je malo bolji od osnovnog; interpolacija
-i dalje pobjeđuje na ovom eksperimentu.
+Upgraded KNN je bolji od osnovnog na oba niza; interpolacija i dalje pobjeđuje
+na ovom eksperimentu — to je valjan zaključak za rad.
 
 ---
 
-## Što moram shvatiti (checklist za sebe)
+## Što moram shvatiti (checklist)
 
-Označi kad stvarno možeš objasniti naglas:
-
-- [ ] **Zašto KNN uz interpolaciju?** — ML gleda slična mjerenja u cijelom nizu, ne samo susjede
-- [ ] **Što je `Series`?** — tablica: `temp[i]`, `hour[i]`, `yday[i]` za isto mjerenje `i`
-- [ ] **Što ulazi u KNN?** — `series` (značajke), `temp` (damaged), `k`, `out`
-- [ ] **Zašto poznate vrijednosti ostaju?** — učimo/predviđamo samo NaN mjesta
-- [ ] **Gdje se uspoređuje?** — `main.c` → `run_compare()` → tablica MAE/RMSE/R²
-- [ ] **Zašto je osnovni KNN loš na demo Splitu?** — malo podataka + neskalirane značajke
-- [ ] **Što upgraded popravlja?** — normalizacija, težine, težinski prosjek, manje k
-- [ ] **Razlika KNN vs RF?** — KNN = prosjek susjeda; RF = prosjek više stabala odluka
+- [ ] Zašto hour/yday trebaju sin/cos, a ne samo /24 i /365
+- [ ] Što radi `KnnUpgradedConfig` i zašto `weight_hour = 2.0` po defaultu
+- [ ] Razlika jednostavnog i težinskog prosjeka susjeda
+- [ ] Zašto `temp` (damaged) ulazi, a `s.temp` (original) služi za evaluaciju
 
 ---
 
-## Što pročitati (redoslijed, ~1 h)
+## Što pročitati (~1 h)
 
 ```
-1. docs/cesta_pitanja.md  → točke 1, 5, 6, 9 (Metrics, .h/.c, Series, KNN)
-2. src/main.c             → run_compare() — cijeli tok
-3. src/knn_methods.c      → osnovni KNN (122 linije)
-4. src/knn_upgraded.c     → što je drugačije
-5. tests/run_tests.c      → test_knn() i test_knn_upgraded()
+1. src/knn_methods.c      → osnovni KNN (usporedba)
+2. src/knn_upgraded.c     → cikličke značajke + težinski prosjek
+3. src/knn_upgraded.h     → KnnUpgradedConfig
+4. tests/run_tests.c      → test_knn_upgraded()
+5. src/main.c             → run_compare(), red knn_upgraded
 ```
-
-Pokreni uz čitanje:
-
-```powershell
-.\run.bat --compare --source demo --city Split
-.\run.bat --compare --source jena_quick
-```
-
----
-
-## Testirano (2026-06-11)
 
 ```powershell
 .\build.bat
 .\test.bat
+.\run.bat --compare --source demo --city Split
 ```
-
-**Rezultat:** 40/40 — SVE PROLAZI
-
----
-
-## Što još NIJE gotovo (nije problem)
-
-- [ ] CLI parametri (`--knn-k`, `--knn-hour-weight`) — opcionalno
-- [ ] Poboljšati RF (više stabala, random features)
-- [ ] Grafovi usporedbe
-- [ ] Potpuno „sjedanje“ KNN/RF u glavu — **u tijeku, normalno traje**
 
 ---
 
@@ -123,21 +212,15 @@ Pokreni uz čitanje:
 
 | Datoteka | Uloga |
 |----------|--------|
-| `src/knn_upgraded.h` | `KnnUpgradedConfig`, API |
-| `src/knn_upgraded.c` | Poboljšani KNN |
+| `src/knn_upgraded.h` | API, `KnnUpgradedConfig` |
+| `src/knn_upgraded.c` | Napredni KNN s cikličkim značajkama |
 | `src/main.c` | Red `knn_upgraded` u tablici |
 | `tests/run_tests.c` | `test_knn_upgraded()` |
 
 ---
 
-## Poruka sebi (ako opet „ne klikne“)
-
-> Ne moraš danas znati svaku liniju KNN-a. Dovoljno je znati:
-> **ulaz → što metoda radi → izlaz → metrika na maski.**
-> Detalji implementacije dolaze s ponavljanjem i testovima.
-
 ## Sljedeći korak (Dan 8 — plan)
 
 - Grafovi ili export rezultata u CSV
-- CLI za KNN parametre
+- CLI za KNN parametre (`--knn-k`, težine)
 - Kratki odlomak u radu: „Usporedba osnovnog i poboljšanog KNN-a“
