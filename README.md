@@ -15,6 +15,7 @@ diplomski c/
 │   ├── preprocessing.*         # umjetno uklanjanje vrijednosti (RNG)
 │   ├── interpolation.*         # forward fill, linear, time, cubic, spline
 │   ├── knn_methods.*           # KNN imputacija
+│   ├── rf_methods.*            # Random Forest imputacija (minimalna)
 │   ├── evaluation.*            # MAE, RMSE, R²
 │   └── main.c                  # CLI
 ├── data/                       # kopije ulaznih CSV podataka
@@ -60,4 +61,4 @@ make
 
 `forward_fill`, `linear_interpolation`, `time_interpolation`,
 `cubic_interpolation`, `spline_interpolation` (prirodni kubični spline),
-`knn_imputation` (značajke: pozicija, sat, dan u godini).
+`knn_imputation`, `rf_imputation` (značajke: pozicija, sat, dan u godini).

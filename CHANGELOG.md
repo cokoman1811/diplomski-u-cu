@@ -2,7 +2,15 @@
 
 Kratki popis promjena po datumu.
 
-## 2026-06-10
+## 2026-06-10 (Dan 6)
+
+- KNN: komentari u `knn_methods.c` / `.h`, test dokumentiran
+- Dodan `rf_methods.c` / `.h` — minimalna Random Forest imputacija
+- `main.c --compare`: red `rf_imputation`
+- Test `test_rf()` u `run_tests.c`
+- Ažuriran `docs/dan6.md`
+
+## 2026-06-10 (ranije)
 
 - Preimenovano `ml_methods` → `knn_methods` (samo KNN; RF ide u zasebni modul)
 - Dodan `docs/dan6.md` — predložak za sljedeći radni dan

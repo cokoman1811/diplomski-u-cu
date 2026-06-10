@@ -4,18 +4,21 @@
 #include "series.h"
 
 /*
- * KNN imputacija temperature.
+ * KNN imputacija — prva ML metoda u usporedbi s klasicnom interpolacijom.
  *
- * Model se "uci" samo na poznatim vrijednostima i predvida samo na
- * nedostajucim mjestima. Znacajke su (pozicija, sat u danu, dan u godini),
- * udaljenost je euklidska. Predikcija je prosjek k najblizih susjeda.
+ * Zašto KNN uz interpolaciju?
+ *   Interpolacija gleda susjede u nizu (lijevo/desno). KNN trazi slicna
+ *   mjerenja u cijelom nizu prema znacajkama (pozicija, sat, dan u godini).
  *
- * series     - niz sa znacajkama (hour, yday, n)
- * temp       - ostecen niz vrijednosti (NAN na nedostajucim mjestima)
- * n_neighbors- broj susjeda (k); efektivno se ogranicava na broj poznatih
- * out        - izlaz (velicina series->n), bez NAN vrijednosti
+ * Ulaz:
+ *   series      - znacajke (hour, yday, n); damaged temp se ne mijenja ovdje
+ *   temp        - damaged niz (NAN = nedostaje)
+ *   n_neighbors - k najblizih susjeda (u main.c: 5)
+ *   out         - popunjeni niz (bez NAN)
  *
- * Vraca 0 kod uspjeha, != 0 ako nema poznatih vrijednosti.
+ * Poznate vrijednosti u out ostaju iste kao u temp; mijenjaju se samo NaN.
+ * Usporedba u main.c: run_compare() -> knn_imputation -> evaluate_reconstruction.
+ * Test: tests/run_tests.c -> test_knn().
  */
 int knn_imputation(const Series *series, const double *temp, int n_neighbors, double *out);
 

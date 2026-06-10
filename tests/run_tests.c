@@ -7,6 +7,7 @@
 #include "preprocessing.h"
 #include "interpolation.h"
 #include "knn_methods.h"
+#include "rf_methods.h"
 #include "evaluation.h"
 
 #include <math.h>
@@ -103,6 +104,13 @@ static int count_nan(const double *temp, size_t n) {
     return count;
 }
 
+/*
+ * test_knn provjerava:
+ *   - funkcija vraca uspjeh (0)
+ *   - poznate vrijednosti ostaju iste
+ *   - NaN mjesta su popunjena, u out nema NaN
+ *   - damaged niz (sample.temp) nije mutiran
+ */
 static void test_knn(void) {
     printf("\n== KNN imputacija ==\n");
 
@@ -131,6 +139,34 @@ static void test_knn(void) {
     check_near(out[2], 12.0, 2.0, "rupa na poziciji 2 ~ 12");
     check_near(out[4], 14.0, 2.0, "rupa na poziciji 4 ~ 14");
     check(isnan(sample.temp[2]), "original i dalje ima NaN (nije mutiran)");
+
+    series_free(&sample);
+}
+
+static void test_rf(void) {
+    printf("\n== Random Forest imputacija ==\n");
+
+    Series sample = {0};
+    if (build_sample_series(&sample) != 0) {
+        check(0, "alokacija sample niza");
+        return;
+    }
+
+    double out[8];
+    int ok = rf_imputation(&sample, sample.temp, out);
+    check(ok == 0, "rf_imputation uspjeh");
+    check(count_nan(out, 8) == 0, "nema NaN nakon imputacije");
+
+    int known_unchanged = 1;
+    for (size_t i = 0; i < sample.n; i++) {
+        if (!isnan(sample.temp[i]) && out[i] != sample.temp[i]) {
+            known_unchanged = 0;
+            break;
+        }
+    }
+    check(known_unchanged, "poznate vrijednosti nepromijenjene");
+    check_near(out[2], 12.0, 4.0, "rupa na poziciji 2 u razumnom rasponu");
+    check_near(out[4], 14.0, 4.0, "rupa na poziciji 4 u razumnom rasponu");
 
     series_free(&sample);
 }
@@ -295,6 +331,7 @@ int main(void) {
     printf("======================================================================\n");
 
     test_knn();
+    test_rf();
     test_preprocessing();
     test_interpolation();
     test_metrics();

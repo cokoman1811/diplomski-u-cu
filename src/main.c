@@ -2,6 +2,7 @@
 #include "preprocessing.h"
 #include "interpolation.h"
 #include "knn_methods.h"
+#include "rf_methods.h"
 #include "evaluation.h"
 
 #include <stdio.h>
@@ -106,11 +107,18 @@ static int run_compare(const char *source, const char *city, double missing_rate
         print_metric_row("spline_interpolation", (Metrics){0}, 0);
     }
 
-    /* KNN */
+    /* ML: KNN — slicna mjerenja u prostoru znacajki (vidi knn_methods.c). */
     if (knn_imputation(&s, damaged, 5, out) == 0) {
         print_metric_row("knn_imputation", evaluate_reconstruction(s.temp, out, mask, n), 1);
     } else {
         print_metric_row("knn_imputation", (Metrics){0}, 0);
+    }
+
+    /* ML: Random Forest — prosjek predikcija vise stabala (vidi rf_methods.c). */
+    if (rf_imputation(&s, damaged, out) == 0) {
+        print_metric_row("rf_imputation", evaluate_reconstruction(s.temp, out, mask, n), 1);
+    } else {
+        print_metric_row("rf_imputation", (Metrics){0}, 0);
     }
 
     printf("\n");

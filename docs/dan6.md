@@ -1,21 +1,27 @@
-# Dan 6 — (predložak za nastavak)
+# Dan 6 — KNN komentari + Random Forest (C)
 
-**Datum:** ___________  
+**Datum:** 2026-06-10  
 **Autor:** Toni Jakelić
 
-Sljedeći radni dan na C verziji. Ispuni kad nastaviš rad.
-
-## Plan (označi što radiš)
-
-- [ ] **Random Forest imputacija** (`src/rf_methods.c` / `.h` — novi modul)
-- [ ] **Grafovi usporedbe** (opcionalno — export CSV ili vanjski alat)
-- [ ] **MAPE metrika** u `evaluation.c`
-- [ ] **Download / quick mode** za Jena (kao Python `main.py --download`)
-- [ ] Ažurirati `docs/progress.md` i `CHANGELOG.md`
+Učvršćen ML dio C verzije: KNN dokumentiran, dodana minimalna RF imputacija.
 
 ## Što je napravljeno
 
-- [ ] _opiši ovdje što si implementirao_
+- [x] Pregled i komentari u **`src/knn_methods.c`** / **`.h`**
+- [x] KNN već u **`main.c --compare`** (bez refactora)
+- [x] Test **`test_knn()`** — uspjeh, poznate iste, bez NaN u izlazu
+- [x] Novi modul **`src/rf_methods.c`** / **`.h`** — `rf_imputation()`
+  - 8 stabala, dubina do 4, bootstrap uzorak poznatih vrijednosti
+  - značajke: pozicija, hour, yday
+- [x] RF u **`main.c --compare`**
+- [x] Test **`test_rf()`**
+
+## TODO (RF — kasnije, nije blokirajuće)
+
+- Više stabala / dubina (trenutno fiksno u `#define`)
+- Slučajan odabir podskupa značajki po čvoru (pravi RF detalj)
+- OOB (out-of-bag) procjena kvalitete
+- Parametar `n_trees` kroz CLI
 
 ## Testirano
 
@@ -24,22 +30,3 @@ Sljedeći radni dan na C verziji. Ispuni kad nastaviš rad.
 .\test.bat
 .\run.bat --compare --source demo --city Split
 ```
-
-**Rezultat:**
-
-- testovi: ___ / ___
-- `--compare`: OK / FAIL
-
-## Nove / izmijenjene datoteke
-
-| Datoteka | Uloga |
-|----------|--------|
-| | |
-
-## Napomene / problemi
-
--
-
-## Sljedeći dan (Dan 7)
-
--
