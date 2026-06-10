@@ -16,6 +16,7 @@ Ovdje se zapisuju pitanja koja se ponavljaju tijekom rada na kodu.
 7. [Automatski Git sync](#7-automatski-git-sync)
 8. [Česte greške](#8-česte-greške)
 9. [Što je `Series`?](#9-što-je-series)
+10. [Tko briše podatke, tko popunjava rupe?](#10-tko-briše-podatke-tko-popunjava-rupe)
 
 ---
 
@@ -486,6 +487,46 @@ i=2: temp=NAN,  epoch=..., hour=2,  yday=1   ← nedostaje
 ### Ukratko
 
 `Series` = tablica temperatura + vrijeme + pomoćne značajke za ML, sve usklađeno po indeksu `i`.
+
+---
+
+## 10. Tko briše podatke, tko popunjava rupe?
+
+KNN **ne briše** podatke — samo popunjava rupe. Brisanje (umjetno) ide **prije** KNN-a.
+
+| Pitanje | Odgovor |
+|---------|---------|
+| Tko briše podatke? | `create_missing_values` u **`preprocessing.c`** |
+| Tko popunjava rupe? | `knn_imputation` u **`knn_methods.c`** (ili `knn_upgraded`, `rf_imputation`) |
+| Gdje se to povezuje? | **`main.c`** → `run_compare()` |
+| Je li original uništen? | **Ne** — `s.temp` ostaje za usporedbu |
+
+### Tok u `run_compare()`
+
+```
+series_load_csv()           →  s.temp[]    = ORIGINAL (cijeli, bez NaN)
+create_missing_values()     →  damaged[]   = kopija s NAN na nekim mjestima
+                               mask[]      = 1 gdje je "obrisano"
+knn_imputation(&s, damaged) →  out[]       = popunjeni niz
+evaluate_reconstruction()   →  usporedba s.temp vs out SAMO gdje mask==1
+```
+
+### Što je što?
+
+| Niz | Značenje |
+|-----|----------|
+| `s.temp` | Pravi podaci iz CSV-a — **nikad se ne mijenja** |
+| `damaged` | Kopija s `NAN` na ~40 % mjesta (seed 42) — ulaz metodama |
+| `mask` | `1` = umjetno obrisano, `0` = netaknuto — za evaluaciju |
+| `out` | Rezultat metode (KNN, linear, …) — popunjene temperature |
+
+**Datoteka brisanja:** `src/preprocessing.c`, funkcija `create_missing_values()`  
+**Poziv u main.c:** `create_missing_values(s.temp, n, missing_rate, RANDOM_SEED, damaged, mask)`
+
+**Datoteka KNN-a:** `src/knn_methods.c`, funkcija `knn_imputation()`  
+**Poziv u main.c:** `knn_imputation(&s, damaged, 5, out)`
+
+Isto vrijedi za `knn_upgraded` i `rf_imputation` — sve primaju **`damaged`**, ne `s.temp`.
 
 ---
 
