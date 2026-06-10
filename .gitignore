@@ -1,0 +1,11 @@
+# C build artefakti
+build/
+*.o
+*.obj
+*.exe
+diplomski
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
