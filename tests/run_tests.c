@@ -8,6 +8,7 @@
 #include "interpolation.h"
 #include "knn_methods.h"
 #include "knn_upgraded.h"
+#include "decision_tree.h"
 #include "rf_methods.h"
 #include "evaluation.h"
 
@@ -183,6 +184,38 @@ static void test_knn_upgraded(void) {
     check(!isnan(out[4]), "NaN na poziciji 4 popunjen");
     check_near(out[2], 12.0, 2.0, "rupa na poziciji 2 ~ 12");
     check_near(out[4], 14.0, 2.0, "rupa na poziciji 4 ~ 14");
+    check(isnan(sample.temp[2]), "original i dalje ima NaN (nije mutiran)");
+
+    series_free(&sample);
+}
+
+static void test_decision_tree(void) {
+    printf("\n== Decision Tree imputacija ==\n");
+
+    Series sample = {0};
+    if (build_sample_series(&sample) != 0) {
+        check(0, "alokacija sample niza");
+        return;
+    }
+
+    double out[8];
+    int ok = decision_tree_imputation(&sample, sample.temp, out);
+    check(ok == 0, "decision_tree_imputation uspjeh");
+    check(count_nan(out, 8) == 0, "nema NaN nakon imputacije");
+
+    int known_unchanged = 1;
+    for (size_t i = 0; i < sample.n; i++) {
+        if (!isnan(sample.temp[i]) && out[i] != sample.temp[i]) {
+            known_unchanged = 0;
+            break;
+        }
+    }
+    check(known_unchanged, "poznate vrijednosti nepromijenjene");
+
+    check(!isnan(out[2]), "NaN na poziciji 2 popunjen");
+    check(!isnan(out[4]), "NaN na poziciji 4 popunjen");
+    check_near(out[2], 12.0, 4.0, "rupa na poziciji 2 u razumnom rasponu");
+    check_near(out[4], 14.0, 4.0, "rupa na poziciji 4 u razumnom rasponu");
     check(isnan(sample.temp[2]), "original i dalje ima NaN (nije mutiran)");
 
     series_free(&sample);
@@ -377,6 +410,7 @@ int main(void) {
 
     test_knn();
     test_knn_upgraded();
+    test_decision_tree();
     test_rf();
     test_preprocessing();
     test_interpolation();

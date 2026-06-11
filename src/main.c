@@ -3,6 +3,7 @@
 #include "interpolation.h"
 #include "knn_methods.h"
 #include "knn_upgraded.h"
+#include "decision_tree.h"
 #include "rf_methods.h"
 #include "evaluation.h"
 
@@ -120,6 +121,13 @@ static int run_compare(const char *source, const char *city, double missing_rate
         print_metric_row("knn_upgraded", evaluate_reconstruction(s.temp, out, mask, n), 1);
     } else {
         print_metric_row("knn_upgraded", (Metrics){0}, 0);
+    }
+
+    /* ML: Decision Tree — jedno stablo pravila (vidi decision_tree.c). */
+    if (decision_tree_imputation(&s, damaged, out) == 0) {
+        print_metric_row("decision_tree", evaluate_reconstruction(s.temp, out, mask, n), 1);
+    } else {
+        print_metric_row("decision_tree", (Metrics){0}, 0);
     }
 
     /* ML: Random Forest — prosjek predikcija vise stabala (vidi rf_methods.c). */

@@ -12,12 +12,13 @@ Dnevni log napretka. Svaki dan ima svoju datoteku.
 | 5 | 2026-06-09 | KNN imputacija (Python ref.) | [dan5.md](dan5.md) |
 | 6 | 2026-06-10 | Testovi, FAQ, RF, osnovni KNN (C) | [dan6.md](dan6.md) |
 | 7 | 2026-06-11 | KNN upgraded, razumijevanje ML (C) | [dan7.md](dan7.md) |
+| 8 | 2026-06-12 | Decision Tree imputacija (C) | [dan8.md](dan8.md) |
 
 ---
 
 ## Trenutni status (C verzija)
 
-**Zadnji završeni dan: Dan 7** — `knn_upgraded`, usporedba s osnovnim KNN-om, 40 testova prolazi.
+**Zadnji završeni dan: Dan 8** — `decision_tree_imputation`, 9 metoda u `--compare`.
 
 **Razumijevanje:** ML dio (KNN/RF) još se uči — normalno za 2 dana. Osnovni tok projekta je jasan.
 
@@ -29,16 +30,21 @@ Dnevni log napretka. Svaki dan ima svoju datoteku.
 
 ### Dan 7 — sažetak (C)
 
-- [x] `knn_upgraded` — normalizacija, težine, težinski prosjek, adaptivno k
+- [x] `knn_upgraded` — cikličke značajke, težinski prosjek, adaptivno k
 - [x] Usporedba `knn_imputation` vs `knn_upgraded` u tablici
-- [x] Demo Split: MAE KNN 0.54 → upgraded 0.25
 
-### Rezultati testiranja (2026-06-11)
+### Dan 8 — sažetak (C)
+
+- [x] `decision_tree_imputation` — regresijsko stablo, MSE podjela, dubina ≤ 5
+- [x] Iste cikličke značajke kao knn_upgraded
+- [x] `test_decision_tree()`, red u `--compare` tablici
+
+### Rezultati testiranja (2026-06-12)
 
 ```
-.\test.bat → 40/40 SVE PROLAZI
-.\run.bat --compare --source demo --city Split   → 8 metoda
-.\run.bat --compare --source jena_quick          → 8 metoda
+.\test.bat → SVE PROLAZI
+.\run.bat --compare --source demo --city Split   → 9 metoda (+ decision_tree)
+.\run.bat --compare --source jena_quick          → 9 metoda
 ```
 
 ### Pokretanje (C)
@@ -52,12 +58,11 @@ Dnevni log napretka. Svaki dan ima svoju datoteku.
 
 ---
 
-## Plan — Dan 8
+## Plan — Dan 9
 
-- [ ] CLI parametri za KNN (`--knn-k`, težine)
+- [ ] Random Forest kao proširenje Decision Tree-a (dokumentacija / usporedba)
 - [ ] Export tablice rezultata u CSV (za grafove)
-- [ ] Kratki tekst u radu: usporedba osnovnog i upgraded KNN-a
-- [ ] (opcionalno) poboljšati RF
+- [ ] CLI parametri (`--knn-k`, dubina stabla)
 
 ### Izvan opsega (za sada)
 
