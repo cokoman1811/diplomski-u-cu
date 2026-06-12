@@ -245,8 +245,68 @@ static void test_rf(void) {
     check(known_unchanged, "poznate vrijednosti nepromijenjene");
     check_near(out[2], 12.0, 4.0, "rupa na poziciji 2 u razumnom rasponu");
     check_near(out[4], 14.0, 4.0, "rupa na poziciji 4 u razumnom rasponu");
+    check(isnan(sample.temp[2]), "original i dalje ima NaN (nije mutiran)");
 
     series_free(&sample);
+}
+
+static void test_block_missing(void) {
+    printf("\n== Block missing (create_block_missing_values) ==\n");
+
+    const size_t n = 200;
+    const size_t block_size = 10;
+    const double missing_rate = 0.20;
+    const size_t expected_removed = (size_t)((missing_rate * (double)n) / (double)block_size) * block_size;
+
+    double *original = (double *)malloc(n * sizeof(double));
+    double *damaged = (double *)malloc(n * sizeof(double));
+    int *mask = (int *)malloc(n * sizeof(int));
+    if (!original || !damaged || !mask) {
+        check(0, "alokacija memorije");
+        free(original);
+        free(damaged);
+        free(mask);
+        return;
+    }
+
+    for (size_t i = 0; i < n; i++) {
+        original[i] = 5.0 + 0.01 * (double)i;
+    }
+
+    size_t removed = create_block_missing_values(original, n, block_size, missing_rate,
+                                                 42ULL, damaged, mask);
+    check(removed == expected_removed, "uklonjen ocekivani broj vrijednosti");
+    check(!isnan(damaged[0]), "prva vrijednost ocuvana");
+    check(!isnan(damaged[n - 1]), "zadnja vrijednost ocuvana");
+    check(count_nan(original, n) == 0, "original nije promijenjen");
+
+    size_t mask_count = 0;
+    size_t nan_count = 0;
+    int mask_nan_ok = 1;
+    int known_ok = 1;
+    for (size_t i = 0; i < n; i++) {
+        if (mask[i]) {
+            mask_count++;
+            if (!isnan(damaged[i])) {
+                mask_nan_ok = 0;
+            }
+        } else {
+            if (isnan(damaged[i]) || fabs(damaged[i] - original[i]) > 1e-9) {
+                known_ok = 0;
+            }
+        }
+        if (isnan(damaged[i])) {
+            nan_count++;
+        }
+    }
+    check(mask_nan_ok, "damaged ima NaN gdje je mask=1");
+    check(known_ok, "poznate vrijednosti jednake originalu");
+    check(mask_count == removed, "maska broji uklonjene vrijednosti");
+    check(mask_count == nan_count, "broj maske == broj NaN");
+
+    free(original);
+    free(damaged);
+    free(mask);
 }
 
 static void test_preprocessing(void) {
@@ -412,6 +472,7 @@ int main(void) {
     test_knn_upgraded();
     test_decision_tree();
     test_rf();
+    test_block_missing();
     test_preprocessing();
     test_interpolation();
     test_metrics();

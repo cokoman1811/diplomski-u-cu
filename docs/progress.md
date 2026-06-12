@@ -13,12 +13,13 @@ Dnevni log napretka. Svaki dan ima svoju datoteku.
 | 6 | 2026-06-10 | Testovi, FAQ, RF, osnovni KNN (C) | [dan6.md](dan6.md) |
 | 7 | 2026-06-11 | KNN upgraded, razumijevanje ML (C) | [dan7.md](dan7.md) |
 | 8 | 2026-06-12 | Decision Tree imputacija (C) | [dan8.md](dan8.md) |
+| 9 | 2026-06-12 | Eksperimentalni sloj, CSV, block missing | [dan9.md](dan9.md) |
 
 ---
 
 ## Trenutni status (C verzija)
 
-**Zadnji završeni dan: Dan 8** — `decision_tree_imputation`, 9 metoda u `--compare`.
+**Zadnji završeni dan: Dan 9** — eksperimentalni sustav, `--experiment`, CSV export, block missing.
 
 **Razumijevanje:** ML dio (KNN/RF) još se uči — normalno za 2 dana. Osnovni tok projekta je jasan.
 
@@ -39,12 +40,20 @@ Dnevni log napretka. Svaki dan ima svoju datoteku.
 - [x] Iste cikličke značajke kao knn_upgraded
 - [x] `test_decision_tree()`, red u `--compare` tablici
 
+### Dan 9 — sažetak (C)
+
+- [x] `experiment.c` — zajednička usporedba 8 metoda
+- [x] `--experiment` — scenariji random + block, rateovi 10–50%
+- [x] `create_block_missing_values` — kontinuirani blokovi (2 h)
+- [x] CSV export u `results/` (metrike + reconstruction)
+- [x] Testovi block missing + dopuna ML testova
+
 ### Rezultati testiranja (2026-06-12)
 
 ```
-.\test.bat → SVE PROLAZI
-.\run.bat --compare --source demo --city Split   → 9 metoda (+ decision_tree)
-.\run.bat --compare --source jena_quick          → 9 metoda
+.\test.bat → SVE PROLAZI (418 provjera)
+.\diplomski.exe --compare --source jena_quick     → 8 metoda
+.\diplomski.exe --experiment --source jena_quick  → CSV u results/
 ```
 
 ### Pokretanje (C)
@@ -52,17 +61,17 @@ Dnevni log napretka. Svaki dan ima svoju datoteku.
 ```powershell
 .\build.bat
 .\test.bat
-.\run.bat --compare --source demo --city Split
-.\run.bat --compare --source jena_quick
+.\diplomski.exe --compare --source jena_quick
+.\diplomski.exe --experiment --source jena_quick
 ```
 
 ---
 
-## Plan — Dan 9
+## Plan — Dan 10
 
-- [ ] Random Forest kao proširenje Decision Tree-a (dokumentacija / usporedba)
-- [ ] Export tablice rezultata u CSV (za grafove)
-- [ ] CLI parametri (`--knn-k`, dubina stabla)
+- [ ] Analiza rezultata iz CSV datoteka
+- [ ] Grafovi u Pythonu / Excelu
+- [ ] Tekstualni zaključak za diplomski
 
 ### Izvan opsega (za sada)
 

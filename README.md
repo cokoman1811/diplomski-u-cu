@@ -18,6 +18,7 @@ diplomski c/
 │   ├── knn_upgraded.*          # KNN imputacija (poboljsana)
 │   ├── rf_methods.*            # Random Forest imputacija (minimalna)
 │   ├── evaluation.*            # MAE, RMSE, R²
+│   ├── experiment.*            # eksperimentalni sloj, CSV export
 │   └── main.c                  # CLI
 ├── data/                       # kopije ulaznih CSV podataka
 ├── Makefile                    # build (Linux/macOS/MinGW)
@@ -37,6 +38,8 @@ cd "diplomski c"
 .\diplomski.exe --compare
 .\diplomski.exe --compare --source demo --city Split
 .\diplomski.exe --compare --missing-rate 0.3
+.\diplomski.exe --experiment
+.\diplomski.exe --experiment --source jena_quick
 ```
 
 > Treba `gcc` u PATH-u: `winget install -e --id BrechtSanders.WinLibs.POSIX.UCRT`
@@ -53,13 +56,24 @@ make
 
 | Argument | Zadano | Opis |
 |----------|--------|------|
-| `--compare` | — | pokreni usporedbu metoda |
+| `--compare` | — | pokreni usporedbu metoda (random missing) |
+| `--experiment` | — | puni eksperiment → CSV u `results/` |
 | `--source` | `jena_quick` | `jena_quick` \| `processed` \| `demo` |
 | `--city` | `Split` | grad (samo za `demo`) |
-| `--missing-rate` | `0.4` | udio umjetno uklonjenih vrijednosti |
+| `--missing-rate` | `0.4` | udio uklonjenih vrijednosti (`--compare` only) |
 
-## Implementirane metode
+## Implementirane metode (usporedba)
 
-`forward_fill`, `linear_interpolation`, `time_interpolation`,
-`cubic_interpolation`, `spline_interpolation` (prirodni kubični spline),
-`knn_imputation`, `knn_upgraded`, `rf_imputation` (značajke: pozicija, sat, dan u godini).
+Klasične: `forward_fill`, `linear_interpolation`, `time_interpolation`,
+`cubic_interpolation`, `spline_interpolation`.
+
+ML: `knn` (upgraded), `decision_tree`, `random_forest`.
+
+## Eksperiment (`--experiment`)
+
+Pokreće sve metode za scenarije **random** i **block** missing te missing rateove
+10%, 20%, 30%, 40%, 50%. Rezultati se spremaju u `results/`:
+
+- `experiment_results.csv` — glavna tablica metrika
+- `mae_by_method.csv`, `error_vs_missing_rate.csv` — podaci za grafove
+- `reconstruction_random_forest_*.csv` — original vs damaged vs reconstructed

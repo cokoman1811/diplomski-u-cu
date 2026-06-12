@@ -2,6 +2,20 @@
 
 Kratki popis promjena po datumu.
 
+## 2026-06-12 (Dan 9)
+
+- Dodan `experiment.c` / `.h` — zajednička usporedba 8 metoda, CSV export
+- CLI `--experiment` — scenariji random + block, missing rateovi 10–50%
+- `create_block_missing_values` u `preprocessing.c` — kontinuirani blokovi (2 h)
+- `main.c` koristi `exp_run_methods` za `--compare` (8 metoda)
+- Test `test_block_missing()`, dopuna `test_rf()`
+- Mapa `results/` za CSV izlaz
+- Dokumentacija `docs/dan9.md`
+
+## 2026-06-12 (Dan 8)
+
+- `decision_tree_imputation` — regresijsko stablo za imputaciju
+
 ## 2026-06-11 (Dan 7)
 
 - Dodan `knn_upgraded.c` / `.h` — normalizacija, težine, težinski prosjek
