@@ -1,7 +1,7 @@
 # Dan 4 — Klasične interpolacijske metode
 
-**Datum:** 2026-06-08  
-**Testirano:** 2026-06-09  
+**Datum:** 2026-06-10  
+**Testirano:** 2026-06-10  
 **Autor:** Toni Jakelić
 
 Četvrti radni dan: proširene klasične metode interpolacije, testovi, povezivanje s glavnim programom i dokumentacija.

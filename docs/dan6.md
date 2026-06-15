@@ -1,6 +1,6 @@
 # Dan 6 — Testovi, dokumentacija, RF, razumijevanje osnova (C)
 
-**Datum:** 2026-06-10  
+**Datum:** 2026-06-12  
 **Autor:** Toni Jakelić  
 **Fokus:** stabilizacija projekta + prvi ML koraci, bez velikog refactora
 

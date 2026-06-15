@@ -1,6 +1,6 @@
 # Dan 9 — Eksperimentalni sloj i priprema rezultata za diplomski
 
-**Datum:** 2026-06-12  
+**Datum:** 2026-06-17  
 **Autor:** Toni Jakelić  
 **Tema dana:** prebacivanje projekta iz skupa metoda u eksperimentalni sustav
 
@@ -203,6 +203,7 @@ Block missing je **realističniji** scenarij za zaključak o tome kada ML metode
 
 ### TODO (kasnije, izvan Dana 9)
 
+Vidi [dan10.md](dan10.md) i [dan11.md](dan11.md) — implementirano u sljedećim danima.
+
 - CLI parametri za block_size i seed po scenariju.
-- Export reconstruction CSV-a i za druge metode (npr. KNN).
-- `--compare` s izborom scenarija (block vs random).
+- Export reconstruction za dodatne metode.

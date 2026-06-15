@@ -1,6 +1,6 @@
 # Dan 3 — Centralni data loader i stabilizacija projekta
 
-**Datum:** 2026-06-08  
+**Datum:** 2026-06-09  
 **Autor:** Toni Jakelić
 
 Treći radni dan: ujednačeno učitavanje podataka kroz jedan ulaz, validacija temperaturnog niza, testovi i lakše pokretanje projekta.

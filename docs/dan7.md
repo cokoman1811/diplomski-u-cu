@@ -1,6 +1,6 @@
 # Dan 7 — Naprednija KNN funkcija (`knn_upgraded`)
 
-**Datum:** 2026-06-11  
+**Datum:** 2026-06-13  
 **Autor:** Toni Jakelić  
 **Tema dana:** rad na naprednijoj KNN funkciji za imputaciju temperature
 

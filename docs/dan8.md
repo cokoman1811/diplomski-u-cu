@@ -1,6 +1,6 @@
 # Dan 8 — Decision Tree imputacija
 
-**Datum:** 2026-06-12  
+**Datum:** 2026-06-16  
 **Autor:** Toni Jakelić  
 **Tema dana:** dodavanje Decision Tree metode za imputaciju temperature
 
