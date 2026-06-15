@@ -15,7 +15,7 @@ postaviti temelje da se KNN i RF mogu usporediti s interpolacijom.
 - [x] Test suite: **`tests/run_tests.c`** (40 provjera), `test.bat`, `make test`
 - [x] FAQ: **`docs/cesta_pitanja.md`** (Metrics, Series, .h/.c, git-sync, greške…)
 - [x] Prenesena dokumentacija po danima (`dan0`–`dan5`, `progress.md`, `KORACI.md`)
-- [x] `git-sync.bat`, Cursor hook, `CHANGELOG.md`, `.vscode/tasks.json`
+- [x] `git-sync.bat`, Cursor hook, `CHANGELOG.md`, `.vscode/tasks.json` (vidi [agents_i_dokumentacija.md](agents_i_dokumentacija.md))
 - [x] Preimenovano `ml_methods` → **`knn_methods`** (samo KNN u tom modulu)
 
 ### KNN (osnovni)

@@ -1,7 +1,8 @@
 # Progress — po danima
 
 Dnevni log napretka. Svaki dan ima svoju datoteku.  
-**Puni raspored:** [raspored.md](raspored.md) (18 radnih dana, lipanj 2026.)
+**Puni raspored:** [raspored.md](raspored.md) (18 radnih dana + popratni agenti)  
+**Agenti (git, dokumentacija):** [agents_i_dokumentacija.md](agents_i_dokumentacija.md)
 
 | Dan | Datum | Tema | Datoteka |
 |-----|-------|------|----------|
@@ -40,6 +41,15 @@ Dnevni log napretka. Svaki dan ima svoju datoteku.
 | Eksperimenti i izvještaj | 9–11 | ✅ gotovo |
 | Priprema za tekst | 12 | 📋 sljedeće |
 | Pisanje diplomskog | 13–17 | 📋 planirano |
+| **Popratno — agenti** | A, B, C | ✅ vidi [agents_i_dokumentacija.md](agents_i_dokumentacija.md) |
+
+### Popratni rad (agenti)
+
+| Dan | Kada | Što |
+|-----|------|-----|
+| A | 8.–9.6. | GitHub push agent — `git-sync.ps1`, Cursor hook |
+| B | 14.–15.6. | Dokumentacija — `dan*.md`, FAQ, progress |
+| C | 19.–20.6. | Raspored, `report.py`, `analysis.md` |
 
 ### Pokretanje
 

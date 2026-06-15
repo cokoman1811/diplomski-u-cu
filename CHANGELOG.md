@@ -12,6 +12,13 @@ Kratki popis promjena po datumu.
 - Mapa `results/` za CSV izlaz
 - Dokumentacija `docs/dan9.md`
 
+## 2026-06-08 – 2026-06-15 (popratno)
+
+- `docs/agents_i_dokumentacija.md` — dnevnik rada na Cursor agentima
+- Dan A: GitHub push (`git-sync.ps1`, hook)
+- Dan B: agent za pisanje `dan*.md`, FAQ, progress
+- `docs/raspored.md` — 18-dnevni plan rada
+
 ## 2026-06-12 (Dan 8)
 
 - `decision_tree_imputation` — regresijsko stablo za imputaciju

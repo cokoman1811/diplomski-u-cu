@@ -18,7 +18,11 @@ Tehnička dokumentacija i dnevni log rada na diplomskom projektu.
 | Dan 5 | [dan5.md](dan5.md) | KNN imputacija |
 | Dan 6 | [dan6.md](dan6.md) | Testovi, FAQ, RF, osnovni KNN (C) |
 | Dan 7 | [dan7.md](dan7.md) | KNN upgraded, razumijevanje ML (C) |
+| Dan 8–11 | [dan8.md](dan8.md)–[dan11.md](dan11.md) | DT, eksperimenti, grafovi |
+| Dan 12–17 | [dan12.md](dan12.md)–[dan17.md](dan17.md) | Pregled + plan pisanja rada |
 | — | [progress.md](progress.md) | Pregled svih dana |
+| — | [raspored.md](raspored.md) | Kalendar 18+ dana |
+| — | [agents_i_dokumentacija.md](agents_i_dokumentacija.md) | Agenti: GitHub sync + dokumentacija |
 
 ## Ostalo
 

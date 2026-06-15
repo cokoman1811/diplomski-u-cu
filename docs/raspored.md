@@ -2,7 +2,8 @@
 
 **Autor:** Toni Jakelić  
 **Tema:** Interpolacija podataka pomoću strojnog učenja (C verzija)  
-**Ukupno:** 18 radnih dana (implementacija + eksperimenti + pisanje rada)
+**Ukupno:** 18 radnih dana (implementacija + eksperimenti + pisanje rada)  
+**+ ~3 popratna dana** — Cursor agenti (GitHub push, dokumentacija) — vidi [agents_i_dokumentacija.md](agents_i_dokumentacija.md)
 
 > Cilj rasporeda: rad je ravnomjerno raspoređen kroz ~3 tjedna, s pauzama vikendom
 > i jasnom podjelom na faze (podaci → metode → ML → eksperimenti → diplomski tekst).
@@ -35,7 +36,17 @@
 | **4** | uto 10.6. | Klasične metode (linear, time, cubic, spline) | ✅ [dan4.md](dan4.md) |
 | **5** | sri 11.6. | KNN u Pythonu (referenca), literatura | ✅ [dan5.md](dan5.md) |
 
-*Vikend 8.–9.6.: pauza / čitanje literature*
+*Vikend 8.–9.6.: agent za GitHub push (`git-sync`, Cursor hook) — [agents_i_dokumentacija.md](agents_i_dokumentacija.md)*
+
+---
+
+### Popratni rad — agenti (ne broje se u 18 dana teme, ali su u dnevniku)
+
+| Razdoblje | Datum | Tema | Detalji |
+|-----------|-------|------|---------|
+| **Dan A** | 8.–9.6. | Agent za GitHub push | `git-sync.ps1`, hook nakon agent sesije |
+| **Dan B** | 14.–15.6. | Agent za dokumentaciju | `dan*.md`, FAQ, `progress.md`, CHANGELOG |
+| **Dan C** | 19.–20.6. | Raspored + izvještaj | `raspored.md`, `report.py`, `analysis.md` (uz dan 11–12) |
 
 ---
 
@@ -51,7 +62,7 @@
 | **11** | čet 19.6. | `report.py` — grafovi i `analysis.md` | ✅ [dan11.md](dan11.md) |
 | **12** | pet 20.6. | Pregled rezultata, dorada grafova, provjera tablica | 📋 [dan12.md](dan12.md) |
 
-*Vikend 14.–15.6.: pauza / ponavljanje teorije (DT, RF)*
+*Vikend 14.–15.6.: agent za pisanje dokumentacije + ponavljanje teorije (DT, RF)*
 
 ---
 
@@ -120,4 +131,5 @@ Ako trebaš dokazivati kontinuitet, svaki dan ima zaseban `danN.md` s:
 - što slijedi.
 
 Raspored nije „sve u 10 dana" — implementacija traje **12 radnih dana** (5.–20. lipnja),
-pisanje još **5 dana** (23.–27. lipnja).
+pisanje još **5 dana** (23.–27. lipnja), plus **~3 popratna dana** na agente i dokumentaciju
+(vikendi 8.–9.6., 14.–15.6. i dio 19.–20.6.).
