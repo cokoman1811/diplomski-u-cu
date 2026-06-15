@@ -80,3 +80,18 @@ Pokreće sve metode za scenarije **random** i **block** missing te missing rateo
 - `experiment_results.csv` — glavna tablica metrika
 - `mae_by_method.csv`, `error_vs_missing_rate.csv` — podaci za grafove
 - `reconstruction_linear_interpolation_*_0.20.csv` — original vs damaged vs reconstructed (linear)
+
+## Izvještaj za diplomski (`report.bat`)
+
+```powershell
+pip install -r scripts/requirements.txt
+.\report.bat
+```
+
+| Izlaz | Sadržaj |
+|-------|---------|
+| `results/experiment_results.csv` | Tablice metrika |
+| `results/analysis.md` | Tekstualna analiza + nacrt zaključka |
+| `figures/*.png` | Grafovi za Word |
+
+Samo grafove iz postojećeg CSV-a: `python scripts/report.py`
