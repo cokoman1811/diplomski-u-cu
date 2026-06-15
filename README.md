@@ -38,6 +38,7 @@ cd "diplomski c"
 .\diplomski.exe --compare
 .\diplomski.exe --compare --source demo --city Split
 .\diplomski.exe --compare --missing-rate 0.3
+.\diplomski.exe --compare --scenario block --missing-rate 0.2 --export
 .\diplomski.exe --experiment
 .\diplomski.exe --experiment --source jena_quick
 ```
@@ -56,7 +57,9 @@ make
 
 | Argument | Zadano | Opis |
 |----------|--------|------|
-| `--compare` | — | pokreni usporedbu metoda (random missing) |
+| `--compare` | — | pokreni usporedbu metoda |
+| `--scenario` | `random` | `random` \| `block` (samo uz `--compare`) |
+| `--export` | — | spremi reconstruction CSV za linear (uz `--compare`) |
 | `--experiment` | — | puni eksperiment → CSV u `results/` |
 | `--source` | `jena_quick` | `jena_quick` \| `processed` \| `demo` |
 | `--city` | `Split` | grad (samo za `demo`) |
@@ -76,4 +79,4 @@ Pokreće sve metode za scenarije **random** i **block** missing te missing rateo
 
 - `experiment_results.csv` — glavna tablica metrika
 - `mae_by_method.csv`, `error_vs_missing_rate.csv` — podaci za grafove
-- `reconstruction_random_forest_*.csv` — original vs damaged vs reconstructed
+- `reconstruction_linear_interpolation_*_0.20.csv` — original vs damaged vs reconstructed (linear)
