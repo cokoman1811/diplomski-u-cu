@@ -73,7 +73,7 @@
 | **13** | pon 23.6. | Uvod + pregled literature | 📋 [dan13.md](dan13.md) |
 | **14** | uto 24.6. | Teorijska podloga + metodologija | 📋 [dan14.md](dan14.md) |
 | **15** | sri 25.6. | Poglavlje Implementacija (dijagrami, opis modula) | 📋 [dan15.md](dan15.md) |
-| **16** | čet 26.6. | Poglavlje Rezultati (tablice, slike iz `figures/`) | 📋 [dan16.md](dan16.md) |
+| **16** | čet 26.6. | Poglavlje Rezultati (tablice, slike iz `slike i videa/`) | 📋 [dan16.md](dan16.md) |
 | **17** | pet 27.6. | Zaključak, sažetak, korekture, prezentacija | 📋 [dan17.md](dan17.md) |
 | **18** | pon 30.6. | Rezerva — ispravke po mentoru, probna obrana | 📋 opcionalno |
 
@@ -116,7 +116,7 @@ Dan 12–17 → pisanje rada (tekst u Wordu)
 
 ### Dani 13–17 (pisanje)
 - [ ] Word/LaTeX predložak fakulteta
-- [ ] Umetnuti tablice i slike iz `results/` i `figures/`
+- [ ] Umetnuti tablice i slike iz `results/` i `slike i videa/`
 - [ ] Prepisati nalaze iz `analysis.md` svojim riječima
 - [ ] Prezentacija za obranu (8–12 slideova)
 

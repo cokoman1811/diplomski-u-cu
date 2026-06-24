@@ -15,7 +15,7 @@ Prezentirati eksperimentalne nalaze.
 - [ ] Prepisati „Ključne nalaze" iz `analysis.md` svojim riječima
 
 ## Izvori za pomoć
-- `results/analysis.md`, `results/experiment_results.csv`, `figures/`
+- `results/analysis.md`, `results/experiment_results.csv`, `slike i videa/`
 
 ## Ciljana duljina
 10–12 stranica
