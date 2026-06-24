@@ -68,7 +68,7 @@ python scripts/report.py
 |-----------------|---------|
 | `results/experiment_results.csv` | Tablice metrika |
 | `results/analysis.md` | Analiza + nacrt zaključka |
-| `slike i videa/*.png` | Grafovi za Word |
+| `slike i videa/2026/diplomski-grafovi/*.png` | Grafovi za Word |
 
 ---
 

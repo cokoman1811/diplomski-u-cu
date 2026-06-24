@@ -15,7 +15,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 RESULTS = ROOT / "results"
-FIGURES = ROOT / "slike i videa"
+FIGURES = ROOT / "slike i videa" / "2026" / "diplomski-grafovi"
+FIGURES_DISPLAY = "slike i videa/2026/diplomski-grafovi"
 EXPERIMENT_CSV = RESULTS / "experiment_results.csv"
 ANALYSIS_MD = RESULTS / "analysis.md"
 
@@ -237,7 +238,7 @@ Block missing simulira kvar senzora (kontinuirani interval bez podataka). U tom 
 - **forward fill** daje ravnu liniju kroz blok → veći MAE;
 - **ML** uči globalne obrasce (sat, dan) ali ne popunjava lokalni trend iz susjedstva kao interpolacija.
 
-## Grafovi (mapa `slike i videa/`)
+## Grafovi (mapa `{FIGURES_DISPLAY}/`)
 
 | Datoteka | Opis |
 |----------|------|
@@ -285,13 +286,13 @@ def main() -> int:
 
     for ok, name in plots:
         if ok:
-            print(f"  graf:     slike i videa/{name}")
+            print(f"  graf:     {FIGURES_DISPLAY}/{name}")
 
     write_analysis(df)
 
     print("\nGotovo.")
     print("  rezultati: results/experiment_results.csv")
-    print("  grafove:   slike i videa/")
+    print(f"  grafove:   {FIGURES_DISPLAY}/")
     print("  analiza:   results/analysis.md")
     print("\nZakljucak za diplomski napisi rucno u Wordu (nacrt je u results/analysis.md).\n")
     return 0

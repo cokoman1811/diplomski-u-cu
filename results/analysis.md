@@ -58,7 +58,7 @@ Block missing simulira kvar senzora (kontinuirani interval bez podataka). U tom 
 - **forward fill** daje ravnu liniju kroz blok → veći MAE;
 - **ML** uči globalne obrasce (sat, dan) ali ne popunjava lokalni trend iz susjedstva kao interpolacija.
 
-## Grafovi (mapa `slike i videa/`)
+## Grafovi (mapa `slike i videa/2026/diplomski-grafovi/`)
 
 | Datoteka | Opis |
 |----------|------|
