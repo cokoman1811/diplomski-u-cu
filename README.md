@@ -92,6 +92,6 @@ pip install -r scripts/requirements.txt
 |-------|---------|
 | `results/experiment_results.csv` | Tablice metrika |
 | `results/analysis.md` | Tekstualna analiza + nacrt zaključka |
-| `figures/*.png` | Grafovi za Word |
+| `slike i videa/*.png` | Grafovi za Word |
 
 Samo grafove iz postojećeg CSV-a: `python scripts/report.py`

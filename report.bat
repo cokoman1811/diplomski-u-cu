@@ -28,5 +28,5 @@ echo.
 echo Sve spremno:
 echo   results\experiment_results.csv  - tablice rezultata
 echo   results\analysis.md             - tekstualna analiza
-echo   figures\*.png                   - grafovi za rad
+echo   slike i videa\*.png             - grafovi za rad
 pause

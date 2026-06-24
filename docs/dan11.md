@@ -21,7 +21,7 @@ Zaključak se ne generira kao konačan tekst rada — samo **nacrt** u `analysis
 - [x] `scripts/report.py` — čita `experiment_results.csv`, crta grafove
 - [x] `scripts/requirements.txt` — pandas, matplotlib
 - [x] `report.bat` — build + experiment + report u jednom
-- [x] `figures/` — PNG grafikoni
+- [x] `slike i videa/` — PNG grafikoni
 - [x] `results/analysis.md` — sažetak, tablice, nalazi, nacrt zaključka
 
 ### Grafovi

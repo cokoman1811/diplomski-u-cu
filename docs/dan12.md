@@ -14,7 +14,7 @@ Zadnji dan **tehničke** faze — provjera da je sve spremno za Word dokument.
 
 - [ ] Pokrenuti `.\report.bat` od nule (reproducibilnost)
 - [ ] Provjeriti da `test.bat` prolazi
-- [ ] Odabrati 4–5 slika iz `figures/` za rad
+- [ ] Odabrati 4–5 slika iz `slike i videa/` za rad
 - [ ] Pročitati `results/analysis.md` — bilješke što prepraviti u tekstu
 - [ ] Dogovor s mentorom: format rada, broj stranica, rok
 

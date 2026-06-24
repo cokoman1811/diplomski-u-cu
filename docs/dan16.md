@@ -8,7 +8,7 @@ Prezentirati eksperimentalne nalaze.
 
 ## Zadaci
 - [ ] Umetnuti tablice iz `analysis.md` / `experiment_results.csv`
-- [ ] Umetnuti 4–5 slika iz `figures/`
+- [ ] Umetnuti 4–5 slika iz `slike i videa/`
 - [ ] Opisati svaku sliku (2–3 rečenice)
 - [ ] Usporediti random vs block
 - [ ] Usporediti klasične vs ML
