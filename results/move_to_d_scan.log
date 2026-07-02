@@ -1,1 +1,13 @@
 ﻿Scan started: 2026-07-03T01:23:28.2702189+02:00
+Scan završen: 2026-07-03 01:26:59
+USERPROFILE: C:\Users\ToniJakelić
+C: steam=233.33GB, Riot=29.58GB, Epic=78.7GB, Overwatch=71.34GB, Hearthstone=12.69GB
+Downloads=58.81GB, VirtualBox VMs=9.97GB, CapCut=7.36GB
+Desktop\media = Junction -> D:\media (552.49GB na D:, ne zauzima C:)
+Desktop\media_ON_C_backup_20260624 = 158.63GB na C:
+Desktop\Slike_i_videa_vece_od_100MB_prije_30_06_2025 = 88GB na C:
+Recycle Bin = 20.14GB
+hiberfil.sys=12.47GB, pagefile.sys=4.75GB
+Docker/WSL/Android SDK/Gradle/Maven/npm-cache/conda/Unity/Unreal: nije pronađeno značajno (>0.5GB) osim npm-roaming 0.46GB
+OneDrive: 0GB lokalno
+XboxGames: zanemarivo
