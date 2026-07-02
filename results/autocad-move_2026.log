@@ -1,0 +1,60 @@
+﻿=== AutoCAD premjestanje C: -> D: ===
+Datum: 2026-07-03 01:35:19
+Korisnik: ToniJakelić
+Računalo: DESKTOP-AHOPD2H
+
+--- STANJE PRIJE ---
+AutoCAD 2025 English v25.0.154.0 (bundle) / v25.0.58.0 (product)
+InstallLocation: C:\Program Files\Autodesk\AutoCAD 2025\
+Program Files\Autodesk: ~3.79 GB
+C:\Autodesk (ODIS WI cache): ~3.67 GB
+%LOCALAPPDATA%\Autodesk: ~0.35 GB
+Ukupno na C: (app+cache+appdata lokalno): ~7.8 GB
+
+D: slobodno: ~595 GB (638592917504 bajtova)
+D: label: Spori
+
+--- REGISTRY / DEINSTALACIJA ---
+Glavni proizvod: Autodesk AutoCAD 2025 - English
+Uninstall: C:\Program Files\Autodesk\AdODIS\V1\Installer.exe -i uninstall ... metadata {99E57530-7CC1-31F4-89E9-24175C7690C2}
+Update 2025.1.1: metadata {1E589FB6-3657-379E-8EA1-53B5325441B5}
+
+--- ODIS CUSTOM PATH ---
+Installer.exe podržava: -d / --install_dest <putanja>
+Manifest koristi: ACAD_INSTALL_PATH = %INSTALL_DEST%\AutoCAD 2025\
+Preporučena destinacija pri reinstalaciji: D:\Program Files\Autodesk
+
+--- ŠTO JE AUTOMATSKI NAPRAVLJENO ---
+1. Kreirano: D:\Autodesk, D:\Program Files\Autodesk (cilj za buduću instalaciju)
+2. USPJEŠNO premješteno: C:\Autodesk -> D:\Autodesk\ODIS-installer-cache
+   (samo ODIS installer cache, NIJE sama aplikacija)
+3. C:\Autodesk više ne postoji -> oslobođeno ~3.67 GB na C:
+
+--- ŠTO NIJE MOGUĆE BEZ REINSTALACIJE ---
+Aplikacija u C:\Program Files\Autodesk (~3.79 GB) NE smije se cut/paste premjestiti.
+Potrebno: deinstalacija preko Autodesk Access ili ODIS, zatim nova instalacija s putanjom na D:.
+
+--- LICENCA (NE DIRATI) ---
+Postavke/korisnički podaci ostaju na C::
+  %APPDATA%\Autodesk
+  %LOCALAPPDATA%\Autodesk (uključujući AdskLicensingAgent, AutoCAD 2025)
+Prije deinstalacije: prijavite se na account.autodesk.com, zabilježite subscription; u Autodesk Access provjerite aktivaciju.
+
+--- KORACI ZA PUNI PREMJESTAJ NA D: (ručno, korisnik) ---
+1. Zatvoriti AutoCAD i sve Autodesk procese.
+2. Autodesk Access -> AutoCAD 2025 -> Uninstall (ili Settings -> Apps -> deinstaliraj oba: AutoCAD 2025 i Update ako treba).
+3. Nakon deinstalacije provjeriti da je C:\Program Files\Autodesk\AutoCAD 2025 uklonjen.
+4. Autodesk Access -> Install AutoCAD 2025 -> prilikom instalacije odabrati prilagođenu putanju:
+   D:\Program Files\Autodesk
+   (ili u offline/silent: Installer.exe -i install -d "D:\Program Files\Autodesk" ... manifest iz Access downloada)
+5. Ponovno instalirati update 2025.1.1 ako Access ne uključi automatski.
+6. Prvi start: prijava Autodesk ID-om za licencu (postavke na C: obično ostaju).
+
+--- RIZIK BRISANJA CACHEA (alternativa) ---
+Ako D:\Autodesk\ODIS-installer-cache nije potreban za repair, može se obrisati za isti prostor na D:; na C: je već oslobođeno premještajem.
+
+--- SAŽETAK ---
+Oslobođeno na C: sada: ~3.67 GB (cache premješten na D:)
+Još na C: (aplikacija): ~3.79 GB + ~0.35 GB AppData (AppData treba ostati)
+Za preostalih ~3.8 GB programa: reinstalacija na D:\Program Files\Autodesk
+
