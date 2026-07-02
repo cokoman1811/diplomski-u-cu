@@ -1,12 +1,20 @@
 ﻿param(
     [string]$SourceRoot = 'D:\slike sve',
-    [string]$ImageDestRoot = 'D:\media-po-izvoru',
-    [string]$VideoDestRoot = 'D:\media-po-izvoru-video',
+    [string]$UnifiedMediaRoot = 'D:\media',
+    [string]$ImageDestRoot = 'D:\media\po-izvoru',
+    [string]$VideoDestRoot = 'D:\media\video\po-izvoru',
     [string]$MediaDesktop = '',
     [int]$Throttle = 8
 )
 
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Continue'
+New-Item -ItemType Directory -Force -Path (Join-Path $UnifiedMediaRoot 'logs') -ErrorAction SilentlyContinue | Out-Null
+$logPath = Join-Path $UnifiedMediaRoot 'logs\organize-media-by-source.log'
+function Write-Log([string]$msg) {
+    $line = "$(Get-Date -Format 'HH:mm:ss') $msg"
+    Write-Host $line
+    Add-Content -LiteralPath $logPath -Value $line -Encoding UTF8
+}
 if (-not $MediaDesktop) {
     $MediaDesktop = (Get-Item 'C:\Users\ToniJakeli*\Desktop\media' -ErrorAction Stop).FullName
 }
@@ -14,7 +22,6 @@ if (-not $MediaDesktop) {
 $imgExt = @('.jpg','.jpeg','.png','.gif','.webp','.bmp','.heic','.heif','.tif','.tiff','.raw','.cr2','.nef','.dng')
 $vidExt = @('.mp4','.mov','.avi','.mkv','.wmv','.m4v','.3gp','.webm','.mpeg','.mpg')
 $allExt = $imgExt + $vidExt
-
 function Get-SourceCategory {
     param([string]$FullPath, [string]$FileName)
     $p = $FullPath.Replace('/', '\').ToLowerInvariant()
@@ -55,9 +62,9 @@ function Ensure-Junction([string]$Link, [string]$Target) {
 }
 
 if (-not (Test-Path -LiteralPath $SourceRoot)) { throw "Missing $SourceRoot" }
-New-Item -ItemType Directory -Force -Path $ImageDestRoot, $VideoDestRoot | Out-Null
+New-Item -ItemType Directory -Force -Path $ImageDestRoot, $VideoDestRoot, (Join-Path $UnifiedMediaRoot 'logs') | Out-Null
 
-Write-Host "Building duplicate index..."
+Write-Log "Building duplicate index..."
 $dup = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 foreach ($root in @($MediaDesktop, $ImageDestRoot, $VideoDestRoot)) {
     if (-not (Test-Path -LiteralPath $root)) { continue }
@@ -66,7 +73,7 @@ foreach ($root in @($MediaDesktop, $ImageDestRoot, $VideoDestRoot)) {
         [void]$dup.Add("$($fi.Name)|$($fi.Length)")
     }
 }
-Write-Host "Index size: $($dup.Count)"
+Write-Log "Index size: $($dup.Count)"
 
 $stats = @{ copied_img=0; copied_vid=0; skip_small=0; skip_dup=0; errors=0 }
 $bySource = @{}
@@ -79,7 +86,7 @@ $files = foreach ($e in $allExt) {
 $i = 0
 foreach ($path in $files) {
     $i++
-    if ($i % 10000 -eq 0) { Write-Host "Scan $i ... copied img=$($stats.copied_img) vid=$($stats.copied_vid)" }
+    if ($i % 10000 -eq 0) { Write-Log "Scan $i ... copied img=$($stats.copied_img) vid=$($stats.copied_vid)" }
 
     $ext = [IO.Path]::GetExtension($path).ToLowerInvariant()
     if ($allExt -notcontains $ext) { continue }
@@ -114,8 +121,15 @@ foreach ($path in $files) {
     }
 }
 
+$desktopMedia = Join-Path $env:USERPROFILE 'Desktop\media'
+$mediaItem = $null
+if (Test-Path -LiteralPath $desktopMedia) { $mediaItem = Get-Item -LiteralPath $desktopMedia -Force }
+if ($mediaItem -and ($mediaItem.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+    Write-Host 'Desktop\media je junction — preskacem unutarnje junctione.'
+} else {
 Ensure-Junction (Join-Path $MediaDesktop 'po-izvoru') $ImageDestRoot
 Ensure-Junction (Join-Path $MediaDesktop 'video\po-izvoru') $VideoDestRoot
+}
 
 $report = [ordered]@{
     generated = (Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
@@ -125,7 +139,10 @@ $report = [ordered]@{
     stats = $stats
     bySourceCopied = $bySource
 }
-$reportPath = Join-Path $MediaDesktop 'po-izvoru-stats.json'
+$reportPath = Join-Path $UnifiedMediaRoot 'logs\organize-media-by-source-report.json'
 $report | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $reportPath -Encoding UTF8
-Write-Host ($report | ConvertTo-Json -Depth 6)
+Write-Log ($report | ConvertTo-Json -Depth 6 -Compress)
+
+
+
 
