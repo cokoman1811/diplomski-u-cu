@@ -1,0 +1,341 @@
+﻿================================================================================
+C: DISK ANALYSIS — LIVE LOG (read-only)
+User: C:\Users\ToniJakelić
+Started: 2026-07-03 01:06:53
+Method: PowerShell, no deletions, sizes via Get-ChildItem -Recurse where noted
+================================================================================
+
+[2026-07-03 01:06:53] STEP a) DISK OVERVIEW
+[2026-07-03 01:06:53] WHAT/WHY: Provjera ukupnog prostora na C: i volumena prije detaljnog skeniranja.
+[2026-07-03 01:06:53] COMMAND: Get-PSDrive -PSProvider FileSystem | Where-Object { $_.Name -match "^[A-Z]$" } | Select-Object Name, Used, Free, @{N="UsedGB";E={[math]::Round($_.Used/1GB,2)}}, @{N="FreeGB";E={[math]::Round($_.Free/1GB,2)}} | Format-Table -AutoSize
+RAW OUTPUT:
+
+Name          Used         Free  UsedGB FreeGB
+----          ----         ----  ------ ------
+C     963430436864  59773165568  897,26  55,67
+D    1330498072576 669882941440 1239,12 623,88
+E        214614016 249196896256     0,2 232,08
+
+
+
+[2026-07-03 01:06:53] MANE: Get-PSDrive Used/Free može se razlikovati od Get-Volume zbog rezervacija/particija; ne pokazuje što zauzima prostor.
+[2026-07-03 01:06:53] COMMAND: Get-Volume | Where-Object { $_.DriveLetter -eq "C" } | Select-Object DriveLetter, FileSystemLabel, FileSystem, Size, SizeRemaining, @{N="SizeGB";E={[math]::Round($_.Size/1GB,2)}}, @{N="FreeGB";E={[math]::Round($_.SizeRemaining/1GB,2)}} | Format-List
+RAW OUTPUT:
+
+
+DriveLetter     : C
+FileSystemLabel : 
+FileSystem      : NTFS
+Size            : 1023203602432
+SizeRemaining   : 59773136896
+SizeGB          : 952,93
+FreeGB          : 55,67
+
+
+
+
+[2026-07-03 01:06:55] FOUND: C: zauzeto ~ 897.26 GB (prema Get-Volume).
+
+[2026-07-03 01:07:10] STEP b) TOP-LEVEL C:\ FOLDERS BY SIZE
+[2026-07-03 01:07:10] WHAT/WHY: Identificirati koji root folderi na C: najviše troše prostor.
+[2026-07-03 01:07:10] COMMAND: foreach top folder in C:\ -> Get-ChildItem -Recurse -Force | Measure-Object Length -Sum
+[2026-07-03 01:07:10] MANE: Sporo na velikim stablima; Program Files/Windows zahtijevaju admin — Access Denied = potcenjena veličina; junction/symlink može duplo brojati ili preskočiti.
+RAW OUTPUT (sorted by GB):
+
+Folder                        GB    Seconds   OK
+------                        --    -------   --
+Users                     366,46  18,246417 True
+steam                     233,33  2,2398046 True
+Program Files              98,23  1,7399655 True
+Program Files (x86)        97,73  1,4334806 True
+Windows                    35,83 44,8252492 True
+$Recycle.Bin               20,14  0,0082194 True
+Riot Games                 12,08   0,022365 True
+ProgramData                 4,78  0,7020907 True
+Autodesk                    3,67  0,0276407 True
+msys64                      0,95  0,7081956 True
+obs                         0,39  0,0494236 True
+adobeTemp                   0,14  0,1460752 True
+AMD                         0,06  0,0350154 True
+XboxGames                   0,01  0,0020362 True
+System Volume Information      0  0,0008069 True
+$GetCurrent                    0   0,043166 True
+Recovery                       0  0,0007845 True
+Documents and Settings         0  0,0006154 True
+ESD                            0  0,0007573 True
+condor                         0  0,0012542 True
+$WINDOWS.~BT                   0  0,0018821 True
+$Windows.~WS                   0  0,0024757 True
+OneDriveTemp                   0  0,0008167 True
+PerfLogs                       0  0,0005988 True
+NVIDIA                         0  0,0013977 True
+inetpub                        0  0,0006376 True
+MSI                            0  0,0077055 True
+
+
+
+[2026-07-03 01:08:20] FOUND: Top 5: Users=366.46GB, steam=233.33GB, Program Files=98.23GB, Program Files (x86)=97.73GB, Windows=35.83GB
+
+[2026-07-03 01:08:20] STEP c) USER PROFILE BREAKDOWN
+[2026-07-03 01:08:20] WHAT/WHY: Desktop, Downloads, Documents, Pictures, Videos, AppData — tipični 'consumer' prostor.
+[2026-07-03 01:08:20] MANE: OneDrive placeholderi mogu imati malu lokalnu veličinu; reparse points u profilu mogu duplo brojati.
+RAW OUTPUT:
+
+Path          GB  Sec
+----          --  ---
+Desktop   261,29  2,1
+Downloads  58,81    0
+Documents   0,05    0
+Pictures    0,55    0
+Videos      0,37    0
+AppData    34,27 13,4
+
+
+
+[2026-07-03 01:08:36] FOUND: AppData=34.27 GB, Downloads=58.81 GB
+
+[2026-07-03 01:08:50] STEP d) APPDATA DEEP DIVE
+[2026-07-03 01:08:50] WHAT/WHY: Cacheovi (Temp, npm, pip, Docker, IDE) često zauzimaju GB bez da korisnik vidi.
+[2026-07-03 01:08:50] MANE: Docker/WSL virtual disks mogu biti jedna velika datoteka; npm global cache izvan AppData nije uključen.
+COMMAND: Sum-Path on each AppData subpath (Get-ChildItem -Recurse -File)
+RAW OUTPUT:
+
+Name           Exists   GB Sec
+----           ------   -- ---
+Packages (UWP)   True 3,16 1,7
+Local\Temp       True 0,87   0
+VS Code          True 0,41 0,1
+Cursor           True 0,34 0,1
+npm-cache        True 0,09 0,1
+Docker           True 0,02   0
+pip (Local)     False    0   0
+
+
+
+[2026-07-03 01:08:52] FOUND: Largest AppData targets logged above.
+
+[2026-07-03 01:08:52] STEP e) DESKTOP\media STATUS
+[2026-07-03 01:08:52] WHAT/WHY: Provjera je li media junction/symlink prema D:\media (duplo brojanje na C:?).
+[2026-07-03 01:08:52] COMMAND: Get-Item -LiteralPath 'C:\Users\ToniJakelić\Desktop\media' -Force | Select-Object FullName, Attributes, LinkType, Target
+RAW OUTPUT:
+
+
+Path           : C:\Users\ToniJakelić\Desktop\media
+IsReparse      : True
+LinkType       : Junction
+Target         : D:\media
+SizeIfSummedGB : 487,86
+D_media_GB     : 487,86
+D_exists       : True
+
+
+
+
+[2026-07-03 01:08:57] MANE: Ako je junction, rekurzivno sumiranje može pratiti target i izgledati kao C: prostor; usporedba s D: nije dokaz duplikata bez hash/sample.
+[2026-07-03 01:08:57] FOUND: See RAW for reparse and sizes.
+
+[2026-07-03 01:09:11] STEP f) TEMP FOLDERS
+[2026-07-03 01:09:11] WHAT/WHY: Temp datoteke sigurne za čišćenje kandidati.
+[2026-07-03 01:09:11] COMMAND: Sum-Path on $env:TEMP and C:\Windows\Temp
+[2026-07-03 01:09:11] MANE: Aktivne datoteke u upotrebi; Windows\Temp često admin-only — potcenjeno.
+RAW: User TEMP (C:\Users\TONIJA~1\AppData\Local\Temp) = 0.87 GB
+RAW: C:\Windows\Temp = 0 GB
+[2026-07-03 01:09:11] FOUND: User TEMP ~ 0.87 GB, Windows Temp ~ 0 GB
+
+[2026-07-03 01:09:11] STEP g) RECYCLE BIN SIZE
+[2026-07-03 01:09:11] WHAT/WHY: Obrisane datoteke i dalje zauzimaju prostor dok se ne isprazni koš.
+[2026-07-03 01:09:11] COMMAND: Get-ChildItem 'C:\$Recycle.Bin' -Recurse -Force -File (may need admin for all SIDs)
+[2026-07-03 01:09:11] MANE: Više SID mapa; bez admina samo dio vidljiv; hidden system folder.
+RAW: Recycle.Bin summed = 20.14 GB
+[2026-07-03 01:09:11] FOUND: Recycle Bin ~ 20.14 GB
+
+[2026-07-03 01:09:11] STEP h) LARGE FILES >500MB UNDER USER PROFILE
+[2026-07-03 01:09:11] WHAT/WHY: Brzi način naći 'outliers' bez punog stabla C:.
+[2026-07-03 01:09:11] COMMAND: Get-ChildItem $UserHome -Recurse -File -Force -ErrorAction SilentlyContinue | Where Length > 500MB
+[2026-07-03 01:09:11] MANE: Sporo; preskače nedostupne grane; ne uključuje izvan profila (npr. Program Files).
+RAW (top 30):
+
+FullName                                                                                                               
+--------                                                                                                               
+C:\Users\ToniJakelić\Desktop\media_ON_C_backup_20260624\video\2023\marij-marija-videa-marija-i-marin-full-hd-03.mp4    
+C:\Users\ToniJakelić\Desktop\Slike_i_videa_vece_od_100MB_prije_30_06_2025\marin marija vjencanje\marij marija videa\Mar
+ija i Marin (Full HD) 03.mp4                                                                                           
+C:\Users\ToniJakelić\Desktop\media_ON_C_backup_20260624\po-izvoru\ostalo\video\2023\10.Things.I.Hate.About.You.1999.216
+0p.WEB-DL.x265.10bit.HDR.DTS-HD.MA.5.1-NOGRP.mkv                                                                       
+C:\Users\ToniJakelić\Desktop\media_ON_C_backup_20260624\po-izvoru\ostalo\video\2023\Game.Night.2018.2160p.WEB-DL.x265.8
+bit.SDR.DTS-HD.MA.5.1-SWTYBLZ.mkv                                                                                      
+C:\Users\ToniJakelić\VirtualBox VMs\Ubuntu\Ubuntu.vdi                                                                  
+C:\Users\ToniJakelić\Downloads\Grid-1-2-3 (1).zip                                                                      
+C:\Users\ToniJakelić\Downloads\Grid-1-2-3.zip                                                                          
+C:\Users\ToniJakelić\Downloads\Grid-1-2-3\Grid\GridRacunalni\GridRacunalni.vdi                                         
+C:\Users\ToniJakelić\Desktop\media_ON_C_backup_20260624\video\2025\slike_i_videa_vece_od_100mb_prije_30_06_-20241231_23
+5836.mp4                                                                                                               
+C:\Users\ToniJakelić\Desktop\Slike_i_videa_vece_od_100MB_prije_30_06_2025\20241231_235836.mp4                          
+C:\Users\ToniJakelić\Desktop\media_ON_C_backup_20260624\video\2023\marij-marija-videa-marija-i-marin-full-hd-01.mp4    
+C:\Users\ToniJakelić\Desktop\Slike_i_videa_vece_od_100MB_prije_30_06_2025\marin marija vjencanje\marij marija videa\Mar
+ija i Marin (Full HD) 01.mp4                                                                                           
+C:\Users\ToniJakelić\Downloads\ubuntu-24.04.1-desktop-amd64.iso                                                        
+C:\Users\ToniJakelić\Downloads\Win11_24H2_EnglishInternational_x64.iso                                                 
+C:\Users\ToniJakelić\Downloads\Win11_24H2_Croatian_x64.iso                                                             
+C:\Users\ToniJakelić\Downloads\O365ProPlusRetail.img                                                                   
+C:\Users\ToniJakelić\Downloads\Grid-1-2-3\Grid\TrueNas\TrueNas.vdi                                                     
+C:\Users\ToniJakelić\Desktop\media_ON_C_backup_20260624\video\2024\slike_i_videa_vece_od_100mb_prije_30_06_-20240516_00
+5937.mp4                                                                                                               
+C:\Users\ToniJakelić\Desktop\Slike_i_videa_vece_od_100MB_prije_30_06_2025\20240516_005937.mp4                          
+C:\Users\ToniJakelić\Downloads\DaVinci_Resolve_19.1.2_Windows.zip                                                      
+C:\Users\ToniJakelić\Desktop\Slike_i_videa_vece_od_100MB_prije_30_06_2025\filmovi\Bad.Times.at.the.El.Royale.2018.1080p
+.BluRay.x265-RARBG\Bad.Times.at.the.El.Royale.2018.1080p.BluRay.x265-RARBG.mp4                                         
+C:\Users\ToniJakelić\Desktop\media_ON_C_backup_20260624\video\2023\badtimesattheelroyale20181080pblurayx265-badtimesatt
+heelroyale20181080pblurayx265.mp4                                                                                      
+C:\Users\ToniJakelić\Desktop\media_ON_C_backup_20260624\po-izvoru\ostalo\video\2023\Bad.Times.at.the.El.Royale.2018.108
+0p.BluRay.x265-RARBG.mp4                                                                                               
+C:\Users\ToniJakelić\Desktop\Slike_i_videa_vece_od_100MB_prije_30_06_2025\marin marija vjencanje\marij marija videa\Mar
+ija i Marin (Full HD) 02.mp4                                                                                           
+C:\Users\ToniJakelić\Desktop\media_ON_C_backup_20260624\video\2023\marij-marija-videa-marija-i-marin-full-hd-02.mp4    
+C:\Users\ToniJakelić\Desktop\media_ON_C_backup_20260624\video\2023\mebeforeyou20161080pblurayh264aac-rarbg-mebeforeyou2
+0161080pblurayh264aac-rarbg.mp4                                                                                        
+C:\Users\ToniJakelić\Desktop\Slike_i_videa_vece_od_100MB_prije_30_06_2025\filmovi\Me.Before.You.2016.1080p.BluRay.H264.
+AAC-RARBG\Me.Before.You.2016.1080p.BluRay.H264.AAC-RARBG.mp4                                                           
+C:\Users\ToniJakelić\Desktop\media_ON_C_backup_20260624\po-izvoru\ostalo\video\2023\Me.Before.You.2016.1080p.BluRay.H26
+4.AAC-RARBG.mp4                                                                                                        
+C:\Users\ToniJakelić\Desktop\media_ON_C_backup_20260624\video\2022\hotfuzz2007remasteredproper1080pblurayx2-hotfuzz2007
+remasteredproper1080pblurayx2.mp4                                                                                      
+C:\Users\ToniJakelić\Desktop\media_ON_C_backup_20260624\po-izvoru\ostalo\video\2022\Hot.Fuzz.2007.REMASTERED.PROPER.108
+0p.BluRay.x265-RARBG.mp4                                                                                               
+
+
+
+[2026-07-03 01:09:26] FOUND: 30 files listed (top 30 cap); sum of listed GB column ~ 167.84 GB (not all >500MB on disk)
+
+[2026-07-03 01:09:48] STEP i) node_modules SCAN UNDER USER PROFILE
+[2026-07-03 01:09:48] WHAT/WHY: node_modules često dupliciraju ovisnosti knowno.
+[2026-07-03 01:09:48] COMMAND: Get-ChildItem -Path $UserHome -Directory -Recurse -Force -Filter node_modules -ErrorAction SilentlyContinue | measure sizes
+[2026-07-03 01:09:48] MANE: Duboko rekurzivno traženje direktorija sporo; max depth not limited; pnpm store izvan node_modules nije uključen.
+RAW: count=273, total node_modules ~ 1.76 GB
+Top 15:
+
+Path                                                                                                                  
+----                                                                                                                  
+C:\Users\ToniJakelić\AppData\Roaming\npm\node_modules                                                                 
+C:\Users\ToniJakelić\AppData\Roaming\npm\node_modules\@anthropic-ai\claude-code\node_modules                          
+C:\Users\ToniJakelić\AppData\Local\Programs\Microsoft VS Code\8761a5560c\resources\app\node_modules                   
+C:\Users\ToniJakelić\AppData\Local\Programs\cursor\resources\app\node_modules                                         
+C:\Users\ToniJakelić\AppData\Local\Programs\cursor\_\resources\app\node_modules                                       
+C:\Users\ToniJakelić\AppData\Local\Programs\Microsoft VS Code\10c8e557c8\resources\app\node_modules                   
+C:\Users\ToniJakelić\AppData\Local\Programs\Microsoft VS Code\f6cfa2ea24\resources\app\node_modules                   
+C:\Users\ToniJakelić\AppData\Local\Programs\Microsoft VS Code\8761a5560c\resources\app\extensions\copilot\node_modules
+C:\Users\ToniJakelić\AppData\Local\Programs\cursor\resources\app\extensions\node_modules                              
+C:\Users\ToniJakelić\AppData\Local\Programs\cursor\_\resources\app\extensions\node_modules                            
+C:\Users\ToniJakelić\AppData\Local\Programs\Microsoft VS Code\10c8e557c8\resources\app\extensions\copilot\node_modules
+C:\Users\ToniJakelić\AppData\Local\Programs\Microsoft VS Code\f6cfa2ea24\resources\app\extensions\copilot\node_modules
+C:\Users\ToniJakelić\AppData\Local\Programs\Microsoft VS Code\f6cfa2ea24\resources\app\extensions\node_modules        
+C:\Users\ToniJakelić\AppData\Local\Programs\cursor\resources\app\extensions\cursor-agent-exec\dist\node_modules       
+C:\Users\ToniJakelić\AppData\Local\Programs\cursor\resources\app\extensions\cursor-retrieval\node_modules             
+
+
+
+[2026-07-03 01:10:01] FOUND: 273 node_modules folders, total ~ 1.76 GB
+
+[2026-07-03 01:10:01] STEP j) diplomski-u-cu PROJECT SIZE BREAKDOWN
+[2026-07-03 01:10:01] WHAT/WHY: Lokalni diplomski repo — mediji, build, cache.
+[2026-07-03 01:10:01] MANE: Junction media na D: — veličina ovisi o tome prati li se link.
+[2026-07-03 01:10:01] PATH: C:\Users\ToniJakelić\Desktop\diplomski-u-cu
+RAW: Project total ~ 0 GB
+Subfolders:
+
+Name          GB Reparse
+----          -- -------
+scripts        0   False
+results        0   False
+slike i videa  0   False
+tests          0   False
+src            0   False
+docs           0   False
+.git           0   False
+.cursor        0   False
+.vscode        0   False
+data           0   False
+build          0   False
+
+
+
+[2026-07-03 01:10:01] FOUND: Project total ~ 0 GB
+
+[2026-07-03 01:10:01] STEP k) C: vs D:\media OVERLAP ESTIMATE
+[2026-07-03 01:10:01] WHAT/WHY: Procjena duplikacije ako postoji kopija i junction.
+[2026-07-03 01:10:01] COMMAND: Compare file counts and sample hash of first 20 relative paths (read-only)
+[2026-07-03 01:10:01] MANE: Hash samo uzorka — nije potpuna jednakost; različiti root putovi; symlink može dati iste datoteke.
+RAW:
+Desktop\media: files=145570, size=487.86 GB
+D:\media: files=145570, size=487.86 GB
+OVERLAP SAMPLE: Sample (max 5000 files each side): checked on D side=5000, same relative path+size matches=5000 (~16.7 GB if identical content assumed)
+[2026-07-03 01:10:10] MANE (repeat): Sample overlap != full duplicate detection.
+[2026-07-03 01:10:10] FOUND: Sample (max 5000 files each side): checked on D side=5000, same relative path+size matches=5000 (~16.7 GB if identical content assumed)
+
+
+================================================================================
+FINAL: FINDINGS SUMMARY + PRIORITIZED RECOMMENDATIONS (est. GB recoverable)
+Completed: 2026-07-03 01:10:47
+================================================================================
+
+METODA ANALIZE (kako sam radio):
+- Za svaki korak (a-k): zapisano WHAT/WHY, naredba, sirovi output, MANE, FOUND u: C:\Users\ToniJakelić\Desktop\diplomski-u-cu\results\c_disk_analysis_log.txt
+- Velicine: Get-ChildItem -Recurse -Force -File | Measure-Object Length -Sum (sporo, ali cita stvarne bajte datoteka)
+- Nista nije brisano (read-only)
+
+GLOBALNO STANJE:
+- C: ~897 GB zauzeto, ~56 GB slobodno (kriticzno malo slobodnog prostora)
+- D: ~1240 GB zauzeto, ~624 GB slobodno
+
+NAJVECI POTROSACI NA C: (korak b):
+1. Users ~366 GB (profil + VM + backup medija)
+2. steam ~233 GB (igre)
+3. Program Files ~98 GB + Program Files (x86) ~98 GB
+4. Windows ~36 GB (napomena: bez admina dio System32 moze biti potcenjen)
+5. Recycle Bin ~20 GB
+
+KORISNICKI PROFIL (korak c):
+- Desktop ~261 GB — uglavnom medijski backupi + junction media (487 GB na D: se broji kroz junction)
+- Downloads ~59 GB — ISO/VDI/zip instalacije
+- AppData ~34 GB
+
+DESKTOP\media (korak e/k):
+- Junction -> D:\media (NIJE dupla kopija na disku; ista velicina 487.86 GB, isti broj datoteka 145570)
+- Uzorkovanje: 5000/5000 podudarnih relativnih putanja+velicina => sadrzaj je isti target, ne duplikat na C:
+
+DUPLIKATI / BACKUP NA C: (dodatna mjerenja):
+- Desktop\media_ON_C_backup_20260624: 158.63 GB (exists=True)
+- Desktop\Slike_i_videa_vece_od_100MB_prije_30_06_2025: 90.45 GB (exists=True)
+
+VELIKE DATOTEKE (korak h): backup mape i Downloads dominiraju (>500MB liste)
+
+node_modules: ~1.76 GB ukupno — nizak prioritet
+
+diplomski-u-cu: ~0 GB (mali repo, bez velikih medija u projektu)
+
+PRIORITETNE PREPORUKE (procjena oslobodivog prostora na C:):
+| Prioritet | Akcija | Procjena GB | Napomena / mane metode |
+| P1 | Isprazni Recycle Bin | ~20 GB | Sigurno ako nista ne treba restore |
+| P1 | Ukloni/premjesti Desktop\media_ON_C_backup_20260624 nakon provjere D:\media | ~158.63 GB | Backup duplicira medij; provjeri prije brisanja |
+| P1 | Ukloni/premjesti Slike_i_videa_vece_od_100MB_prije_30_06_2025 ako je na D: | ~90.45 GB | Preklapanje s backup/medij sadrzajem u velikim datotekama |
+| P2 | Ocisti Downloads (ISO Win11/Ubuntu/O365, Grid VDI zip, DaVinci zip) | ~30-50 GB | Ručno provjeri sto jos treba |
+| P2 | Premjesti VirtualBox VM (Ubuntu.vdi) na D: ili smanji disk | ~5-20+ GB | Ovisi o stvarnoj velicini VDI |
+| P3 | steam biblioteka — premjesti igre na D: (Steam settings) | do ~233 GB | Ne brisati bez odluke o igrama |
+| P3 | AppData Local\Temp + Packages cache | ~1-4 GB | Manji dobitak |
+| NIZAK | node_modules cleanup | ~1-2 GB | Vecinom u IDE/npm |
+
+UKUPNO REALNO NA C: BEZ DIRANJA STEAM-a: reda ~309 GB+ ako se uklone backupi + kos + Downloads ISO/VDI (procjena).
+
+OPCE MANe CIJELE ANALIZE:
+- Nema punog admin skeniranja C:\Windows\WinSxS i ProgramData
+- Junction prati target — Desktop velicina ukljucuje D:\media u sumi profila
+- OneDrive/cloud placeholders nisu detaljno analizirani
+- Koristenje diska tijekom skeniranja moze malo pomaknuti Temp
+- steam/Program Files brojevi mogu imati access denied bez elevation
+
+================================================================================
+[2026-07-03 01:10:55] SUPPLEMENT: Backup folder sizes (WHY: P1 recommendations need exact GB)
+[2026-07-03 01:10:55] COMMAND: Sum-Path on Desktop\media_ON_C_backup_20260624 and Desktop\Slike_i_videa_vece_od_100MB_prije_30_06_2025
+[2026-07-03 01:10:55] FOUND: backup=158.63 GB, Slike_i_videa=90.45 GB
+[2026-07-03 01:10:55] MANE: Overlap between these folders and D:\media not fully deduplicated by hash — treat as potential duplicate content, not proven byte-for-byte duplicate of entire trees.
+[2026-07-03 01:10:55] REPORT written: results\c_disk_analysis_report.md
