@@ -35,6 +35,198 @@ static const ExpScenario EXP_ALL_SCENARIOS[] = {
     EXP_SCENARIO_BLOCK_END,
 };
 
+typedef struct {
+    ExpScenario scenario;
+    double rate;
+    size_t removed;
+    const char *best_method;
+    double best_mae;
+    int has_best;
+} ExpRunSummary;
+
+static const char *exp_scenario_description(ExpScenario scenario) {
+    switch (scenario) {
+    case EXP_SCENARIO_RANDOM:
+        return "Nasumicno uklanjamo pojedinacne temperature (pojedinacne rupe u nizu).";
+    case EXP_SCENARIO_BLOCK:
+        return "Uklanjamo jedan kontinuirani blok na nasumicnoj poziciji (kvar senzora).";
+    case EXP_SCENARIO_BLOCK_START:
+        return "Uklanjamo jedan blok na POCETKU niza (prva vrijednost ostaje).";
+    case EXP_SCENARIO_BLOCK_MIDDLE:
+        return "Uklanjamo jedan blok u SREDINI niza.";
+    case EXP_SCENARIO_BLOCK_END:
+        return "Uklanjamo jedan blok na KRAJU niza (zadnja vrijednost ostaje).";
+    default:
+        return "";
+    }
+}
+
+static void find_best_method(const ExpMethodResult *results, size_t n,
+                             const char **best_name, double *best_mae) {
+    *best_name = NULL;
+    *best_mae = INFINITY;
+    for (size_t i = 0; i < n; i++) {
+        if (!results[i].ok) {
+            continue;
+        }
+        if (results[i].metrics.mae < *best_mae) {
+            *best_mae = results[i].metrics.mae;
+            *best_name = results[i].name;
+        }
+    }
+}
+
+static void print_methods_table(const ExpMethodResult *results, size_t n) {
+    printf("\n");
+    printf("  #  %-24s %8s %8s %8s  %s\n",
+           "metoda", "MAE", "RMSE", "R2", "sto znaci");
+    printf("  -- %-24s %8s %8s %8s  %s\n",
+           "------------------------", "------", "------", "------", "-------------------------");
+
+    const char *best_name = NULL;
+    double best_mae = INFINITY;
+    find_best_method(results, n, &best_name, &best_mae);
+
+    int rank = 0;
+    for (size_t i = 0; i < n; i++) {
+        if (!results[i].ok) {
+            printf("  -  %-24s  %s\n", results[i].name,
+                   "[preskoceno - premalo poznatih tocaka]");
+            continue;
+        }
+        rank++;
+        const char *marker = (results[i].name == best_name) ? " <-- NAJBOLJA" : "";
+        const char *r2_hint = "";
+        if (results[i].metrics.r2 >= 0.99) {
+            r2_hint = "odlicno";
+        } else if (results[i].metrics.r2 >= 0.90) {
+            r2_hint = "dobro";
+        } else if (results[i].metrics.r2 >= 0.0) {
+            r2_hint = "slabo";
+        } else {
+            r2_hint = "losije od srednje";
+        }
+
+        printf("  %d  %-24s %8.4f %8.4f %8.4f  %s%s\n",
+               rank, results[i].name,
+               results[i].metrics.mae, results[i].metrics.rmse,
+               results[i].metrics.r2, r2_hint, marker);
+    }
+
+    if (best_name) {
+        printf("\n  >> Najbolja metoda: %s (MAE = %.4f C)\n",
+               best_name, best_mae);
+    }
+}
+
+static void print_run_block_header(ExpScenario scenario, double rate,
+                                   size_t removed, size_t n) {
+    printf("\n");
+    printf("----------------------------------------------------------------------\n");
+    printf("TEST: %s", exp_scenario_name(scenario));
+    if (strcmp(exp_block_position_name(scenario), "none") != 0) {
+        printf("  [pozicija bloka: %s]", exp_block_position_name(scenario));
+    }
+    printf("  |  missing rate: %.0f%%\n", rate * 100.0);
+    printf("----------------------------------------------------------------------\n");
+    printf("Opis: %s\n", exp_scenario_description(scenario));
+    printf("Uklonjeno: %zu od %zu vrijednosti (evaluacija samo na tim mjestima)\n",
+           removed, n);
+}
+
+static void print_experiment_intro(const char *source, const char *label_city,
+                                   size_t n, const ExpRunFilter *filter) {
+    printf("\n");
+    printf("======================================================================\n");
+    printf("  EKSPERIMENT — IMPUTACIJA NEDOSTAJUCIH TEMPERATURA\n");
+    printf("======================================================================\n\n");
+    printf("STO SE DOGADA:\n");
+    printf("  1. Ucitavamo originalni temperaturni niz (bez mijenjanja)\n");
+    printf("  2. Umjetno uklanjamo vrijednosti prema scenariju (maska = 1)\n");
+    printf("  3. Svaka od 8 metoda popunjava isti osteceni niz\n");
+    printf("  4. Usporedujemo rekonstrukciju s originalom SAMO na uklonjenim mjestima\n\n");
+    printf("PODACI:\n");
+    printf("  Izvor:            %s\n", source);
+    if (label_city) {
+        printf("  Grad:             %s\n", label_city);
+    }
+    printf("  Broj zapisa:      %zu (10-min intervali)\n", n);
+    printf("  Scenariji:        5 (random, block, block_start, block_middle, block_end)\n");
+    printf("  Missing rateovi:  10%%, 20%%, 30%%, 40%%\n");
+    printf("  Metode:           8 (klasicne + ML)\n");
+    if (filter && (filter->has_scenario || filter->has_rate)) {
+        printf("  Filter:           ");
+        if (filter->has_scenario) {
+            printf("scenarij=%s ", exp_scenario_name(filter->scenario));
+        }
+        if (filter->has_rate) {
+            printf("rate=%.0f%% ", filter->missing_rate * 100.0);
+        }
+        printf("\n");
+    }
+    printf("\nMETRIKE (nizi = bolje, osim R2):\n");
+    printf("  MAE  — prosjecna apsolutna pogreska u stupnjevima Celsijusa\n");
+    printf("  RMSE — korijen prosjecne kvadratne pogreske (kaznjava velike greske)\n");
+    printf("  R2   — 1.0 = savrseno; 0 = kao srednja vrijednost; negativno = lose\n");
+}
+
+static void print_experiment_footer(const char *results_dir,
+                                    const char *main_csv, const char *mae_csv,
+                                    const char *error_csv,
+                                    const ExpRunSummary *summary, size_t summary_count,
+                                    size_t total_runs) {
+    printf("\n");
+    printf("======================================================================\n");
+    printf("  SAZETAK EKSPERIMENTA\n");
+    printf("======================================================================\n\n");
+    printf("Ukupno pokrenuto: %zu kombinacija (scenarij x rate x metoda = %zu testova)\n",
+           summary_count, total_runs);
+
+    if (summary_count > 0) {
+        printf("\nNAJBOLJA METODA PO SCENARIJU I MISSING RATEU (prema MAE):\n\n");
+        printf("  %-14s %6s  %-12s  %8s  %s\n",
+               "scenarij", "rate", "pozicija", "MAE", "metoda");
+        printf("  %-14s %6s  %-12s  %8s  %s\n",
+               "--------------", "------", "------------", "--------", "--------------------");
+
+        for (size_t i = 0; i < summary_count; i++) {
+            if (!summary[i].has_best) {
+                continue;
+            }
+            printf("  %-14s %5.0f%%  %-12s  %8.4f  %s\n",
+                   exp_scenario_name(summary[i].scenario),
+                   summary[i].rate * 100.0,
+                   exp_block_position_name(summary[i].scenario),
+                   summary[i].best_mae,
+                   summary[i].best_method);
+        }
+    }
+
+    printf("\n");
+    printf("GDJE SU REZULTATI:\n\n");
+    printf("  %s\n", main_csv);
+    printf("    -> glavna tablica za diplomski rad (sve metrike)\n\n");
+    printf("  %s\n", mae_csv);
+    printf("    -> MAE po metodi (za brze usporedbe)\n\n");
+    printf("  %s\n", error_csv);
+    printf("    -> MAE/RMSE/R2 po scenariju i rateu\n\n");
+    printf("  %s/reconstruction_linear_interpolation_*_0.20.csv\n", results_dir);
+    printf("    -> original vs osteceno vs rekonstruirano (za grafove, pri 20%%)\n\n");
+
+    printf("KAKO KORISTITI ZA DIPLOMSKI:\n");
+    printf("  - Otvori experiment_results.csv u Excelu\n");
+    printf("  - Filtriraj po 'scenario' i 'missing_rate'\n");
+    printf("  - Sortiraj po 'mae' za rang metoda\n");
+    printf("  - Za grafove pokreni: python scripts/report.py\n\n");
+
+    printf("BRZI ZAKLJUCAK IZ REZULTATA:\n");
+    printf("  - Random missing: klasicne metode (spline/linear) obicno najbolje\n");
+    printf("  - Block missing: linear/time obicno najbolje; KNN cesto lose\n");
+    printf("  - Pozicija bloka (start/middle/end) utjece na tezinu imputacije\n");
+    printf("  - Visi missing rate (40%%) -> veca pogreska kod svih metoda\n\n");
+    printf("======================================================================\n\n");
+}
+
 /* Missing rate pri kojem se automatski sprema reconstruction CSV u --experiment. */
 #define EXP_RECON_SNAPSHOT_RATE 0.20
 
@@ -370,21 +562,9 @@ static void export_configured_reconstructions(const char *results_dir, ExpScenar
             char path[512];
             reconstruction_path(path, sizeof(path), results_dir,
                                   EXP_RECON_EXPORT_METHODS[i], scenario, missing_rate);
-            printf("  reconstruction: %s\n", path);
+            printf("  [CSV] Rekonstrukcija spremljena: %s\n", path);
         }
     }
-}
-
-static void print_exp_row(ExpScenario scenario, double missing_rate,
-                          const ExpMethodResult *r) {
-    if (!r->ok) {
-        printf("  %-14s %5.0f%%  %-22s  [preskoceno]\n",
-               exp_scenario_name(scenario), missing_rate * 100.0, r->name);
-        return;
-    }
-    printf("  %-14s %5.0f%%  %-22s %10.4f %10.4f %10.4f  (n=%zu)\n",
-           exp_scenario_name(scenario), missing_rate * 100.0, r->name,
-           r->metrics.mae, r->metrics.rmse, r->metrics.r2, r->metrics.count);
 }
 
 static int scenario_matches_filter(ExpScenario scenario, const ExpRunFilter *filter) {
@@ -431,32 +611,20 @@ int exp_run_compare(const char *source, const char *city, ExpScenario scenario,
 
     printf("\n");
     printf("======================================================================\n");
-    printf("USPOREDBA METODA INTERPOLACIJE / IMPUTACIJE\n");
+    printf("  USPOREDBA METODA — JEDAN TEST\n");
     printf("======================================================================\n");
-    printf("Izvor:           %s\n", source);
+    printf("Opis: %s\n", exp_scenario_description(scenario));
+    printf("Izvor: %s | Zapisa: %zu | Uklonjeno: %zu (%.0f%%)\n",
+           source, n, removed, missing_rate * 100.0);
     if (label_city) {
-        printf("Grad:            %s\n", label_city);
+        printf("Grad: %s\n", label_city);
     }
-    printf("Zapisa:          %zu\n", n);
-    printf("Scenarij:        %s missing\n", exp_scenario_name(scenario));
-    if (scenario != EXP_SCENARIO_RANDOM) {
-        printf("Pozicija bloka:  %s\n", exp_block_position_name(scenario));
+    if (strcmp(exp_block_position_name(scenario), "none") != 0) {
+        printf("Pozicija bloka: %s\n", exp_block_position_name(scenario));
     }
-    printf("Obrisano (mask): %zu (%.0f%%)\n", removed, missing_rate * 100.0);
-    printf("\n");
-    printf("  %-22s %10s %10s %10s\n", "metoda", "MAE", "RMSE", "R2");
-    printf("  ------------------------------------------------------------\n");
 
     exp_run_methods(&s, s.temp, damaged, mask, n, out, results);
-    for (size_t i = 0; i < EXP_NUM_METHODS; i++) {
-        if (!results[i].ok) {
-            printf("  %-22s %s\n", results[i].name, "[preskoceno: premalo poznatih tocaka]");
-            continue;
-        }
-        printf("  %-22s %10.4f %10.4f %10.4f\n",
-               results[i].name, results[i].metrics.mae,
-               results[i].metrics.rmse, results[i].metrics.r2);
-    }
+    print_methods_table(results, EXP_NUM_METHODS);
 
     if (export_reconstruction && results_dir) {
         printf("\nExport reconstruction CSV:\n");
@@ -464,7 +632,7 @@ int exp_run_compare(const char *source, const char *city, ExpScenario scenario,
                                           &s, s.temp, damaged, mask, n, out);
     }
 
-    printf("\nNizi MAE/RMSE = bolje. R2 blize 1 = bolje.\n\n");
+    printf("\nNapomena: MAE i RMSE — nizi je bolje. R2 — blize 1.0 je bolje.\n\n");
 
     free(damaged);
     free(mask);
@@ -531,22 +699,11 @@ int exp_run_all(const char *source, const char *city, const char *results_dir,
     write_csv_header(fp_mae, "method,mae,scenario,block_position,missing_rate");
     write_csv_header(fp_err, "scenario,block_position,missing_rate,method,mae,rmse,r2");
 
-    printf("\n");
-    printf("======================================================================\n");
-    printf("EKSPERIMENT — USPOREDBA SVIH METODA\n");
-    printf("======================================================================\n");
-    printf("Izvor:      %s\n", source);
-    if (label_city) {
-        printf("Grad:       %s\n", label_city);
-    }
-    printf("Zapisa:     %zu\n", n);
-    printf("Scenariji:  random, block, block_start, block_middle, block_end\n");
-    printf("Rateovi:    10%%, 20%%, 30%%, 40%%\n");
-    printf("Rezultati:  %s/\n", results_dir);
-    printf("\n");
-    printf("  %-14s %5s  %-22s %10s %10s %10s\n",
-           "scenario", "rate", "method", "MAE", "RMSE", "R2");
-    printf("  ------------------------------------------------------------------------------\n");
+    ExpRunSummary summary[EXP_NUM_SCENARIOS * EXP_NUM_RATES];
+    size_t summary_count = 0;
+    size_t total_method_runs = 0;
+
+    print_experiment_intro(source, label_city, n, filter);
 
     for (size_t sc = 0; sc < EXP_NUM_SCENARIOS; sc++) {
         ExpScenario scenario = EXP_ALL_SCENARIOS[sc];
@@ -563,10 +720,27 @@ int exp_run_all(const char *source, const char *city, const char *results_dir,
             size_t removed = exp_create_damage(scenario, s.temp, n, rate, RANDOM_SEED,
                                                damaged, mask);
 
+            print_run_block_header(scenario, rate, removed, n);
+
             exp_run_methods(&s, s.temp, damaged, mask, n, out, results);
+            print_methods_table(results, EXP_NUM_METHODS);
+
+            const char *best_name = NULL;
+            double best_mae = INFINITY;
+            find_best_method(results, EXP_NUM_METHODS, &best_name, &best_mae);
+
+            if (summary_count < sizeof(summary) / sizeof(summary[0])) {
+                summary[summary_count].scenario = scenario;
+                summary[summary_count].rate = rate;
+                summary[summary_count].removed = removed;
+                summary[summary_count].best_method = best_name;
+                summary[summary_count].best_mae = best_mae;
+                summary[summary_count].has_best = (best_name != NULL);
+                summary_count++;
+            }
 
             for (size_t mi = 0; mi < EXP_NUM_METHODS; mi++) {
-                print_exp_row(scenario, rate, &results[mi]);
+                total_method_runs++;
                 if (!results[mi].ok) {
                     continue;
                 }
@@ -592,6 +766,7 @@ int exp_run_all(const char *source, const char *city, const char *results_dir,
             }
 
             if (fabs(rate - EXP_RECON_SNAPSHOT_RATE) < 1e-9) {
+                printf("\n  Spremam primjer rekonstrukcije (linear, 20%%) za graf:\n");
                 export_configured_reconstructions(results_dir, scenario, rate,
                                                   &s, s.temp, damaged, mask, n, out);
             }
@@ -602,13 +777,8 @@ int exp_run_all(const char *source, const char *city, const char *results_dir,
     fclose(fp_mae);
     fclose(fp_err);
 
-    printf("\n");
-    printf("CSV spremljen:\n");
-    printf("  %s\n", main_csv);
-    printf("  %s\n", mae_csv);
-    printf("  %s\n", error_csv);
-    printf("  %s/reconstruction_*_*.csv (linear pri 20%%)\n", results_dir);
-    printf("\n");
+    print_experiment_footer(results_dir, main_csv, mae_csv, error_csv,
+                            summary, summary_count, total_method_runs);
 
     free(damaged);
     free(mask);
