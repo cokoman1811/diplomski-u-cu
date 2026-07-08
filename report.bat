@@ -11,7 +11,7 @@ if not exist diplomski.exe (
     echo Greska: diplomski.exe ne postoji.
     exit /b 1
 )
-diplomski.exe --experiment --source jena_quick
+diplomski.exe --experiment-all --source jena_quick
 if errorlevel 1 exit /b 1
 
 echo.

@@ -119,15 +119,22 @@ def plot_reconstruction(csv_path: Path, out_path: Path, title: str):
         return False
 
     df = pd.read_csv(csv_path)
+    orig_col = "original_temperature" if "original_temperature" in df.columns else "original"
+    recon_col = (
+        "reconstructed_temperature"
+        if "reconstructed_temperature" in df.columns
+        else "reconstructed"
+    )
+
     fig, ax = plt.subplots(figsize=(12, 4))
-    ax.plot(df["index"], df["original"], label="original", color="#1f77b4", linewidth=1.2)
-    ax.plot(df["index"], df["reconstructed"], label="rekonstruirano", color="#ff7f0e", linewidth=1.2)
+    ax.plot(df["index"], df[orig_col], label="original", color="#1f77b4", linewidth=1.2)
+    ax.plot(df["index"], df[recon_col], label="rekonstruirano", color="#ff7f0e", linewidth=1.2)
 
     masked = df[df["mask"] == 1]
     if not masked.empty:
         ax.scatter(
             masked["index"],
-            masked["original"],
+            masked[orig_col],
             s=12,
             color="red",
             alpha=0.5,
@@ -189,12 +196,12 @@ def write_analysis(df) -> None:
     cls_block = group_mean_mae(df, "block", SNAPSHOT_RATE, CLASSICAL)
     ml_block = group_mean_mae(df, "block", SNAPSHOT_RATE, ML)
 
-    knn_block_50 = df[
+    knn_block_40 = df[
         (df["scenario"] == "block")
-        & (df["missing_rate"] == 0.50)
+        & (df["missing_rate"] == 0.40)
         & (df["method"] == "knn")
     ]
-    knn_50_mae = knn_block_50["mae"].iloc[0] if not knn_block_50.empty else float("nan")
+    knn_40_mae = knn_block_40["mae"].iloc[0] if not knn_block_40.empty else float("nan")
 
     text = f"""# Analiza rezultata eksperimenata
 
@@ -217,10 +224,13 @@ Automatski generirano iz `experiment_results.csv`.
 
 ## Najbolja metoda po scenariju i missing rateu
 
-| scenarij | 10% | 20% | 30% | 40% | 50% |
-|----------|-----|-----|-----|-----|-----|
-| random | {best_method(df, "random", 0.10)} | {best_method(df, "random", 0.20)} | {best_method(df, "random", 0.30)} | {best_method(df, "random", 0.40)} | {best_method(df, "random", 0.50)} |
-| block | {best_method(df, "block", 0.10)} | {best_method(df, "block", 0.20)} | {best_method(df, "block", 0.30)} | {best_method(df, "block", 0.40)} | {best_method(df, "block", 0.50)} |
+| scenarij | 10% | 20% | 30% | 40% |
+|----------|-----|-----|-----|-----|
+| random | {best_method(df, "random", 0.10)} | {best_method(df, "random", 0.20)} | {best_method(df, "random", 0.30)} | {best_method(df, "random", 0.40)} |
+| block | {best_method(df, "block", 0.10)} | {best_method(df, "block", 0.20)} | {best_method(df, "block", 0.30)} | {best_method(df, "block", 0.40)} |
+| block_start | {best_method(df, "block_start", 0.10)} | {best_method(df, "block_start", 0.20)} | {best_method(df, "block_start", 0.30)} | {best_method(df, "block_start", 0.40)} |
+| block_middle | {best_method(df, "block_middle", 0.10)} | {best_method(df, "block_middle", 0.20)} | {best_method(df, "block_middle", 0.30)} | {best_method(df, "block_middle", 0.40)} |
+| block_end | {best_method(df, "block_end", 0.10)} | {best_method(df, "block_end", 0.20)} | {best_method(df, "block_end", 0.30)} | {best_method(df, "block_end", 0.40)} |
 
 ## Ključni nalazi (za poglavlje Rezultati)
 
@@ -228,8 +238,8 @@ Automatski generirano iz `experiment_results.csv`.
 2. **Linear i time interpolacija** daju identične rezultate jer su uzorci ravnomjerno raspoređeni u vremenu (Jena 10-min intervali).
 3. Na **block scenariju** linear/time i dalje vode; forward fill i cubic/spline znatno gore zbog dugačkih rupa.
 4. **ML metode** (KNN, decision tree, random forest) na ovom datasetu (288 uzoraka) **ne nadmašuju** klasične metode.
-5. **KNN** na block scenariju pokazuje najveću pogrešku (npr. MAE ≈ {knn_50_mae:.2f} pri 50% block) — ne koristi dovoljno lokalnu vremensku strukturu za dugačke blokove.
-6. Pri **50% random missing** KNN pokazuje nagli porast pogreške — premalo poznatih uzoraka za pouzdan model.
+5. **KNN** na block scenariju pokazuje najveću pogrešku (npr. MAE ≈ {knn_40_mae:.2f} pri 40% block) — ne koristi dovoljno lokalnu vremensku strukturu za dugačke blokove.
+6. Pri **40% random missing** KNN i ML metode pokazuju veću pogrešku — manje poznatih uzoraka za pouzdan model.
 
 ## Usporedba scenarija random vs block
 
