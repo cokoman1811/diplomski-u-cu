@@ -34,4 +34,23 @@ size_t create_block_missing_values(const double *temp, size_t n, size_t block_si
                                    double missing_rate, unsigned long long seed,
                                    double *damaged, int *mask);
 
+/* Pozicija jednog kontinuiranog bloka (random = nasumicno unutar niza). */
+typedef enum {
+    PREPROC_BLOCK_POS_RANDOM = 0,
+    PREPROC_BLOCK_POS_START = 1,
+    PREPROC_BLOCK_POS_MIDDLE = 2,
+    PREPROC_BLOCK_POS_END = 3
+} PreprocBlockPosition;
+
+/*
+ * Uklanja jedan kontinuirani blok duljine round(missing_rate * n).
+ * Prva i zadnja vrijednost ostaju poznate.
+ * block_position odreduje gdje blok pocinje (random/start/middle/end).
+ */
+size_t create_single_block_missing_values(const double *temp, size_t n,
+                                          double missing_rate,
+                                          unsigned long long seed,
+                                          PreprocBlockPosition block_position,
+                                          double *damaged, int *mask);
+
 #endif /* PREPROCESSING_H */

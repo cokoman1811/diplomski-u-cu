@@ -309,6 +309,198 @@ static void test_block_missing(void) {
     free(mask);
 }
 
+static size_t count_mask(const int *mask, size_t n) {
+    size_t count = 0;
+    for (size_t i = 0; i < n; i++) {
+        if (mask[i]) {
+            count++;
+        }
+    }
+    return count;
+}
+
+static size_t first_masked_index(const int *mask, size_t n) {
+    for (size_t i = 0; i < n; i++) {
+        if (mask[i]) {
+            return i;
+        }
+    }
+    return n;
+}
+
+static size_t last_masked_index(const int *mask, size_t n) {
+    for (size_t i = n; i-- > 0;) {
+        if (mask[i]) {
+            return i;
+        }
+    }
+    return n;
+}
+
+static int mask_is_contiguous_block(const int *mask, size_t n) {
+    size_t first = first_masked_index(mask, n);
+    size_t last = last_masked_index(mask, n);
+    if (first >= n) {
+        return 0;
+    }
+    for (size_t i = first; i <= last; i++) {
+        if (!mask[i]) {
+            return 0;
+        }
+    }
+    for (size_t i = 0; i < first; i++) {
+        if (mask[i]) {
+            return 0;
+        }
+    }
+    for (size_t i = last + 1; i < n; i++) {
+        if (mask[i]) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+static void test_random_missing_count(void) {
+    printf("\n== Random missing — broj uklonjenih vrijednosti ==\n");
+
+    const size_t n = 288;
+    const double missing_rate = 0.20;
+    const size_t expected = (size_t)llround(missing_rate * (double)n);
+
+    double *original = (double *)malloc(n * sizeof(double));
+    double *damaged = (double *)malloc(n * sizeof(double));
+    int *mask = (int *)malloc(n * sizeof(int));
+    if (!original || !damaged || !mask) {
+        check(0, "alokacija memorije");
+        free(original);
+        free(damaged);
+        free(mask);
+        return;
+    }
+
+    for (size_t i = 0; i < n; i++) {
+        original[i] = 5.0 + 0.01 * (double)i;
+    }
+
+    size_t removed = create_missing_values(original, n, missing_rate, 42ULL, damaged, mask);
+    check(removed == expected, "random missing uklanja ocekivani broj vrijednosti");
+    check(count_mask(mask, n) == removed, "maska broji uklonjene vrijednosti");
+
+    free(original);
+    free(damaged);
+    free(mask);
+}
+
+static void test_positioned_block_missing(void) {
+    printf("\n== Block missing po poziciji ==\n");
+
+    const size_t n = 100;
+    const double missing_rate = 0.20;
+    const size_t block_size = (size_t)llround(missing_rate * (double)n);
+
+    double *original = (double *)malloc(n * sizeof(double));
+    double *damaged = (double *)malloc(n * sizeof(double));
+    int *mask = (int *)malloc(n * sizeof(int));
+    if (!original || !damaged || !mask) {
+        check(0, "alokacija memorije");
+        free(original);
+        free(damaged);
+        free(mask);
+        return;
+    }
+
+    for (size_t i = 0; i < n; i++) {
+        original[i] = 10.0 + (double)i;
+    }
+
+    size_t removed_start = create_single_block_missing_values(
+        original, n, missing_rate, 42ULL, PREPROC_BLOCK_POS_START, damaged, mask);
+    check(removed_start == block_size, "block_start uklanja ocekivani broj");
+    check(mask_is_contiguous_block(mask, n), "block_start je jedan kontinuirani blok");
+    check(first_masked_index(mask, n) == 1, "block_start pocinje na indeksu 1");
+    check(!isnan(damaged[0]), "block_start cuva prvu vrijednost");
+
+    size_t removed_middle = create_single_block_missing_values(
+        original, n, missing_rate, 42ULL, PREPROC_BLOCK_POS_MIDDLE, damaged, mask);
+    check(removed_middle == block_size, "block_middle uklanja ocekivani broj");
+    check(mask_is_contiguous_block(mask, n), "block_middle je jedan kontinuirani blok");
+    {
+        size_t first = first_masked_index(mask, n);
+        size_t last = last_masked_index(mask, n);
+        size_t center = (first + last) / 2;
+        check(center >= n / 2 - block_size && center <= n / 2 + block_size,
+              "block_middle je priblizno u sredini niza");
+    }
+
+    size_t removed_end = create_single_block_missing_values(
+        original, n, missing_rate, 42ULL, PREPROC_BLOCK_POS_END, damaged, mask);
+    check(removed_end == block_size, "block_end uklanja ocekivani broj");
+    check(mask_is_contiguous_block(mask, n), "block_end je jedan kontinuirani blok");
+    check(last_masked_index(mask, n) == n - 2, "block_end zavrsava na indeksu n-2");
+    check(!isnan(damaged[n - 1]), "block_end cuva zadnju vrijednost");
+
+    free(original);
+    free(damaged);
+    free(mask);
+}
+
+static void test_mask_and_evaluation_scope(void) {
+    printf("\n== Maska i evaluacija samo na uklonjenim mjestima ==\n");
+
+    const size_t n = 50;
+    double *original = (double *)malloc(n * sizeof(double));
+    double *damaged = (double *)malloc(n * sizeof(double));
+    double *reconstructed = (double *)malloc(n * sizeof(double));
+    int *mask = (int *)malloc(n * sizeof(int));
+    if (!original || !damaged || !reconstructed || !mask) {
+        check(0, "alokacija memorije");
+        free(original);
+        free(damaged);
+        free(reconstructed);
+        free(mask);
+        return;
+    }
+
+    for (size_t i = 0; i < n; i++) {
+        original[i] = (double)i;
+    }
+
+    size_t removed = create_missing_values(original, n, 0.20, 42ULL, damaged, mask);
+
+    int mask_only_on_nan = 1;
+    int known_unchanged = 1;
+    for (size_t i = 0; i < n; i++) {
+        if (mask[i]) {
+            if (!isnan(damaged[i])) {
+                mask_only_on_nan = 0;
+            }
+        } else if (isnan(damaged[i]) || damaged[i] != original[i]) {
+            known_unchanged = 0;
+        }
+    }
+    check(mask_only_on_nan, "maska je 1 samo na uklonjenim (NaN) mjestima");
+    check(known_unchanged, "nemaskirana mjesta jednaka originalu");
+
+    for (size_t i = 0; i < n; i++) {
+        reconstructed[i] = original[i];
+    }
+    for (size_t i = 0; i < n; i++) {
+        if (!mask[i]) {
+            reconstructed[i] = original[i] + 1000.0;
+        }
+    }
+
+    Metrics m = evaluate_reconstruction(original, reconstructed, mask, n);
+    check(m.count == removed, "evaluacija koristi samo maskirana mjesta");
+    check_near(m.mae, 0.0, 1e-9, "poznata mjesta ne utjecu na MAE");
+
+    free(original);
+    free(damaged);
+    free(reconstructed);
+    free(mask);
+}
+
 static void test_preprocessing(void) {
     printf("\n== Preprocessing (create_missing_values) ==\n");
 
@@ -473,6 +665,9 @@ int main(void) {
     test_decision_tree();
     test_rf();
     test_block_missing();
+    test_random_missing_count();
+    test_positioned_block_missing();
+    test_mask_and_evaluation_scope();
     test_preprocessing();
     test_interpolation();
     test_metrics();

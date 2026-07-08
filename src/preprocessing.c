@@ -166,3 +166,69 @@ size_t create_block_missing_values(const double *temp, size_t n, size_t block_si
     free(eligible);
     return removed;
 }
+
+size_t create_single_block_missing_values(const double *temp, size_t n,
+                                          double missing_rate,
+                                          unsigned long long seed,
+                                          PreprocBlockPosition block_position,
+                                          double *damaged, int *mask) {
+    for (size_t i = 0; i < n; i++) {
+        damaged[i] = temp[i];
+        mask[i] = 0;
+    }
+
+    if (n < 2 || missing_rate <= 0.0) {
+        return 0;
+    }
+    if (missing_rate > 1.0) {
+        missing_rate = 1.0;
+    }
+
+    size_t block_size = (size_t)llround(missing_rate * (double)n);
+    if (block_size == 0) {
+        block_size = 1;
+    }
+
+    /* Rubni oslonci: indeksi 0 i n-1 ostaju poznati. */
+    size_t max_removable = (n >= 2) ? (n - 2) : 0;
+    if (block_size > max_removable) {
+        block_size = max_removable;
+    }
+    if (block_size == 0) {
+        return 0;
+    }
+
+    size_t min_start = 1;
+    size_t max_start = n - 1 - block_size;
+    if (max_start < min_start) {
+        return 0;
+    }
+
+    size_t start;
+    switch (block_position) {
+    case PREPROC_BLOCK_POS_START:
+        start = min_start;
+        break;
+    case PREPROC_BLOCK_POS_END:
+        start = max_start;
+        break;
+    case PREPROC_BLOCK_POS_MIDDLE:
+        start = min_start + (max_start - min_start) / 2;
+        break;
+    case PREPROC_BLOCK_POS_RANDOM:
+    default:
+        rng_seed((uint64_t)seed);
+        start = min_start + rng_below(max_start - min_start + 1);
+        break;
+    }
+
+    size_t removed = 0;
+    for (size_t k = 0; k < block_size; k++) {
+        size_t pos = start + k;
+        damaged[pos] = NAN;
+        mask[pos] = 1;
+        removed++;
+    }
+
+    return removed;
+}

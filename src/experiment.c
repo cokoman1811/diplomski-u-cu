@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #ifdef _WIN32
 #include <direct.h>
@@ -23,8 +24,16 @@
 #define DEFAULT_CITY "Split"
 #define RANDOM_SEED 42ULL
 
-static const double EXP_MISSING_RATES[] = {0.10, 0.20, 0.30, 0.40, 0.50};
+static const double EXP_MISSING_RATES[] = {0.10, 0.20, 0.30, 0.40};
 static const size_t EXP_NUM_RATES = sizeof(EXP_MISSING_RATES) / sizeof(EXP_MISSING_RATES[0]);
+
+static const ExpScenario EXP_ALL_SCENARIOS[] = {
+    EXP_SCENARIO_RANDOM,
+    EXP_SCENARIO_BLOCK,
+    EXP_SCENARIO_BLOCK_START,
+    EXP_SCENARIO_BLOCK_MIDDLE,
+    EXP_SCENARIO_BLOCK_END,
+};
 
 /* Missing rate pri kojem se automatski sprema reconstruction CSV u --experiment. */
 #define EXP_RECON_SNAPSHOT_RATE 0.20
@@ -103,7 +112,32 @@ static const size_t EXP_METHOD_TABLE_SIZE =
     sizeof(EXP_METHOD_TABLE) / sizeof(EXP_METHOD_TABLE[0]);
 
 const char *exp_scenario_name(ExpScenario scenario) {
-    return (scenario == EXP_SCENARIO_BLOCK) ? "block" : "random";
+    switch (scenario) {
+    case EXP_SCENARIO_BLOCK:
+        return "block";
+    case EXP_SCENARIO_BLOCK_START:
+        return "block_start";
+    case EXP_SCENARIO_BLOCK_MIDDLE:
+        return "block_middle";
+    case EXP_SCENARIO_BLOCK_END:
+        return "block_end";
+    case EXP_SCENARIO_RANDOM:
+    default:
+        return "random";
+    }
+}
+
+const char *exp_block_position_name(ExpScenario scenario) {
+    switch (scenario) {
+    case EXP_SCENARIO_BLOCK_START:
+        return "start";
+    case EXP_SCENARIO_BLOCK_MIDDLE:
+        return "middle";
+    case EXP_SCENARIO_BLOCK_END:
+        return "end";
+    default:
+        return "none";
+    }
 }
 
 int exp_scenario_from_string(const char *text, ExpScenario *out) {
@@ -118,17 +152,45 @@ int exp_scenario_from_string(const char *text, ExpScenario *out) {
         *out = EXP_SCENARIO_BLOCK;
         return 0;
     }
+    if (strcmp(text, "block_start") == 0) {
+        *out = EXP_SCENARIO_BLOCK_START;
+        return 0;
+    }
+    if (strcmp(text, "block_middle") == 0) {
+        *out = EXP_SCENARIO_BLOCK_MIDDLE;
+        return 0;
+    }
+    if (strcmp(text, "block_end") == 0) {
+        *out = EXP_SCENARIO_BLOCK_END;
+        return 0;
+    }
     return -1;
 }
 
 size_t exp_create_damage(ExpScenario scenario, const double *temp, size_t n,
                          double missing_rate, unsigned long long seed,
                          double *damaged, int *mask) {
-    if (scenario == EXP_SCENARIO_BLOCK) {
-        return create_block_missing_values(temp, n, PREPROC_BLOCK_SIZE_2H_10MIN,
-                                           missing_rate, seed, damaged, mask);
+    switch (scenario) {
+    case EXP_SCENARIO_BLOCK:
+        return create_single_block_missing_values(temp, n, missing_rate, seed,
+                                                  PREPROC_BLOCK_POS_RANDOM,
+                                                  damaged, mask);
+    case EXP_SCENARIO_BLOCK_START:
+        return create_single_block_missing_values(temp, n, missing_rate, seed,
+                                                  PREPROC_BLOCK_POS_START,
+                                                  damaged, mask);
+    case EXP_SCENARIO_BLOCK_MIDDLE:
+        return create_single_block_missing_values(temp, n, missing_rate, seed,
+                                                  PREPROC_BLOCK_POS_MIDDLE,
+                                                  damaged, mask);
+    case EXP_SCENARIO_BLOCK_END:
+        return create_single_block_missing_values(temp, n, missing_rate, seed,
+                                                  PREPROC_BLOCK_POS_END,
+                                                  damaged, mask);
+    case EXP_SCENARIO_RANDOM:
+    default:
+        return create_missing_values(temp, n, missing_rate, seed, damaged, mask);
     }
-    return create_missing_values(temp, n, missing_rate, seed, damaged, mask);
 }
 
 static int ensure_results_dir(const char *path) {
@@ -212,18 +274,38 @@ static void write_csv_header(FILE *fp, const char *header) {
     fprintf(fp, "%s\n", header);
 }
 
-static int write_reconstruction_csv(const char *path, const double *original,
-                                  const double *damaged, const double *reconstructed,
-                                  const int *mask, size_t n) {
+static void format_epoch_timestamp(long long epoch, char *buf, size_t buflen) {
+    time_t t = (time_t)epoch;
+    struct tm *tm = gmtime(&t);
+    if (tm) {
+        snprintf(buf, buflen, "%04d-%02d-%02d %02d:%02d:%02d",
+                 tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+                 tm->tm_hour, tm->tm_min, tm->tm_sec);
+    } else {
+        snprintf(buf, buflen, "%lld", (long long)epoch);
+    }
+}
+
+static int write_reconstruction_csv(const char *path, const Series *s,
+                                  const double *original, const double *damaged,
+                                  const double *reconstructed, const int *mask,
+                                  size_t n, ExpScenario scenario,
+                                  double missing_rate, const char *method_name) {
     FILE *fp = fopen(path, "w");
     if (!fp) {
         fprintf(stderr, "Ne mogu otvoriti %s za pisanje.\n", path);
         return 1;
     }
 
-    write_csv_header(fp, "index,original,damaged,reconstructed,mask");
+    write_csv_header(fp,
+        "index,timestamp,original_temperature,damaged_temperature,"
+        "reconstructed_temperature,mask,scenario,block_position,missing_rate,method");
+
     for (size_t i = 0; i < n; i++) {
-        fprintf(fp, "%zu,%.6f,", i, original[i]);
+        char ts[64];
+        format_epoch_timestamp(s->epoch[i], ts, sizeof(ts));
+
+        fprintf(fp, "%zu,%s,%.6f,", i, ts, original[i]);
         if (isnan(damaged[i])) {
             fprintf(fp, ",");
         } else {
@@ -234,7 +316,9 @@ static int write_reconstruction_csv(const char *path, const double *original,
         } else {
             fprintf(fp, "%.6f,", reconstructed[i]);
         }
-        fprintf(fp, "%d\n", mask[i]);
+        fprintf(fp, "%d,%s,%s,%.2f,%s\n",
+                mask[i], exp_scenario_name(scenario),
+                exp_block_position_name(scenario), missing_rate, method_name);
     }
 
     fclose(fp);
@@ -271,7 +355,8 @@ int exp_export_reconstruction(const char *results_dir, const char *method_name,
 
     char path[512];
     reconstruction_path(path, sizeof(path), results_dir, method_name, scenario, missing_rate);
-    return write_reconstruction_csv(path, original, damaged, out, mask, n);
+    return write_reconstruction_csv(path, s, original, damaged, out, mask, n,
+                                  scenario, missing_rate, method_name);
 }
 
 static void export_configured_reconstructions(const char *results_dir, ExpScenario scenario,
@@ -290,16 +375,30 @@ static void export_configured_reconstructions(const char *results_dir, ExpScenar
     }
 }
 
-static void print_exp_row(const char *scenario, double missing_rate,
+static void print_exp_row(ExpScenario scenario, double missing_rate,
                           const ExpMethodResult *r) {
     if (!r->ok) {
-        printf("  %-8s %5.0f%%  %-22s  [preskoceno]\n",
-               scenario, missing_rate * 100.0, r->name);
+        printf("  %-14s %5.0f%%  %-22s  [preskoceno]\n",
+               exp_scenario_name(scenario), missing_rate * 100.0, r->name);
         return;
     }
-    printf("  %-8s %5.0f%%  %-22s %10.4f %10.4f %10.4f  (n=%zu)\n",
-           scenario, missing_rate * 100.0, r->name,
+    printf("  %-14s %5.0f%%  %-22s %10.4f %10.4f %10.4f  (n=%zu)\n",
+           exp_scenario_name(scenario), missing_rate * 100.0, r->name,
            r->metrics.mae, r->metrics.rmse, r->metrics.r2, r->metrics.count);
+}
+
+static int scenario_matches_filter(ExpScenario scenario, const ExpRunFilter *filter) {
+    if (!filter || !filter->has_scenario) {
+        return 1;
+    }
+    return scenario == filter->scenario;
+}
+
+static int rate_matches_filter(double rate, const ExpRunFilter *filter) {
+    if (!filter || !filter->has_rate) {
+        return 1;
+    }
+    return fabs(rate - filter->missing_rate) < 1e-9;
 }
 
 int exp_run_compare(const char *source, const char *city, ExpScenario scenario,
@@ -340,9 +439,8 @@ int exp_run_compare(const char *source, const char *city, ExpScenario scenario,
     }
     printf("Zapisa:          %zu\n", n);
     printf("Scenarij:        %s missing\n", exp_scenario_name(scenario));
-    if (scenario == EXP_SCENARIO_BLOCK) {
-        printf("Velicina bloka:  %d uzoraka (2 h pri 10-min intervalu)\n",
-               PREPROC_BLOCK_SIZE_2H_10MIN);
+    if (scenario != EXP_SCENARIO_RANDOM) {
+        printf("Pozicija bloka:  %s\n", exp_block_position_name(scenario));
     }
     printf("Obrisano (mask): %zu (%.0f%%)\n", removed, missing_rate * 100.0);
     printf("\n");
@@ -375,7 +473,8 @@ int exp_run_compare(const char *source, const char *city, ExpScenario scenario,
     return 0;
 }
 
-int exp_run_full(const char *source, const char *city, const char *results_dir) {
+int exp_run_all(const char *source, const char *city, const char *results_dir,
+                const ExpRunFilter *filter) {
     Series s = {0};
     const char *label_city = NULL;
 
@@ -426,9 +525,11 @@ int exp_run_full(const char *source, const char *city, const char *results_dir) 
         return 1;
     }
 
-    write_csv_header(fp_main, "scenario,missing_rate,method,mae,rmse,r2,count");
-    write_csv_header(fp_mae, "method,mae,scenario,missing_rate");
-    write_csv_header(fp_err, "missing_rate,method,mae,rmse,r2");
+    write_csv_header(fp_main,
+        "scenario,block_position,missing_rate,method,mae,rmse,r2,"
+        "number_of_missing_values,number_of_evaluated_values");
+    write_csv_header(fp_mae, "method,mae,scenario,block_position,missing_rate");
+    write_csv_header(fp_err, "scenario,block_position,missing_rate,method,mae,rmse,r2");
 
     printf("\n");
     printf("======================================================================\n");
@@ -439,46 +540,59 @@ int exp_run_full(const char *source, const char *city, const char *results_dir) 
         printf("Grad:       %s\n", label_city);
     }
     printf("Zapisa:     %zu\n", n);
-    printf("Scenariji:  random, block (block_size=%d)\n", PREPROC_BLOCK_SIZE_2H_10MIN);
+    printf("Scenariji:  random, block, block_start, block_middle, block_end\n");
+    printf("Rateovi:    10%%, 20%%, 30%%, 40%%\n");
     printf("Rezultati:  %s/\n", results_dir);
     printf("\n");
-    printf("  %-8s %5s  %-22s %10s %10s %10s\n",
+    printf("  %-14s %5s  %-22s %10s %10s %10s\n",
            "scenario", "rate", "method", "MAE", "RMSE", "R2");
     printf("  ------------------------------------------------------------------------------\n");
 
-    const ExpScenario scenarios[] = {EXP_SCENARIO_RANDOM, EXP_SCENARIO_BLOCK};
-    for (size_t sc = 0; sc < 2; sc++) {
+    for (size_t sc = 0; sc < EXP_NUM_SCENARIOS; sc++) {
+        ExpScenario scenario = EXP_ALL_SCENARIOS[sc];
+        if (!scenario_matches_filter(scenario, filter)) {
+            continue;
+        }
+
         for (size_t ri = 0; ri < EXP_NUM_RATES; ri++) {
             double rate = EXP_MISSING_RATES[ri];
-            size_t removed = exp_create_damage(scenarios[sc], s.temp, n, rate, RANDOM_SEED,
+            if (!rate_matches_filter(rate, filter)) {
+                continue;
+            }
+
+            size_t removed = exp_create_damage(scenario, s.temp, n, rate, RANDOM_SEED,
                                                damaged, mask);
-            (void)removed;
 
             exp_run_methods(&s, s.temp, damaged, mask, n, out, results);
 
             for (size_t mi = 0; mi < EXP_NUM_METHODS; mi++) {
-                print_exp_row(exp_scenario_name(scenarios[sc]), rate, &results[mi]);
+                print_exp_row(scenario, rate, &results[mi]);
                 if (!results[mi].ok) {
                     continue;
                 }
 
-                fprintf(fp_main, "%s,%.2f,%s,%.6f,%.6f,%.6f,%zu\n",
-                        exp_scenario_name(scenarios[sc]), rate, results[mi].name,
+                fprintf(fp_main, "%s,%s,%.2f,%s,%.6f,%.6f,%.6f,%zu,%zu\n",
+                        exp_scenario_name(scenario),
+                        exp_block_position_name(scenario),
+                        rate, results[mi].name,
                         results[mi].metrics.mae, results[mi].metrics.rmse,
-                        results[mi].metrics.r2, results[mi].metrics.count);
+                        results[mi].metrics.r2, removed, results[mi].metrics.count);
 
-                fprintf(fp_mae, "%s,%.6f,%s,%.2f\n",
+                fprintf(fp_mae, "%s,%.6f,%s,%s,%.2f\n",
                         results[mi].name, results[mi].metrics.mae,
-                        exp_scenario_name(scenarios[sc]), rate);
+                        exp_scenario_name(scenario),
+                        exp_block_position_name(scenario), rate);
 
-                fprintf(fp_err, "%.2f,%s,%.6f,%.6f,%.6f\n",
+                fprintf(fp_err, "%s,%s,%.2f,%s,%.6f,%.6f,%.6f\n",
+                        exp_scenario_name(scenario),
+                        exp_block_position_name(scenario),
                         rate, results[mi].name,
                         results[mi].metrics.mae, results[mi].metrics.rmse,
                         results[mi].metrics.r2);
             }
 
             if (fabs(rate - EXP_RECON_SNAPSHOT_RATE) < 1e-9) {
-                export_configured_reconstructions(results_dir, scenarios[sc], rate,
+                export_configured_reconstructions(results_dir, scenario, rate,
                                                   &s, s.temp, damaged, mask, n, out);
             }
         }
