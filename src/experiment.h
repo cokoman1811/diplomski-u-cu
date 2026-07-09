@@ -80,7 +80,7 @@ int exp_run_compare(const char *source, const char *city, ExpScenario scenario,
                     const char *results_dir);
 
 /*
- * Pun eksperiment: svi scenariji, missing rateovi 10-40%, sve metode.
+ * Pun eksperiment: svi scenariji, missing rateovi 10-80%, sve metode.
  * filter == NULL ili prazni filter pokrece sve kombinacije.
  */
 int exp_run_all(const char *source, const char *city, const char *results_dir,

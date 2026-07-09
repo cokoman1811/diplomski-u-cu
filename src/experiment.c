@@ -24,7 +24,7 @@
 #define DEFAULT_CITY "Split"
 #define RANDOM_SEED 42ULL
 
-static const double EXP_MISSING_RATES[] = {0.10, 0.20, 0.30, 0.40};
+static const double EXP_MISSING_RATES[] = {0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80};
 static const size_t EXP_NUM_RATES = sizeof(EXP_MISSING_RATES) / sizeof(EXP_MISSING_RATES[0]);
 
 static const ExpScenario EXP_ALL_SCENARIOS[] = {
@@ -152,7 +152,7 @@ static void print_experiment_intro(const char *source, const char *label_city,
     }
     printf("  Broj zapisa:      %zu (10-min intervali)\n", n);
     printf("  Scenariji:        5 (random, block, block_start, block_middle, block_end)\n");
-    printf("  Missing rateovi:  10%%, 20%%, 30%%, 40%%\n");
+    printf("  Missing rateovi:  10%%, 20%%, 30%%, 40%%, 50%%, 60%%, 70%%, 80%%\n");
     printf("  Metode:           8 (klasicne + ML)\n");
     if (filter && (filter->has_scenario || filter->has_rate)) {
         printf("  Filter:           ");
@@ -174,7 +174,7 @@ static void print_experiment_footer(const char *results_dir,
                                     const char *main_csv, const char *mae_csv,
                                     const char *error_csv,
                                     const ExpRunSummary *summary, size_t summary_count,
-                                    size_t total_runs) {
+                                    size_t total_runs, size_t n) {
     printf("\n");
     printf("======================================================================\n");
     printf("  SAZETAK EKSPERIMENTA\n");
@@ -223,7 +223,9 @@ static void print_experiment_footer(const char *results_dir,
     printf("  - Random missing: klasicne metode (spline/linear) obicno najbolje\n");
     printf("  - Block missing: linear/time obicno najbolje; KNN cesto lose\n");
     printf("  - Pozicija bloka (start/middle/end) utjece na tezinu imputacije\n");
-    printf("  - Visi missing rate (40%%) -> veca pogreska kod svih metoda\n\n");
+    printf("  - Visi missing rate (do 80%%) -> veca pogreska kod svih metoda\n");
+    printf("  - Pri 80%% block scenarij uklanja do %zu vrijednosti (prva i zadnja ostaju)\n\n",
+           (size_t)llround(0.80 * (double)n));
     printf("======================================================================\n\n");
 }
 
@@ -720,6 +722,13 @@ int exp_run_all(const char *source, const char *city, const char *results_dir,
             size_t removed = exp_create_damage(scenario, s.temp, n, rate, RANDOM_SEED,
                                                damaged, mask);
 
+            size_t target_removed = (size_t)llround(rate * (double)n);
+            if (removed < target_removed && removed > 0) {
+                printf("  [upozorenje] Ciljano %zu uklonjenih, stvarno %zu "
+                       "(rubna pravila ili velicina bloka)\n",
+                       target_removed, removed);
+            }
+
             print_run_block_header(scenario, rate, removed, n);
 
             exp_run_methods(&s, s.temp, damaged, mask, n, out, results);
@@ -778,7 +787,7 @@ int exp_run_all(const char *source, const char *city, const char *results_dir,
     fclose(fp_err);
 
     print_experiment_footer(results_dir, main_csv, mae_csv, error_csv,
-                            summary, summary_count, total_method_runs);
+                            summary, summary_count, total_method_runs, n);
 
     free(damaged);
     free(mask);

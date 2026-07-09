@@ -501,6 +501,67 @@ static void test_mask_and_evaluation_scope(void) {
     free(mask);
 }
 
+static void test_high_missing_rates(void) {
+    printf("\n== Visoki missing rateovi (50-80%%) ==\n");
+
+    const size_t n = 288;
+    const double rates[] = {0.50, 0.60, 0.70, 0.80};
+    const PreprocBlockPosition positions[] = {
+        PREPROC_BLOCK_POS_START,
+        PREPROC_BLOCK_POS_MIDDLE,
+        PREPROC_BLOCK_POS_END,
+    };
+    const char *pos_names[] = {"start", "middle", "end"};
+
+    double *original = (double *)malloc(n * sizeof(double));
+    double *damaged = (double *)malloc(n * sizeof(double));
+    int *mask = (int *)malloc(n * sizeof(int));
+    if (!original || !damaged || !mask) {
+        check(0, "alokacija memorije");
+        free(original);
+        free(damaged);
+        free(mask);
+        return;
+    }
+
+    for (size_t i = 0; i < n; i++) {
+        original[i] = 5.0 + 0.01 * (double)i;
+    }
+
+    for (size_t ri = 0; ri < sizeof(rates) / sizeof(rates[0]); ri++) {
+        double rate = rates[ri];
+        size_t expected = (size_t)llround(rate * (double)n);
+        size_t max_removable = n - 2;
+
+        size_t removed_random = create_missing_values(original, n, rate, 42ULL, damaged, mask);
+        check(removed_random == expected || removed_random == max_removable,
+              "random missing rate visok: uklonjen ocekivani broj");
+        check(!isnan(damaged[0]), "random visok rate: prva vrijednost ocuvana");
+        check(!isnan(damaged[n - 1]), "random visok rate: zadnja vrijednost ocuvana");
+
+        size_t removed_block = create_single_block_missing_values(
+            original, n, rate, 42ULL, PREPROC_BLOCK_POS_RANDOM, damaged, mask);
+        size_t block_expected = expected;
+        if (block_expected > max_removable) {
+            block_expected = max_removable;
+        }
+        check(removed_block == block_expected, "block random visok rate: velicina bloka");
+        check(!isnan(damaged[0]), "block visok rate: prva vrijednost ocuvana");
+        check(!isnan(damaged[n - 1]), "block visok rate: zadnja vrijednost ocuvana");
+
+        for (size_t pi = 0; pi < 3; pi++) {
+            removed_block = create_single_block_missing_values(
+                original, n, rate, 42ULL, positions[pi], damaged, mask);
+            char msg[128];
+            snprintf(msg, sizeof(msg), "block_%s visok rate %.0f%%: uklanja blok",
+                     pos_names[pi], rate * 100.0);
+            check(removed_block == block_expected, msg);
+            check(mask[0] == 0, "block_start/middle/end: indeks 0 nije maskiran");
+            check(mask[n - 1] == 0, "block_start/middle/end: zadnji indeks nije maskiran");
+        }
+    }
+}
+
 static void test_preprocessing(void) {
     printf("\n== Preprocessing (create_missing_values) ==\n");
 
@@ -668,6 +729,7 @@ int main(void) {
     test_random_missing_count();
     test_positioned_block_missing();
     test_mask_and_evaluation_scope();
+    test_high_missing_rates();
     test_preprocessing();
     test_interpolation();
     test_metrics();

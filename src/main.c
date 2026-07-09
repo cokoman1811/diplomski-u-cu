@@ -17,7 +17,7 @@ static void print_usage(void) {
     printf("  diplomski --experiment-all --scenario random --missing-rate 0.20\n");
     printf("  diplomski --compare --source demo --city Split\n\n");
     printf("Scenariji (--scenario): random | block | block_start | block_middle | block_end\n");
-    printf("Missing rate (--missing-rate): 0.10 | 0.20 | 0.30 | 0.40\n");
+    printf("Missing rate (--missing-rate): 0.10 | 0.20 | 0.30 | 0.40 | 0.50 | 0.60 | 0.70 | 0.80\n");
     printf("Izvori (--source): jena_quick | processed | demo\n");
 }
 
