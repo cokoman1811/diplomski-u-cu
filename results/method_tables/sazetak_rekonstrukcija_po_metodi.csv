@@ -1,0 +1,6 @@
+﻿method,scenario,block_position,missing_rate_percent,number_of_values,mean_absolute_error,max_error,min_error
+linear_interpolation,block,none,20,58,0.2848684827586206,0.759322,0.002880999999998579
+linear_interpolation,block_end,end,20,58,0.3537931034482759,0.6771189999999998,0.03372900000000012
+linear_interpolation,block_middle,middle,20,58,0.3653623103448275,0.7513560000000004,0.002033999999999203
+linear_interpolation,block_start,start,20,58,1.133471655172414,2.438136,0.02288099999999993
+linear_interpolation,random,none,20,58,0.05017237931034482,0.23999999999999977,0.0
