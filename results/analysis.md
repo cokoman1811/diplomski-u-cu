@@ -54,31 +54,9 @@ Automatski generirano iz `experiment_results.csv`.
 5. **KNN** na block scenariju pokazuje najveću pogrešku (npr. MAE ≈ 3.45 pri 40% block) — ne koristi dovoljno lokalnu vremensku strukturu za dugačke blokove.
 6. Pri **40% random missing** KNN i ML metode pokazuju veću pogrešku — manje poznatih uzoraka za pouzdan model.
 
-## Usporedba scenarija random vs block
+## Grafovi
 
-Block missing simulira kvar senzora (kontinuirani interval bez podataka). U tom scenariju:
-- metode koje koriste **susjedne poznate točke** (linear, time) ostaju najstabilnije;
-- **forward fill** daje ravnu liniju kroz blok → veći MAE;
-- **ML** uči globalne obrasce (sat, dan) ali ne popunjava lokalni trend iz susjedstva kao interpolacija.
-
-## Grafovi (mapa `slike i videa/2026/diplomski-grafovi/`)
-
-| Datoteka | Opis |
-|----------|------|
-| `mae_by_method_random_20.png` | Stupčasti graf MAE, random 20% |
-| `mae_by_method_block_20.png` | Stupčasti graf MAE, block 20% |
-| `mae_vs_rate_random.png` | MAE vs missing rate, random |
-| `mae_vs_rate_block.png` | MAE vs missing rate, block |
-| `reconstruction_linear_*_20.png` | Original vs rekonstruirano (linear) |
-
-## Nacrt zaključka (ručno doradi za rad)
-
-Na testiranom Jena datasetu (48 h, 10-min intervali) klasične interpolacijske metode,
-posebno linearna interpolacija, postižu najbolju točnost imputacije u oba scenarija
-nedostajućih vrijednosti. ML metode ne pokazuju prednost na malom skupu podataka;
-imale bi smisla na većem skupu, s više značajki ili uz tuning hiperparametara.
-Block missing potvrđuje da izbor metode ovisi o **obliku** nedostajućih podataka,
-ne samo o njihovu udjelu.
+Otvori `results/grafovi_pregled.html` u pregledniku za vizualni pregled svih grafova.
 
 ---
 *Generirano: `python scripts/report.py`*

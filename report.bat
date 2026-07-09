@@ -26,7 +26,8 @@ if errorlevel 1 (
 
 echo.
 echo Sve spremno:
-echo   results\experiment_results.csv  - tablice rezultata
-echo   results\analysis.md             - tekstualna analiza
-echo   slike i videa\2026\diplomski-grafovi\*.png - grafovi za rad
+echo   results\experiment_results.csv       - tablice rezultata
+echo   results\analysis.md                  - tekstualna analiza
+echo   results\grafovi_pregled.html         - vizualni pregled (otvara se u pregledniku)
+echo   slike i videa\2026\diplomski-grafovi\ - PNG grafovi
 pause

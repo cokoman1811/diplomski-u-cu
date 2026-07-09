@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang='hr'>
+<head>
+<meta charset='utf-8'>
+<title>Diplomski — pregled grafova</title>
+<style>
+body { font-family: Segoe UI, Arial, sans-serif; margin: 24px; background: #f5f5f5; }
+h1 { color: #1a1a2e; }
+h2 { color: #16213e; border-bottom: 2px solid #4C78A8; padding-bottom: 6px; }
+.card { background: white; border-radius: 8px; padding: 16px; margin: 16px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.card img { max-width: 100%; height: auto; display: block; margin-top: 8px; }
+.card h3 { margin: 0 0 8px 0; font-size: 1rem; color: #333; }
+.legend { background: #e8f4f8; padding: 12px; border-radius: 6px; margin-bottom: 20px; }
+.legend li { margin: 4px 0; }
+</style>
+</head>
+<body>
+<h1>Pregled grafova — imputacija temperatura</h1>
+<div class='legend'>
+<strong>Kako čitati:</strong>
+<ul>
+<li><b>MAE</b> — prosječna pogreška u °C (niže = bolje)</li>
+<li><b>Plavi stupci</b> — klasične metode | <b>Narančasti</b> — ML metode</li>
+<li><b>Crvene točke</b> na rekonstrukciji — mjesta gdje su vrijednosti umjetno uklonjene</li>
+</ul>
+</div>
+<h2>MAE po metodama (20%)</h2>
+<div class='card'>
+<h3>Random missing — MAE po metodama (20%)</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/mae_by_method_random_20.png' alt='Random missing — MAE po metodama (20%)'>
+</div>
+<div class='card'>
+<h3>Block missing (nasumična pozicija) — MAE po metodama (20%)</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/mae_by_method_block_20.png' alt='Block missing (nasumična pozicija) — MAE po metodama (20%)'>
+</div>
+<div class='card'>
+<h3>Block na početku niza — MAE po metodama (20%)</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/mae_by_method_block_start_20.png' alt='Block na početku niza — MAE po metodama (20%)'>
+</div>
+<div class='card'>
+<h3>Block u sredini niza — MAE po metodama (20%)</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/mae_by_method_block_middle_20.png' alt='Block u sredini niza — MAE po metodama (20%)'>
+</div>
+<div class='card'>
+<h3>Block na kraju niza — MAE po metodama (20%)</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/mae_by_method_block_end_20.png' alt='Block na kraju niza — MAE po metodama (20%)'>
+</div>
+<h2>MAE vs missing rate</h2>
+<div class='card'>
+<h3>Random missing — MAE vs missing rate</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/mae_vs_rate_random.png' alt='Random missing — MAE vs missing rate'>
+</div>
+<div class='card'>
+<h3>Block missing (nasumična pozicija) — MAE vs missing rate</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/mae_vs_rate_block.png' alt='Block missing (nasumična pozicija) — MAE vs missing rate'>
+</div>
+<div class='card'>
+<h3>Block na početku niza — MAE vs missing rate</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/mae_vs_rate_block_start.png' alt='Block na početku niza — MAE vs missing rate'>
+</div>
+<div class='card'>
+<h3>Block u sredini niza — MAE vs missing rate</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/mae_vs_rate_block_middle.png' alt='Block u sredini niza — MAE vs missing rate'>
+</div>
+<div class='card'>
+<h3>Block na kraju niza — MAE vs missing rate</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/mae_vs_rate_block_end.png' alt='Block na kraju niza — MAE vs missing rate'>
+</div>
+<h2>Rekonstrukcija (linear, 20%)</h2>
+<div class='card'>
+<h3>Original vs linear — block 0.20</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/reconstruction_linear_block_0.20.png' alt='Original vs linear — block 0.20'>
+</div>
+<div class='card'>
+<h3>Original vs linear — block end 0.20</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/reconstruction_linear_block_end_0.20.png' alt='Original vs linear — block end 0.20'>
+</div>
+<div class='card'>
+<h3>Original vs linear — block middle 0.20</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/reconstruction_linear_block_middle_0.20.png' alt='Original vs linear — block middle 0.20'>
+</div>
+<div class='card'>
+<h3>Original vs linear — block start 0.20</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/reconstruction_linear_block_start_0.20.png' alt='Original vs linear — block start 0.20'>
+</div>
+<div class='card'>
+<h3>Original vs linear — random 0.20</h3>
+<img src='../slike i videa/2026/diplomski-grafovi/reconstruction_linear_random_0.20.png' alt='Original vs linear — random 0.20'>
+</div>
+</body>
+</html>

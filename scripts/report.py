@@ -3,13 +3,15 @@
 Generira grafove i tekstualnu analizu iz results/*.csv.
 
 Koristenje (iz korijena projekta):
-    python scripts/report.py
-
-Preduvjet: results/experiment_results.csv (pokreni diplomski --experiment).
+    python scripts/report.py          # generira grafove + otvara HTML pregled
+    python scripts/report.py --no-open  # samo spremi datoteke
 """
 
 from __future__ import annotations
 
+import argparse
+import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -19,6 +21,7 @@ FIGURES = ROOT / "slike i videa" / "2026" / "diplomski-grafovi"
 FIGURES_DISPLAY = "slike i videa/2026/diplomski-grafovi"
 EXPERIMENT_CSV = RESULTS / "experiment_results.csv"
 ANALYSIS_MD = RESULTS / "analysis.md"
+HTML_GALLERY = RESULTS / "grafovi_pregled.html"
 
 CLASSICAL = {
     "forward_fill",
@@ -29,13 +32,28 @@ CLASSICAL = {
 }
 ML = {"knn", "decision_tree", "random_forest"}
 
-# Metode na linijskim grafovima (citoljivo, ne svih 8 odjednom).
 LINE_METHODS = [
     "linear_interpolation",
     "spline_interpolation",
     "knn",
     "random_forest",
 ]
+
+ALL_SCENARIOS = [
+    "random",
+    "block",
+    "block_start",
+    "block_middle",
+    "block_end",
+]
+
+SCENARIO_LABELS = {
+    "random": "Random missing",
+    "block": "Block missing (nasumična pozicija)",
+    "block_start": "Block na početku niza",
+    "block_middle": "Block u sredini niza",
+    "block_end": "Block na kraju niza",
+}
 
 SNAPSHOT_RATE = 0.20
 
@@ -54,7 +72,7 @@ def load_experiment():
 
     if not EXPERIMENT_CSV.exists():
         print(f"Nema {EXPERIMENT_CSV}")
-        print("Prvo pokreni: diplomski.exe --experiment --source jena_quick")
+        print("Prvo pokreni: .\\diplomski.exe --experiment-all")
         sys.exit(1)
     return pd.read_csv(EXPERIMENT_CSV)
 
@@ -73,11 +91,12 @@ def plot_mae_bars(df, scenario: str, rate: float, out_path: Path):
 
     sub = sub.sort_values("mae")
     colors = ["#4C78A8" if m in CLASSICAL else "#F58518" for m in sub["method"]]
+    label = SCENARIO_LABELS.get(scenario, scenario)
 
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(11, 5))
     ax.bar(sub["method"], sub["mae"], color=colors)
     ax.set_ylabel("MAE (°C)")
-    ax.set_title(f"MAE po metodama — {scenario} missing, {rate:.0%}")
+    ax.set_title(f"MAE po metodama — {label}, {rate:.0%} missing")
     ax.tick_params(axis="x", rotation=35)
     plt.tight_layout()
     fig.savefig(out_path, dpi=150)
@@ -92,6 +111,7 @@ def plot_mae_vs_rate(df, scenario: str, out_path: Path):
     if sub.empty:
         return False
 
+    label = SCENARIO_LABELS.get(scenario, scenario)
     fig, ax = plt.subplots(figsize=(8, 5))
     for method in LINE_METHODS:
         m = sub[sub["method"] == method]
@@ -102,7 +122,7 @@ def plot_mae_vs_rate(df, scenario: str, out_path: Path):
 
     ax.set_xlabel("Missing rate (%)")
     ax.set_ylabel("MAE (°C)")
-    ax.set_title(f"MAE vs missing rate — {scenario}")
+    ax.set_title(f"MAE vs missing rate — {label}")
     ax.legend(fontsize=8)
     ax.grid(True, alpha=0.3)
     plt.tight_layout()
@@ -154,12 +174,12 @@ def plot_reconstruction(csv_path: Path, out_path: Path, title: str):
 
 
 def fmt_table(df) -> str:
-  lines = ["| metoda | MAE | RMSE | R² |", "|--------|-----|------|-----|"]
-  for _, row in df.iterrows():
-      lines.append(
-          f"| {row['method']} | {row['mae']:.4f} | {row['rmse']:.4f} | {row['r2']:.4f} |"
-      )
-  return "\n".join(lines)
+    lines = ["| metoda | MAE | RMSE | R² |", "|--------|-----|------|-----|"]
+    for _, row in df.iterrows():
+        lines.append(
+            f"| {row['method']} | {row['mae']:.4f} | {row['rmse']:.4f} | {row['r2']:.4f} |"
+        )
+    return "\n".join(lines)
 
 
 def best_method(df, scenario: str, rate: float) -> str:
@@ -241,31 +261,9 @@ Automatski generirano iz `experiment_results.csv`.
 5. **KNN** na block scenariju pokazuje najveću pogrešku (npr. MAE ≈ {knn_40_mae:.2f} pri 40% block) — ne koristi dovoljno lokalnu vremensku strukturu za dugačke blokove.
 6. Pri **40% random missing** KNN i ML metode pokazuju veću pogrešku — manje poznatih uzoraka za pouzdan model.
 
-## Usporedba scenarija random vs block
+## Grafovi
 
-Block missing simulira kvar senzora (kontinuirani interval bez podataka). U tom scenariju:
-- metode koje koriste **susjedne poznate točke** (linear, time) ostaju najstabilnije;
-- **forward fill** daje ravnu liniju kroz blok → veći MAE;
-- **ML** uči globalne obrasce (sat, dan) ali ne popunjava lokalni trend iz susjedstva kao interpolacija.
-
-## Grafovi (mapa `{FIGURES_DISPLAY}/`)
-
-| Datoteka | Opis |
-|----------|------|
-| `mae_by_method_random_20.png` | Stupčasti graf MAE, random 20% |
-| `mae_by_method_block_20.png` | Stupčasti graf MAE, block 20% |
-| `mae_vs_rate_random.png` | MAE vs missing rate, random |
-| `mae_vs_rate_block.png` | MAE vs missing rate, block |
-| `reconstruction_linear_*_20.png` | Original vs rekonstruirano (linear) |
-
-## Nacrt zaključka (ručno doradi za rad)
-
-Na testiranom Jena datasetu (48 h, 10-min intervali) klasične interpolacijske metode,
-posebno linearna interpolacija, postižu najbolju točnost imputacije u oba scenarija
-nedostajućih vrijednosti. ML metode ne pokazuju prednost na malom skupu podataka;
-imale bi smisla na većem skupu, s više značajki ili uz tuning hiperparametara.
-Block missing potvrđuje da izbor metode ovisi o **obliku** nedostajućih podataka,
-ne samo o njihovu udjelu.
+Otvori `results/grafovi_pregled.html` u pregledniku za vizualni pregled svih grafova.
 
 ---
 *Generirano: `python scripts/report.py`*
@@ -274,37 +272,137 @@ ne samo o njihovu udjelu.
     print("  analiza:  results/analysis.md")
 
 
+def write_html_gallery(generated: list[tuple[str, Path, str]]) -> None:
+    """HTML stranica sa svim grafovima — otvara se u pregledniku."""
+    sections: dict[str, list[tuple[str, Path, str]]] = {
+        "MAE po metodama (20%)": [],
+        "MAE vs missing rate": [],
+        "Rekonstrukcija (linear, 20%)": [],
+    }
+
+    for category, path, title in generated:
+        if category == "mae_bars":
+            sections["MAE po metodama (20%)"].append((title, path, title))
+        elif category == "mae_vs_rate":
+            sections["MAE vs missing rate"].append((title, path, title))
+        elif category == "reconstruction":
+            sections["Rekonstrukcija (linear, 20%)"].append((title, path, title))
+
+    parts = [
+        "<!DOCTYPE html>",
+        "<html lang='hr'>",
+        "<head>",
+        "<meta charset='utf-8'>",
+        "<title>Diplomski — pregled grafova</title>",
+        "<style>",
+        "body { font-family: Segoe UI, Arial, sans-serif; margin: 24px; background: #f5f5f5; }",
+        "h1 { color: #1a1a2e; }",
+        "h2 { color: #16213e; border-bottom: 2px solid #4C78A8; padding-bottom: 6px; }",
+        ".card { background: white; border-radius: 8px; padding: 16px; margin: 16px 0; "
+        "box-shadow: 0 2px 8px rgba(0,0,0,0.08); }",
+        ".card img { max-width: 100%; height: auto; display: block; margin-top: 8px; }",
+        ".card h3 { margin: 0 0 8px 0; font-size: 1rem; color: #333; }",
+        ".legend { background: #e8f4f8; padding: 12px; border-radius: 6px; margin-bottom: 20px; }",
+        ".legend li { margin: 4px 0; }",
+        "</style>",
+        "</head>",
+        "<body>",
+        "<h1>Pregled grafova — imputacija temperatura</h1>",
+        "<div class='legend'>",
+        "<strong>Kako čitati:</strong>",
+        "<ul>",
+        "<li><b>MAE</b> — prosječna pogreška u °C (niže = bolje)</li>",
+        "<li><b>Plavi stupci</b> — klasične metode | <b>Narančasti</b> — ML metode</li>",
+        "<li><b>Crvene točke</b> na rekonstrukciji — mjesta gdje su vrijednosti umjetno uklonjene</li>",
+        "</ul>",
+        "</div>",
+    ]
+
+    for section_title, items in sections.items():
+        if not items:
+            continue
+        parts.append(f"<h2>{section_title}</h2>")
+        for title, img_path, _ in items:
+            rel = os.path.relpath(img_path.resolve(), HTML_GALLERY.parent).replace("\\", "/")
+            parts.append("<div class='card'>")
+            parts.append(f"<h3>{title}</h3>")
+            parts.append(f"<img src='{rel}' alt='{title}'>")
+            parts.append("</div>")
+
+    parts.extend(["</body>", "</html>"])
+    HTML_GALLERY.write_text("\n".join(parts), encoding="utf-8")
+    print(f"  pregled:  {HTML_GALLERY.relative_to(ROOT)}")
+
+
+def open_path(path: Path) -> None:
+    path = path.resolve()
+    try:
+        if sys.platform == "win32":
+            os.startfile(path)  # type: ignore[attr-defined]
+        elif sys.platform == "darwin":
+            subprocess.run(["open", str(path)], check=False)
+        else:
+            subprocess.run(["xdg-open", str(path)], check=False)
+    except OSError as exc:
+        print(f"  [upozorenje] Ne mogu otvoriti {path}: {exc}")
+
+
 def main() -> int:
+    parser = argparse.ArgumentParser(description="Generiraj grafove iz experiment_results.csv")
+    parser.add_argument(
+        "--no-open",
+        action="store_true",
+        help="Ne otvaraj automatski HTML pregled u pregledniku",
+    )
+    args = parser.parse_args()
+
     require_pandas_matplotlib()
     ensure_dirs()
     df = load_experiment()
 
     print("\nGeneriram grafove i analizu...\n")
 
-    plots = [
-        (plot_mae_bars(df, "random", SNAPSHOT_RATE, FIGURES / "mae_by_method_random_20.png"), "mae_by_method_random_20.png"),
-        (plot_mae_bars(df, "block", SNAPSHOT_RATE, FIGURES / "mae_by_method_block_20.png"), "mae_by_method_block_20.png"),
-        (plot_mae_vs_rate(df, "random", FIGURES / "mae_vs_rate_random.png"), "mae_vs_rate_random.png"),
-        (plot_mae_vs_rate(df, "block", FIGURES / "mae_vs_rate_block.png"), "mae_vs_rate_block.png"),
-    ]
+    generated: list[tuple[str, Path, str]] = []
+
+    for scenario in ALL_SCENARIOS:
+        fname = f"mae_by_method_{scenario}_20.png"
+        out = FIGURES / fname
+        label = SCENARIO_LABELS.get(scenario, scenario)
+        if plot_mae_bars(df, scenario, SNAPSHOT_RATE, out):
+            generated.append(("mae_bars", out, f"{label} — MAE po metodama (20%)"))
+            print(f"  graf:     {FIGURES_DISPLAY}/{fname}")
+
+    for scenario in ALL_SCENARIOS:
+        fname = f"mae_vs_rate_{scenario}.png"
+        out = FIGURES / fname
+        label = SCENARIO_LABELS.get(scenario, scenario)
+        if plot_mae_vs_rate(df, scenario, out):
+            generated.append(("mae_vs_rate", out, f"{label} — MAE vs missing rate"))
+            print(f"  graf:     {FIGURES_DISPLAY}/{fname}")
 
     for recon in sorted(RESULTS.glob("reconstruction_linear_interpolation_*.csv")):
         name = recon.stem.replace("reconstruction_linear_interpolation_", "")
-        out = FIGURES / f"reconstruction_linear_{name}.png"
+        fname = f"reconstruction_linear_{name}.png"
+        out = FIGURES / fname
         title = f"Original vs linear — {name.replace('_', ' ')}"
-        plots.append((plot_reconstruction(recon, out, title), out.name))
-
-    for ok, name in plots:
-        if ok:
-            print(f"  graf:     {FIGURES_DISPLAY}/{name}")
+        if plot_reconstruction(recon, out, title):
+            generated.append(("reconstruction", out, title))
+            print(f"  graf:     {FIGURES_DISPLAY}/{fname}")
 
     write_analysis(df)
+    write_html_gallery(generated)
 
     print("\nGotovo.")
+    print(f"  grafove:   {FIGURES_DISPLAY}/  ({len(generated)} PNG datoteka)")
+    print(f"  pregled:   results/grafovi_pregled.html  (otvori u pregledniku)")
     print("  rezultati: results/experiment_results.csv")
-    print(f"  grafove:   {FIGURES_DISPLAY}/")
     print("  analiza:   results/analysis.md")
-    print("\nZakljucak za diplomski napisi rucno u Wordu (nacrt je u results/analysis.md).\n")
+
+    if not args.no_open:
+        print("\nOtvaram vizualni pregled grafova u pregledniku...")
+        open_path(HTML_GALLERY)
+
+    print()
     return 0
 
 
