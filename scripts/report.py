@@ -32,12 +32,27 @@ CLASSICAL = {
 }
 ML = {"knn", "decision_tree", "random_forest"}
 
-LINE_METHODS = [
+ALL_METHODS = [
+    "forward_fill",
     "linear_interpolation",
+    "time_interpolation",
+    "cubic_interpolation",
     "spline_interpolation",
     "knn",
+    "decision_tree",
     "random_forest",
 ]
+
+METHOD_COLORS = {
+    "forward_fill": "#8c564b",
+    "linear_interpolation": "#1f77b4",
+    "time_interpolation": "#aec7e8",
+    "cubic_interpolation": "#2ca02c",
+    "spline_interpolation": "#98df8a",
+    "knn": "#ff7f0e",
+    "decision_tree": "#d62728",
+    "random_forest": "#9467bd",
+}
 
 ALL_SCENARIOS = [
     "random",
@@ -104,29 +119,79 @@ def plot_mae_bars(df, scenario: str, rate: float, out_path: Path):
     return True
 
 
-def plot_mae_vs_rate(df, scenario: str, out_path: Path):
+def plot_metric_vs_rate(df, scenario: str, metric: str, out_path: Path):
     import matplotlib.pyplot as plt
 
-    sub = df[(df["scenario"] == scenario) & (df["method"].isin(LINE_METHODS))]
+    sub = df[df["scenario"] == scenario]
     if sub.empty:
         return False
 
     label = SCENARIO_LABELS.get(scenario, scenario)
-    fig, ax = plt.subplots(figsize=(8, 5))
-    for method in LINE_METHODS:
-        m = sub[sub["method"] == method]
+    ylabel = {"mae": "MAE (°C)", "rmse": "RMSE (°C)", "r2": "R²"}[metric]
+    title_metric = metric.upper() if metric != "r2" else "R²"
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    for method in ALL_METHODS:
+        m = sub[sub["method"] == method].sort_values("missing_rate")
         if m.empty:
             continue
-        m = m.sort_values("missing_rate")
-        ax.plot(m["missing_rate"] * 100, m["mae"], marker="o", label=method)
+        ax.plot(
+            m["missing_rate"] * 100,
+            m[metric],
+            marker="o",
+            label=method,
+            color=METHOD_COLORS.get(method),
+            linewidth=1.8,
+            markersize=5,
+        )
 
     ax.set_xlabel("Missing rate (%)")
-    ax.set_ylabel("MAE (°C)")
-    ax.set_title(f"MAE vs missing rate — {label}")
-    ax.legend(fontsize=8)
+    ax.set_ylabel(ylabel)
+    ax.set_title(f"{title_metric} vs missing rate — {label}")
+    ax.set_xticks([10, 20, 30, 40, 50, 60, 70, 80])
+    ax.legend(fontsize=7, ncol=2, loc="best")
     ax.grid(True, alpha=0.3)
     plt.tight_layout()
     fig.savefig(out_path, dpi=150)
+    plt.close(fig)
+    return True
+
+
+def plot_mae_overview_panel(df, scenario: str, out_path: Path):
+    """Jedan graf po scenariju: stupčasti dijagram MAE za sve metode na svim rateovima."""
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    sub = df[df["scenario"] == scenario]
+    if sub.empty:
+        return False
+
+    rates = sorted(sub["missing_rate"].unique())
+    label = SCENARIO_LABELS.get(scenario, scenario)
+
+    ncols = 4
+    nrows = int(np.ceil(len(rates) / ncols))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(16, 3.5 * nrows), squeeze=False)
+    fig.suptitle(f"MAE po metodama — {label} (10–80 %)", fontsize=14, y=1.01)
+
+    for idx, rate in enumerate(rates):
+        row, col = divmod(idx, ncols)
+        ax = axes[row][col]
+        part = sub[sub["missing_rate"] == rate].sort_values("mae")
+        colors = ["#4C78A8" if m in CLASSICAL else "#F58518" for m in part["method"]]
+        ax.bar(range(len(part)), part["mae"], color=colors)
+        ax.set_xticks(range(len(part)))
+        ax.set_xticklabels(part["method"], rotation=55, ha="right", fontsize=6)
+        ax.set_ylabel("MAE (°C)", fontsize=8)
+        ax.set_title(f"{rate:.0%} missing", fontsize=10)
+        ax.grid(True, axis="y", alpha=0.25)
+
+    for idx in range(len(rates), nrows * ncols):
+        row, col = divmod(idx, ncols)
+        axes[row][col].axis("off")
+
+    plt.tight_layout()
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return True
 
@@ -201,6 +266,14 @@ def group_mean_mae(df, scenario: str, rate: float, methods: set) -> float:
 
 
 def write_analysis(df) -> None:
+    rates = sorted(df["missing_rate"].unique())
+    rate_cols = " | ".join(f"{r:.0%}" for r in rates)
+    rate_hdr = " | ".join("----" for _ in rates)
+
+    def best_row(scenario: str) -> str:
+        cells = [best_method(df, scenario, r) for r in rates]
+        return " | ".join(cells)
+
     random_20 = df[(df["scenario"] == "random") & (df["missing_rate"] == SNAPSHOT_RATE)].sort_values(
         "mae"
     )
@@ -216,12 +289,12 @@ def write_analysis(df) -> None:
     cls_block = group_mean_mae(df, "block", SNAPSHOT_RATE, CLASSICAL)
     ml_block = group_mean_mae(df, "block", SNAPSHOT_RATE, ML)
 
-    knn_block_40 = df[
+    knn_block_80 = df[
         (df["scenario"] == "block")
-        & (df["missing_rate"] == 0.40)
+        & (df["missing_rate"] == 0.80)
         & (df["method"] == "knn")
     ]
-    knn_40_mae = knn_block_40["mae"].iloc[0] if not knn_block_40.empty else float("nan")
+    knn_80_mae = knn_block_80["mae"].iloc[0] if not knn_block_80.empty else float("nan")
 
     text = f"""# Analiza rezultata eksperimenata
 
@@ -244,22 +317,22 @@ Automatski generirano iz `experiment_results.csv`.
 
 ## Najbolja metoda po scenariju i missing rateu
 
-| scenarij | 10% | 20% | 30% | 40% |
-|----------|-----|-----|-----|-----|
-| random | {best_method(df, "random", 0.10)} | {best_method(df, "random", 0.20)} | {best_method(df, "random", 0.30)} | {best_method(df, "random", 0.40)} |
-| block | {best_method(df, "block", 0.10)} | {best_method(df, "block", 0.20)} | {best_method(df, "block", 0.30)} | {best_method(df, "block", 0.40)} |
-| block_start | {best_method(df, "block_start", 0.10)} | {best_method(df, "block_start", 0.20)} | {best_method(df, "block_start", 0.30)} | {best_method(df, "block_start", 0.40)} |
-| block_middle | {best_method(df, "block_middle", 0.10)} | {best_method(df, "block_middle", 0.20)} | {best_method(df, "block_middle", 0.30)} | {best_method(df, "block_middle", 0.40)} |
-| block_end | {best_method(df, "block_end", 0.10)} | {best_method(df, "block_end", 0.20)} | {best_method(df, "block_end", 0.30)} | {best_method(df, "block_end", 0.40)} |
+| scenarij | {rate_cols} |
+|----------|{rate_hdr}|
+| random | {best_row("random")} |
+| block | {best_row("block")} |
+| block_start | {best_row("block_start")} |
+| block_middle | {best_row("block_middle")} |
+| block_end | {best_row("block_end")} |
 
 ## Ključni nalazi (za poglavlje Rezultati)
 
-1. **Klasične interpolacijske metode** (posebno linear, spline, cubic) postižu najniži MAE na random scenariju za sve testirane missing rateove.
+1. **Klasične interpolacijske metode** (posebno linear, spline, cubic) postižu najniži MAE na random scenariju za sve testirane missing rateove (10–80 %).
 2. **Linear i time interpolacija** daju identične rezultate jer su uzorci ravnomjerno raspoređeni u vremenu (Jena 10-min intervali).
 3. Na **block scenariju** linear/time i dalje vode; forward fill i cubic/spline znatno gore zbog dugačkih rupa.
 4. **ML metode** (KNN, decision tree, random forest) na ovom datasetu (288 uzoraka) **ne nadmašuju** klasične metode.
-5. **KNN** na block scenariju pokazuje najveću pogrešku (npr. MAE ≈ {knn_40_mae:.2f} pri 40% block) — ne koristi dovoljno lokalnu vremensku strukturu za dugačke blokove.
-6. Pri **40% random missing** KNN i ML metode pokazuju veću pogrešku — manje poznatih uzoraka za pouzdan model.
+5. **KNN** na block scenariju pokazuje najveću pogrešku (npr. MAE ≈ {knn_80_mae:.2f} pri 80% block).
+6. Pri visokim missing rateovima (50–80 %) pogreška naglo raste na block_start, block_middle i block_end scenarijima.
 
 ## Grafovi
 
@@ -275,16 +348,25 @@ Otvori `results/grafovi_pregled.html` u pregledniku za vizualni pregled svih gra
 def write_html_gallery(generated: list[tuple[str, Path, str]]) -> None:
     """HTML stranica sa svim grafovima — otvara se u pregledniku."""
     sections: dict[str, list[tuple[str, Path, str]]] = {
+        "Pregled po scenariju (10–80 %)": [],
+        "MAE vs missing rate (sve metode)": [],
+        "RMSE vs missing rate (sve metode)": [],
+        "R² vs missing rate (sve metode)": [],
         "MAE po metodama (20%)": [],
-        "MAE vs missing rate": [],
         "Rekonstrukcija (linear, 20%)": [],
     }
 
     for category, path, title in generated:
-        if category == "mae_bars":
-            sections["MAE po metodama (20%)"].append((title, path, title))
+        if category == "overview":
+            sections["Pregled po scenariju (10–80 %)"].append((title, path, title))
         elif category == "mae_vs_rate":
-            sections["MAE vs missing rate"].append((title, path, title))
+            sections["MAE vs missing rate (sve metode)"].append((title, path, title))
+        elif category == "rmse_vs_rate":
+            sections["RMSE vs missing rate (sve metode)"].append((title, path, title))
+        elif category == "r2_vs_rate":
+            sections["R² vs missing rate (sve metode)"].append((title, path, title))
+        elif category == "mae_bars":
+            sections["MAE po metodama (20%)"].append((title, path, title))
         elif category == "reconstruction":
             sections["Rekonstrukcija (linear, 20%)"].append((title, path, title))
 
@@ -365,19 +447,27 @@ def main() -> int:
     generated: list[tuple[str, Path, str]] = []
 
     for scenario in ALL_SCENARIOS:
+        label = SCENARIO_LABELS.get(scenario, scenario)
+
+        fname = f"mae_overview_{scenario}.png"
+        out = FIGURES / fname
+        if plot_mae_overview_panel(df, scenario, out):
+            generated.append(("overview", out, f"{label} — pregled MAE (10–80 %)"))
+            print(f"  graf:     {FIGURES_DISPLAY}/{fname}")
+
+        for metric, cat in [("mae", "mae_vs_rate"), ("rmse", "rmse_vs_rate"), ("r2", "r2_vs_rate")]:
+            fname = f"{metric}_vs_rate_{scenario}_all.png"
+            out = FIGURES / fname
+            if plot_metric_vs_rate(df, scenario, metric, out):
+                generated.append((cat, out, f"{label} — {metric.upper()} vs missing rate"))
+                print(f"  graf:     {FIGURES_DISPLAY}/{fname}")
+
+    for scenario in ALL_SCENARIOS:
         fname = f"mae_by_method_{scenario}_20.png"
         out = FIGURES / fname
         label = SCENARIO_LABELS.get(scenario, scenario)
         if plot_mae_bars(df, scenario, SNAPSHOT_RATE, out):
             generated.append(("mae_bars", out, f"{label} — MAE po metodama (20%)"))
-            print(f"  graf:     {FIGURES_DISPLAY}/{fname}")
-
-    for scenario in ALL_SCENARIOS:
-        fname = f"mae_vs_rate_{scenario}.png"
-        out = FIGURES / fname
-        label = SCENARIO_LABELS.get(scenario, scenario)
-        if plot_mae_vs_rate(df, scenario, out):
-            generated.append(("mae_vs_rate", out, f"{label} — MAE vs missing rate"))
             print(f"  graf:     {FIGURES_DISPLAY}/{fname}")
 
     for recon in sorted(RESULTS.glob("reconstruction_linear_interpolation_*.csv")):
