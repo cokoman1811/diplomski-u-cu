@@ -33,8 +33,18 @@ if errorlevel 1 (
 )
 
 echo.
-echo === 4/4 Tablice rezultata (Python) ===
+echo === 4/6 Tablice rezultata (Python) ===
 python scripts\generate_results_tables.py
+if errorlevel 1 exit /b 1
+
+echo.
+echo === 5/6 Diplomski dokument za ChatGPT ===
+python scripts\generate_thesis_doc_10_80.py
+if errorlevel 1 exit /b 1
+
+echo.
+echo === 6/6 ChatGPT zip prilozi ===
+python scripts\generate_chatgpt_zip.py
 if errorlevel 1 exit /b 1
 
 echo.
@@ -42,6 +52,9 @@ echo Sve spremno:
 echo   results\experiment_results.csv       - tablice rezultata
 echo   results\tablice\                   - sve tablice (CSV, Excel, MD)
 echo   results\analysis.md                  - tekstualna analiza
-echo   results\grafovi_pregled.html         - vizualni pregled (otvara se u pregledniku)
+echo   results\diplomski_dokument_10_80_za_chat.md - sazetak za ChatGPT
+echo   results\chatgpt_prilozi.zip          - ZIP za slanje ChatGPT-u
+echo   results\chatgpt_prompt_za_nadopunu.md - prompt za kopiranje
+echo   results\grafovi_pregled.html         - vizualni pregled
 echo   slike i videa\2026\diplomski-grafovi\ - PNG grafovi
 pause

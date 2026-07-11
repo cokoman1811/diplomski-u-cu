@@ -6,8 +6,8 @@ Automatski generirano iz `experiment_results.csv`.
 
 - **Random missing (20%):** najbolja metoda — **spline_interpolation**
 - **Block missing (20%):** najbolja metoda — **linear_interpolation**
-- **Klasične vs ML (prosjek MAE, random 20%):** 0.0873 vs 0.4707
-- **Klasične vs ML (prosjek MAE, block 20%):** 2.6094 vs 2.2221
+- **Klasične vs ML (prosjek MAE, random 20%):** 0.1027 vs 0.3243
+- **Klasične vs ML (prosjek MAE, block 20%):** 2.4410 vs 1.9345
 
 ## Tablica — random missing, 20%
 
@@ -18,8 +18,10 @@ Automatski generirano iz `experiment_results.csv`.
 | cubic_interpolation | 0.0635 | 0.1052 | 0.9997 |
 | time_interpolation | 0.0730 | 0.1185 | 0.9996 |
 | linear_interpolation | 0.0730 | 0.1185 | 0.9996 |
-| knn | 0.1573 | 0.2641 | 0.9981 |
+| knn | 0.1459 | 0.2412 | 0.9984 |
+| knn_upgraded | 0.1573 | 0.2641 | 0.9981 |
 | forward_fill | 0.1635 | 0.2588 | 0.9982 |
+| moving_average | 0.1796 | 0.2998 | 0.9976 |
 | decision_tree | 0.5546 | 0.7300 | 0.9855 |
 | random_forest | 0.7003 | 0.9443 | 0.9758 |
 
@@ -30,9 +32,11 @@ Automatski generirano iz `experiment_results.csv`.
 | linear_interpolation | 1.4765 | 1.6968 | -2.6787 |
 | time_interpolation | 1.4765 | 1.6968 | -2.6787 |
 | adaptive_imputation | 1.4765 | 1.6968 | -2.6787 |
+| knn | 1.5294 | 1.7260 | -2.8061 |
+| moving_average | 1.5990 | 1.8308 | -3.2827 |
 | forward_fill | 1.6054 | 1.8330 | -3.2929 |
 | decision_tree | 2.0627 | 2.2444 | -5.4362 |
-| knn | 2.1354 | 2.5753 | -7.4734 |
+| knn_upgraded | 2.1354 | 2.5753 | -7.4734 |
 | random_forest | 2.4682 | 2.6161 | -7.7439 |
 | cubic_interpolation | 4.2442 | 5.0983 | -32.2091 |
 | spline_interpolation | 4.2442 | 5.0983 | -32.2091 |
@@ -42,9 +46,9 @@ Automatski generirano iz `experiment_results.csv`.
 | scenarij | 10% | 20% | 30% | 40% | 50% | 60% | 70% | 80% |
 |----------|---- | ---- | ---- | ---- | ---- | ---- | ---- | ----|
 | random | spline_interpolation | spline_interpolation | linear_interpolation | spline_interpolation | spline_interpolation | cubic_interpolation | linear_interpolation | linear_interpolation |
-| block | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | forward_fill | linear_interpolation |
-| block_start | linear_interpolation | linear_interpolation | knn | decision_tree | linear_interpolation | cubic_interpolation | cubic_interpolation | forward_fill |
-| block_middle | linear_interpolation | linear_interpolation | cubic_interpolation | random_forest | cubic_interpolation | forward_fill | forward_fill | forward_fill |
+| block | knn | linear_interpolation | knn | linear_interpolation | knn | knn | moving_average | knn |
+| block_start | linear_interpolation | linear_interpolation | knn | knn | linear_interpolation | cubic_interpolation | cubic_interpolation | moving_average |
+| block_middle | linear_interpolation | linear_interpolation | cubic_interpolation | random_forest | cubic_interpolation | moving_average | moving_average | moving_average |
 | block_end | linear_interpolation | cubic_interpolation | spline_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | cubic_interpolation |
 
 ## Ključni nalazi (za poglavlje Rezultati)
@@ -53,7 +57,7 @@ Automatski generirano iz `experiment_results.csv`.
 2. **Linear i time interpolacija** daju identične rezultate jer su uzorci ravnomjerno raspoređeni u vremenu (Jena 10-min intervali).
 3. Na **block scenariju** linear/time i dalje vode; forward fill i cubic/spline znatno gore zbog dugačkih rupa.
 4. **ML metode** (KNN, decision tree, random forest) na ovom skupu (7 dana, 10-min) **ne nadmašuju** klasične metode.
-5. **KNN** na block scenariju pokazuje najveću pogrešku (npr. MAE ≈ 5.09 pri 80% block).
+5. **KNN** na block scenariju pokazuje najveću pogrešku (npr. MAE ≈ 4.53 pri 80% block).
 6. Pri visokim missing rateovima (50–80 %) pogreška naglo raste na block_start, block_middle i block_end scenarijima.
 
 ## Grafovi

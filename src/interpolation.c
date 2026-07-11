@@ -281,3 +281,51 @@ int cubic_interpolation(const double *temp, size_t n, double *out) {
 int spline_interpolation(const double *temp, size_t n, double *out) {
     return cubic_spline_impl(temp, n, out, SPLINE_NATURAL);
 }
+
+void moving_average_imputation(const double *temp, size_t n, int window, double *out) {
+    size_t i;
+    int w;
+
+    for (i = 0; i < n; i++) {
+        out[i] = temp[i];
+    }
+
+    if (window < 1) {
+        window = 1;
+    }
+    w = window;
+
+    for (i = 0; i < n; i++) {
+        long long start;
+        long long end;
+        double sum = 0.0;
+        size_t count = 0;
+        size_t j;
+
+        if (!isnan(temp[i])) {
+            continue;
+        }
+
+        start = (long long)i - w;
+        if (start < 0) {
+            start = 0;
+        }
+        end = (long long)i + w;
+        if (end >= (long long)n) {
+            end = (long long)n - 1;
+        }
+
+        for (j = (size_t)start; j <= (size_t)end; j++) {
+            if (!isnan(temp[j])) {
+                sum += temp[j];
+                count++;
+            }
+        }
+
+        if (count > 0) {
+            out[i] = sum / (double)count;
+        }
+    }
+
+    fill_remaining_gaps(out, n);
+}

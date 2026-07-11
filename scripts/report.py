@@ -29,8 +29,9 @@ CLASSICAL = {
     "time_interpolation",
     "cubic_interpolation",
     "spline_interpolation",
+    "moving_average",
 }
-ML = {"knn", "decision_tree", "random_forest"}
+ML = {"knn", "knn_upgraded", "decision_tree", "random_forest", "adaptive_imputation"}
 
 ALL_METHODS = [
     "forward_fill",
@@ -38,7 +39,9 @@ ALL_METHODS = [
     "time_interpolation",
     "cubic_interpolation",
     "spline_interpolation",
+    "moving_average",
     "knn",
+    "knn_upgraded",
     "decision_tree",
     "random_forest",
     "adaptive_imputation",
@@ -50,7 +53,9 @@ METHOD_COLORS = {
     "time_interpolation": "#aec7e8",
     "cubic_interpolation": "#2ca02c",
     "spline_interpolation": "#98df8a",
+    "moving_average": "#17becf",
     "knn": "#ff7f0e",
+    "knn_upgraded": "#ffbb78",
     "decision_tree": "#d62728",
     "random_forest": "#9467bd",
     "adaptive_imputation": "#e377c2",

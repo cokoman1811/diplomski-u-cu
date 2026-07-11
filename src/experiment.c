@@ -2,6 +2,7 @@
 
 #include "adaptive_imputation.h"
 #include "interpolation.h"
+#include "knn_methods.h"
 #include "knn_upgraded.h"
 #include "decision_tree.h"
 #include "rf_methods.h"
@@ -277,7 +278,18 @@ static int apply_spline(const Series *s, const double *damaged, size_t n, double
     return spline_interpolation(damaged, n, out);
 }
 
+static int apply_moving_average(const Series *s, const double *damaged, size_t n, double *out) {
+    (void)s;
+    moving_average_imputation(damaged, n, MOVING_AVERAGE_DEFAULT_WINDOW, out);
+    return 0;
+}
+
 static int apply_knn(const Series *s, const double *damaged, size_t n, double *out) {
+    (void)n;
+    return knn_imputation(s, damaged, 5, out);
+}
+
+static int apply_knn_upgraded(const Series *s, const double *damaged, size_t n, double *out) {
     (void)n;
     return knn_imputation_upgraded(s, damaged, NULL, out);
 }
@@ -307,7 +319,9 @@ static const ExpMethodEntry EXP_METHOD_TABLE[] = {
     {"time_interpolation", apply_time},
     {"cubic_interpolation", apply_cubic},
     {"spline_interpolation", apply_spline},
+    {"moving_average", apply_moving_average},
     {"knn", apply_knn},
+    {"knn_upgraded", apply_knn_upgraded},
     {"decision_tree", apply_decision_tree},
     {"random_forest", apply_random_forest},
     {"adaptive_imputation", apply_adaptive},

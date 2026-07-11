@@ -2,6 +2,7 @@
 
 #include "decision_tree.h"
 #include "interpolation.h"
+#include "knn_methods.h"
 #include "knn_upgraded.h"
 #include "rf_methods.h"
 
@@ -190,7 +191,7 @@ static int apply_backend(AdaptMethod method, const Series *s, const double *dama
     case ADAPT_METHOD_SPLINE:
         return spline_interpolation(damaged, n, out);
     case ADAPT_METHOD_KNN:
-        return knn_imputation_upgraded(s, damaged, NULL, out);
+        return knn_imputation(s, damaged, 5, out);
     case ADAPT_METHOD_DECISION_TREE:
         return decision_tree_imputation(s, damaged, out);
     case ADAPT_METHOD_RANDOM_FOREST:

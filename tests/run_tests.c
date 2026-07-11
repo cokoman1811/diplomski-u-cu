@@ -655,6 +655,15 @@ static void test_interpolation(void) {
         check(0, "spline_interpolation: metoda nije primjenjiva");
     }
 
+    moving_average_imputation(damaged, n, MOVING_AVERAGE_DEFAULT_WINDOW, out);
+    check(count_nan(out, n) == 0, "moving_average: nema NaN");
+
+    {
+        double ma_tiny[] = {1.0, 2.0, NAN, 4.0, 5.0};
+        moving_average_imputation(ma_tiny, 5, 1, out);
+        check_near(out[2], 3.0, 1e-9, "moving_average: sredina susjeda 2 i 4 = 3");
+    }
+
     {
         double *cubic_out = (double *)malloc(n * sizeof(double));
         double *spline_out = (double *)malloc(n * sizeof(double));

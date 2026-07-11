@@ -27,4 +27,10 @@ int cubic_interpolation(const double *temp, size_t n, double *out);
 /* Prirodni kubicki spline (druga derivacija = 0 na rubovima). >= 4 poznate tocke. */
 int spline_interpolation(const double *temp, size_t n, double *out);
 
+/* Pomicni prosjek oko svake rupe (samo poznate susjede u prozoru). window >= 1. */
+void moving_average_imputation(const double *temp, size_t n, int window, double *out);
+
+/* Zadani prozor: 6 uzoraka = 1 sat pri 10-min intervalima. */
+#define MOVING_AVERAGE_DEFAULT_WINDOW 6
+
 #endif /* INTERPOLATION_H */

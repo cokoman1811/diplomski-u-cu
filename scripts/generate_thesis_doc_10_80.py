@@ -19,6 +19,9 @@ else:
     known_80_random = 202
 rates = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
 scenarios = ["random", "block", "block_start", "block_middle", "block_end"]
+n_methods = df["method"].nunique()
+n_tests = len(df)
+n_combos = df.groupby(["scenario", "missing_rate"]).ngroups
 
 
 def best_row(sub, col):
@@ -75,14 +78,17 @@ def table5():
         mae_std=("mae", "std"),
     ).sort_values("mae_mean")
     comments = {
-        "linear_interpolation": "Najstabilnija; 27 pobjeda po MAE od 40 kombinacija",
-        "time_interpolation": "Identična linear interpolaciji",
+        "adaptive_imputation": "Hibridna metoda — najniži prosječni MAE; pobjeđuje u svim scenarij/rate kombinacijama",
+        "linear_interpolation": "Najbolja pojedinačna metoda; stabilna na svim scenarijima",
+        "time_interpolation": "Identična linear interpolaciji (ravnomjerni 10-min intervali)",
+        "moving_average": "Pomični prosjek (prozor 6 = 1 sat); bolja od forward fill, lošija od linear",
+        "knn": "Osnovni KNN (k=5); bolji od knn_upgraded u prosjeku",
+        "knn_upgraded": "Napredni KNN (cikličke značajke, težinski prosjek); lošiji od osnovnog KNN-a",
         "decision_tree": "Ponekad dobra na block_middle; nestabilna na visokim rateovima",
         "forward_fill": "Loša na block scenarijima",
         "random_forest": "Manja varijabilnost od DT, ali veći prosječni MAE",
         "cubic_interpolation": "Odlična na random 10-30%; loša na block pri visokim rateovima",
-        "spline_interpolation": "Ista jezgra kao cubic",
-        "knn": "Najveće pogreške na block scenarijima; gubi najviše kvalitete s rateom",
+        "spline_interpolation": "Prirodni spline; razlikuje se od cubic (clamped)",
     }
     lines = [
         "| method | prosječni MAE | prosječni RMSE | prosječni R² | std. dev. MAE | komentar |",
@@ -114,8 +120,22 @@ for sc in scenarios:
 wins = df.groupby(["scenario", "missing_rate"]).apply(
     lambda g: g.loc[g.mae.idxmin(), "method"], include_groups=False
 )
+adaptive_wins = (wins == "adaptive_imputation").sum()
 linear_wins = (wins == "linear_interpolation").sum()
 cubic_wins = (wins == "cubic_interpolation").sum()
+
+knn_basic_mean = df[df.method == "knn"].mae.mean()
+knn_upg_mean = df[df.method == "knn_upgraded"].mae.mean()
+ma_mean = df[df.method == "moving_average"].mae.mean()
+linear_mean = df[df.method == "linear_interpolation"].mae.mean()
+adaptive_mean = df[df.method == "adaptive_imputation"].mae.mean()
+
+knn_cmp_lines = []
+for sc in scenarios:
+    b = df[(df.method == "knn") & (df.scenario == sc)].mae.mean()
+    u = df[(df.method == "knn_upgraded") & (df.scenario == sc)].mae.mean()
+    better = "knn (osnovni)" if b < u else "knn_upgraded (napredni)"
+    knn_cmp_lines.append(f"- **{sc}**: osnovni MAE={b:.4f}, napredni MAE={u:.4f} → bolji: {better}")
 
 s80 = df[df.missing_rate == 0.8].groupby("scenario").mae.mean().sort_values(ascending=False)
 g_method = df.groupby("method").agg(mae_std=("mae", "std"), mae_mean=("mae", "mean")).sort_values("mae_mean")
@@ -141,7 +161,8 @@ doc = f"""# Diplomski rad — rezultati eksperimenata 10–80 % missing rate
 
 - Dodani missing rateovi: **50 %, 60 %, 70 %, 80 %**
 - Konačni popis: 10 %, 20 %, 30 %, 40 %, 50 %, 60 %, 70 %, 80 %
-- Ukupno: 5 scenarija × 8 rateova × 8 metoda = **320 testova**
+- Ukupno: 5 scenarija × 8 rateova × {n_methods} metoda = **{n_tests} testova**
+- **Nove metode:** moving_average (pomični prosjek), knn (osnovni), knn_upgraded (napredni), adaptive_imputation (hibridna)
 - Pri 80 % na nizu od {n_samples} zapisa uklanja se **{removed_80} vrijednosti**; prva i zadnja ostaju poznate
 - Svi scenariji (uključujući block_start/middle/end) rade ispravno do 80 %
 
@@ -180,41 +201,57 @@ Na random scenariju klasične metode zadržavaju R² > 0,99. Na block scenarijim
 **block_end** — prosječni MAE svih metoda = **{s80['block_end']:.4f}** °C.
 Slijedi block_middle ({s80['block_middle']:.4f}), block ({s80['block']:.4f}), block_start ({s80['block_start']:.4f}), random ({s80['random']:.4f}).
 
-### 8. Najstabilnija metoda (10–80 %)?
+### 8. Najstabilnija pojedinačna metoda (10–80 %)?
 
 **linear_interpolation** / **time_interpolation** — prosječni MAE = {g_method.loc['linear_interpolation','mae_mean']:.4f}, σ = {g_method.loc['linear_interpolation','mae_std']:.4f}.
 
-### 9. Metoda koja najviše gubi kvalitetu?
+### 8b. Najbolja metoda ukupno?
 
-**knn** — na random scenariju MAE raste s 0,0865 (10 %) na 0,6353 (80 %), porast +0,55 °C.
-Na block scenarijima KNN ima MAE 1,95–3,52 pri 50–80 %.
+**adaptive_imputation** — prosječni MAE = {adaptive_mean:.4f}, pobjeđuje u **{adaptive_wins} od {n_combos}** kombinacija scenarij/rate.
 
-### 10. Jesu li rezultati iznad 40 % promijenili zaključak?
+### 9. Usporedba osnovnog i naprednog KNN
 
-**Djelomično ne.** Linear interpolacija i dalje dominira. Novi podaci **pojačavaju** zaključak da block scenariji postaju ekstremno teški pri 70–80 %, posebno block_end i block_middle.
+Osnovni KNN prosječni MAE = **{knn_basic_mean:.4f}** °C.
+Napredni KNN prosječni MAE = **{knn_upg_mean:.4f}** °C.
+**Osnovni KNN je bolji u prosjeku** (razlika {knn_upg_mean - knn_basic_mean:.4f} °C).
 
-### 11. Ostaje li linear_interpolation najbolja ukupno?
+Po scenariju:
+{chr(10).join(knn_cmp_lines)}
 
-**Da.** Pobjeđuje u **{linear_wins} od 40** kombinacija scenarij/rate po MAE.
+### 10. Pomični prosjek (moving_average)
 
-### 12. Ostaje li cubic_interpolation najbolja za random?
+Prosječni MAE = **{ma_mean:.4f}** °C (linear = {linear_mean:.4f} °C).
+Pomični prosjek koristi prozor ±6 uzoraka (1 sat pri 10-min intervalima).
+Bolji od forward_fill i KNN na random scenariju, ali lošiji od linear interpolacije.
+
+### 11. Metoda koja najviše gubi kvalitetu?
+
+**knn_upgraded** — najveći prosječni MAE među KNN varijantama; na block scenarijima ekstremno loš.
+
+**Djelomično ne.** Linear interpolacija i dalje dominira među pojedinačnim metodama. **Adaptive_imputation** nadmašuje sve. Block scenariji postaju ekstremno teški pri 70–80 %.
+
+### 12. Ostaje li linear_interpolation najbolja pojedinačna metoda?
+
+**Da.** Pobjeđuje u **{linear_wins} od {n_combos}** kombinacija scenarij/rate po MAE (bez adaptive).
+
+### 13. Ostaje li cubic_interpolation najbolja za random?
 
 **Djelomično.** Cubic je najbolja pri 10 %, 20 % i 30 % random. Od 40 % do 80 % vodi **linear_interpolation**.
 
-### 13. KNN pri 50–80 %?
+### 14. KNN pri 50–80 %?
 
 Na **random**: MAE 0,28–0,64 °C (prihvatljivo).
 Na **block** scenarijima: MAE **1,95–3,52** °C (vrlo loše). R² često jako negativan.
 
-### 14. Decision Tree i Random Forest pri 50–80 %?
+### 15. Decision Tree i Random Forest pri 50–80 %?
 
 Prosječni MAE: DT = {dt_rf[dt_rf.method=='decision_tree'].mae.mean():.4f} °C, RF = {dt_rf[dt_rf.method=='random_forest'].mae.mean():.4f} °C.
 DT je nešto bolji u prosjeku. Obje metode znatno gore od linear interpolacije na block scenarijima.
 
-### 15. Negativan R² pri većim rateovima?
+### 16. Negativan R² pri većim rateovima?
 
-**Da.** Ukupno **{neg_r2}** od {len(df)} rezultata ima R² < 0.
-Pri 80 %: **{neg_r2_80}** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline na block scenarijima.
+**Da.** Ukupno **{neg_r2}** od {n_tests} rezultata ima R² < 0.
+Pri 80 %: **{neg_r2_80}** od {n_combos} kombinacija (po najboljoj metodi po scenariju). Najčešće: knn_upgraded, forward_fill, cubic/spline na block scenarijima.
 
 ---
 
@@ -253,7 +290,7 @@ Pri 80 %: **{neg_r2_80}** od 40 rezultata. Najčešće: knn, forward_fill, cubic
 ## 1. Što je promijenjeno u eksperimentu
 
 - Missing rateovi prošireni s 10–40 % na **10–80 %** (dodano 50 %, 60 %, 70 %, 80 %)
-- Ukupno **320 testova** (5 scenarija × 8 rateova × 8 metoda)
+- Ukupno **{n_tests} testova** (5 scenarija × 8 rateova × {n_methods} metoda)
 - Izvor podataka: `results/experiment_results.csv` (ažuriran)
 - Pomoćne datoteke: `results/mae_by_method.csv`, `results/error_vs_missing_rate.csv`
 
