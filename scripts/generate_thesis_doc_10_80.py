@@ -8,6 +8,15 @@ CSV = ROOT / "results" / "experiment_results.csv"
 OUT = ROOT / "results" / "diplomski_dokument_10_80_za_chat.md"
 
 df = pd.read_csv(CSV)
+if not df.empty:
+    r80 = df[(df["scenario"] == "random") & (df["missing_rate"] == 0.8)].iloc[0]
+    removed_80 = int(r80["number_of_missing_values"])
+    n_samples = int(round(removed_80 / 0.8))
+    known_80_random = n_samples - removed_80
+else:
+    n_samples = 1008
+    removed_80 = 806
+    known_80_random = 202
 rates = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
 scenarios = ["random", "block", "block_start", "block_middle", "block_end"]
 
@@ -133,7 +142,7 @@ doc = f"""# Diplomski rad — rezultati eksperimenata 10–80 % missing rate
 - Dodani missing rateovi: **50 %, 60 %, 70 %, 80 %**
 - Konačni popis: 10 %, 20 %, 30 %, 40 %, 50 %, 60 %, 70 %, 80 %
 - Ukupno: 5 scenarija × 8 rateova × 8 metoda = **320 testova**
-- Pri 80 % na nizu od 288 zapisa uklanja se **230 vrijednosti**; prva i zadnja ostaju poznate
+- Pri 80 % na nizu od {n_samples} zapisa uklanja se **{removed_80} vrijednosti**; prva i zadnja ostaju poznate
 - Svi scenariji (uključujući block_start/middle/end) rade ispravno do 80 %
 
 ---
@@ -265,7 +274,7 @@ Zamijeni sve tablice iz prethodne verzije (10–40 %) novim tablicama iz ovog do
 
 ### 3.12.2 Različite razine nedostajućih vrijednosti
 - Dodaj da se testira 10 % do 80 %
-- Objasni da pri 80 % ostaje samo ~20 % poznatih vrijednosti (58 od 288 na random; 2 rubna + ostatak)
+- Objasni da pri 80 % ostaje samo ~20 % poznatih vrijednosti ({known_80_random} od {n_samples} na random; 2 rubna + ostatak)
 - Pri 80 % block uklanja 230 uzastopnih vrijednosti
 
 ### 5 Rezultati (uvod)
