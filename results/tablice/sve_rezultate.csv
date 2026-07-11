@@ -1,4 +1,5 @@
 ﻿scenario,block_position,missing_rate,missing_rate_pct,method,mae,rmse,r2,number_of_missing_values,number_of_evaluated_values
+block,none,0.1,10,adaptive_imputation,1.028467,1.188035,-1.631096,101,101
 block,none,0.1,10,cubic_interpolation,1.160414,1.397769,-2.642077,101,101
 block,none,0.1,10,decision_tree,2.986913,3.15892,-17.60183,101,101
 block,none,0.1,10,forward_fill,1.543465,1.708428,-4.440913,101,101
@@ -7,6 +8,7 @@ block,none,0.1,10,linear_interpolation,1.028467,1.188035,-1.631096,101,101
 block,none,0.1,10,random_forest,1.844602,1.9509,-6.094935,101,101
 block,none,0.1,10,spline_interpolation,1.160414,1.397769,-2.642077,101,101
 block,none,0.1,10,time_interpolation,1.028467,1.188035,-1.631096,101,101
+block,none,0.2,20,adaptive_imputation,1.476546,1.696833,-2.678662,202,202
 block,none,0.2,20,cubic_interpolation,4.244165,5.098265,-32.209065,202,202
 block,none,0.2,20,decision_tree,2.062729,2.244446,-5.43621,202,202
 block,none,0.2,20,forward_fill,1.605396,1.833026,-3.292882,202,202
@@ -15,6 +17,7 @@ block,none,0.2,20,linear_interpolation,1.476546,1.696833,-2.678662,202,202
 block,none,0.2,20,random_forest,2.468215,2.616051,-7.743878,202,202
 block,none,0.2,20,spline_interpolation,4.244165,5.098265,-32.209065,202,202
 block,none,0.2,20,time_interpolation,1.476546,1.696833,-2.678662,202,202
+block,none,0.3,30,adaptive_imputation,3.428633,4.045308,0.398048,302,302
 block,none,0.3,30,cubic_interpolation,7.759924,9.552009,-2.356202,302,302
 block,none,0.3,30,decision_tree,9.785588,10.926262,-3.391388,302,302
 block,none,0.3,30,forward_fill,4.101755,6.539254,-0.57295,302,302
@@ -23,6 +26,7 @@ block,none,0.3,30,linear_interpolation,3.428633,4.045308,0.398048,302,302
 block,none,0.3,30,random_forest,3.985979,6.033054,-0.338853,302,302
 block,none,0.3,30,spline_interpolation,7.759924,9.552009,-2.356202,302,302
 block,none,0.3,30,time_interpolation,3.428633,4.045308,0.398048,302,302
+block,none,0.4,40,adaptive_imputation,2.930832,3.605338,0.724835,403,403
 block,none,0.4,40,cubic_interpolation,27.73717,31.85428,-20.48012,403,403
 block,none,0.4,40,decision_tree,13.882506,15.490732,-4.079781,403,403
 block,none,0.4,40,forward_fill,7.38273,10.069521,-1.14644,403,403
@@ -31,6 +35,7 @@ block,none,0.4,40,linear_interpolation,2.930832,3.605338,0.724835,403,403
 block,none,0.4,40,random_forest,6.684772,9.063206,-0.738861,403,403
 block,none,0.4,40,spline_interpolation,27.73717,31.85428,-20.48012,403,403
 block,none,0.4,40,time_interpolation,2.930832,3.605338,0.724835,403,403
+block,none,0.5,50,adaptive_imputation,5.436198,7.044111,0.142465,504,504
 block,none,0.5,50,cubic_interpolation,6.017357,7.44917,0.041007,504,504
 block,none,0.5,50,decision_tree,6.940575,7.660931,-0.014291,504,504
 block,none,0.5,50,forward_fill,8.246746,10.979342,-1.083302,504,504
@@ -39,6 +44,7 @@ block,none,0.5,50,linear_interpolation,5.436198,7.044111,0.142465,504,504
 block,none,0.5,50,random_forest,8.058548,10.631426,-0.953362,504,504
 block,none,0.5,50,spline_interpolation,6.017357,7.44917,0.041007,504,504
 block,none,0.5,50,time_interpolation,5.436198,7.044111,0.142465,504,504
+block,none,0.6,60,adaptive_imputation,5.349944,6.872005,0.137597,605,605
 block,none,0.6,60,cubic_interpolation,12.831637,15.864213,-3.596002,605,605
 block,none,0.6,60,decision_tree,6.636959,7.577757,-0.048636,605,605
 block,none,0.6,60,forward_fill,6.70438,9.17697,-0.537949,605,605
@@ -47,6 +53,7 @@ block,none,0.6,60,linear_interpolation,5.349944,6.872005,0.137597,605,605
 block,none,0.6,60,random_forest,6.578696,7.661992,-0.072079,605,605
 block,none,0.6,60,spline_interpolation,12.831637,15.864213,-3.596002,605,605
 block,none,0.6,60,time_interpolation,5.349944,6.872005,0.137597,605,605
+block,none,0.7,70,adaptive_imputation,3.504263,4.856674,-0.058613,706,706
 block,none,0.7,70,cubic_interpolation,10.142284,11.173684,-4.603406,706,706
 block,none,0.7,70,decision_tree,12.65971,13.51109,-7.192946,706,706
 block,none,0.7,70,forward_fill,3.504263,4.856674,-0.058613,706,706
@@ -55,6 +62,7 @@ block,none,0.7,70,linear_interpolation,5.738114,7.040671,-1.224782,706,706
 block,none,0.7,70,random_forest,3.605521,4.779413,-0.0252,706,706
 block,none,0.7,70,spline_interpolation,10.142284,11.173684,-4.603406,706,706
 block,none,0.7,70,time_interpolation,5.738114,7.040671,-1.224782,706,706
+block,none,0.8,80,adaptive_imputation,4.797548,6.109414,0.166003,806,806
 block,none,0.8,80,cubic_interpolation,22.927582,28.308675,-16.90625,806,806
 block,none,0.8,80,decision_tree,5.829235,6.697194,-0.002193,806,806
 block,none,0.8,80,forward_fill,5.333685,7.456585,-0.242355,806,806
@@ -63,6 +71,7 @@ block,none,0.8,80,linear_interpolation,4.797548,6.109414,0.166003,806,806
 block,none,0.8,80,random_forest,5.333688,7.395724,-0.222157,806,806
 block,none,0.8,80,spline_interpolation,22.927582,28.308675,-16.90625,806,806
 block,none,0.8,80,time_interpolation,4.797548,6.109414,0.166003,806,806
+block_end,end,0.1,10,adaptive_imputation,3.447303,4.153798,0.343651,101,101
 block_end,end,0.1,10,cubic_interpolation,4.970873,5.925287,-0.335559,101,101
 block_end,end,0.1,10,decision_tree,5.862475,6.653168,-0.683842,101,101
 block_end,end,0.1,10,forward_fill,8.460594,9.752546,-2.618099,101,101
@@ -71,6 +80,7 @@ block_end,end,0.1,10,linear_interpolation,3.447303,4.153798,0.343651,101,101
 block_end,end,0.1,10,random_forest,8.760546,10.070879,-2.85815,101,101
 block_end,end,0.1,10,spline_interpolation,5.239066,6.233238,-0.477991,101,101
 block_end,end,0.1,10,time_interpolation,3.447303,4.153798,0.343651,101,101
+block_end,end,0.2,20,adaptive_imputation,4.182814,4.583841,0.225768,202,202
 block_end,end,0.2,20,cubic_interpolation,4.182814,4.583841,0.225768,202,202
 block_end,end,0.2,20,decision_tree,4.926842,5.642518,-0.173161,202,202
 block_end,end,0.2,20,forward_fill,5.512376,6.367847,-0.49416,202,202
@@ -79,6 +89,7 @@ block_end,end,0.2,20,linear_interpolation,5.531835,6.687507,-0.647936,202,202
 block_end,end,0.2,20,random_forest,4.883371,5.631388,-0.168538,202,202
 block_end,end,0.2,20,spline_interpolation,8.396873,8.956083,-1.955616,202,202
 block_end,end,0.2,20,time_interpolation,5.531835,6.687507,-0.647936,202,202
+block_end,end,0.3,30,adaptive_imputation,4.848613,5.972604,-0.774185,302,302
 block_end,end,0.3,30,cubic_interpolation,5.002943,6.19287,-0.90746,302,302
 block_end,end,0.3,30,decision_tree,5.531104,6.752541,-1.267807,302,302
 block_end,end,0.3,30,forward_fill,5.479139,6.697888,-1.231245,302,302
@@ -87,6 +98,7 @@ block_end,end,0.3,30,linear_interpolation,5.404309,6.580167,-1.153503,302,302
 block_end,end,0.3,30,random_forest,5.975578,7.215229,-1.589236,302,302
 block_end,end,0.3,30,spline_interpolation,4.848613,5.972604,-0.774185,302,302
 block_end,end,0.3,30,time_interpolation,5.404309,6.580167,-1.153503,302,302
+block_end,end,0.4,40,adaptive_imputation,6.82606,8.321512,-0.850377,403,403
 block_end,end,0.4,40,cubic_interpolation,9.595639,11.194437,-2.348577,403,403
 block_end,end,0.4,40,decision_tree,8.485724,10.064721,-1.706819,403,403
 block_end,end,0.4,40,forward_fill,11.010099,12.594382,-3.238474,403,403
@@ -95,6 +107,7 @@ block_end,end,0.4,40,linear_interpolation,6.82606,8.321512,-0.850377,403,403
 block_end,end,0.4,40,random_forest,11.449353,12.962551,-3.4899,403,403
 block_end,end,0.4,40,spline_interpolation,10.364427,12.129229,-2.931173,403,403
 block_end,end,0.4,40,time_interpolation,6.82606,8.321512,-0.850377,403,403
+block_end,end,0.5,50,adaptive_imputation,5.237522,7.03889,0.024571,504,504
 block_end,end,0.5,50,cubic_interpolation,6.302744,8.267525,-0.345669,504,504
 block_end,end,0.5,50,decision_tree,8.477105,10.708255,-1.257484,504,504
 block_end,end,0.5,50,forward_fill,9.348333,11.734883,-1.711095,504,504
@@ -103,6 +116,7 @@ block_end,end,0.5,50,linear_interpolation,5.237522,7.03889,0.024571,504,504
 block_end,end,0.5,50,random_forest,8.947712,11.309076,-1.517917,504,504
 block_end,end,0.5,50,spline_interpolation,6.461452,8.459041,-0.408736,504,504
 block_end,end,0.5,50,time_interpolation,5.237522,7.03889,0.024571,504,504
+block_end,end,0.6,60,adaptive_imputation,4.965033,6.069316,0.300689,605,605
 block_end,end,0.6,60,cubic_interpolation,8.116641,9.554362,-0.732984,605,605
 block_end,end,0.6,60,decision_tree,6.739952,7.927446,-0.193047,605,605
 block_end,end,0.6,60,forward_fill,6.869041,8.975486,-0.52935,605,605
@@ -111,6 +125,7 @@ block_end,end,0.6,60,linear_interpolation,4.965033,6.069316,0.300689,605,605
 block_end,end,0.6,60,random_forest,6.957,8.053239,-0.23121,605,605
 block_end,end,0.6,60,spline_interpolation,10.606982,12.540963,-1.985746,605,605
 block_end,end,0.6,60,time_interpolation,4.965033,6.069316,0.300689,605,605
+block_end,end,0.7,70,adaptive_imputation,5.225256,6.053986,0.225553,706,706
 block_end,end,0.7,70,cubic_interpolation,10.948616,13.399176,-2.793718,706,706
 block_end,end,0.7,70,decision_tree,5.869514,6.926709,-0.013824,706,706
 block_end,end,0.7,70,forward_fill,5.899448,7.23035,-0.104657,706,706
@@ -119,6 +134,7 @@ block_end,end,0.7,70,linear_interpolation,5.225256,6.053986,0.225553,706,706
 block_end,end,0.7,70,random_forest,5.98961,7.537597,-0.200534,706,706
 block_end,end,0.7,70,spline_interpolation,13.575001,16.392662,-4.678162,706,706
 block_end,end,0.7,70,time_interpolation,5.225256,6.053986,0.225553,706,706
+block_end,end,0.8,80,adaptive_imputation,4.047223,5.75235,0.253521,806,806
 block_end,end,0.8,80,cubic_interpolation,4.047223,5.75235,0.253521,806,806
 block_end,end,0.8,80,decision_tree,5.506266,6.88962,-0.070822,806,806
 block_end,end,0.8,80,forward_fill,5.591824,7.809532,-0.375868,806,806
@@ -127,6 +143,7 @@ block_end,end,0.8,80,linear_interpolation,4.482815,5.489751,0.32012,806,806
 block_end,end,0.8,80,random_forest,5.539774,7.589705,-0.299501,806,806
 block_end,end,0.8,80,spline_interpolation,4.49204,6.491361,0.049399,806,806
 block_end,end,0.8,80,time_interpolation,4.482815,5.489751,0.32012,806,806
+block_middle,middle,0.1,10,adaptive_imputation,0.491302,0.587023,-2.425467,101,101
 block_middle,middle,0.1,10,cubic_interpolation,0.861516,1.025999,-9.464144,101,101
 block_middle,middle,0.1,10,decision_tree,1.756183,1.887329,-34.408275,101,101
 block_middle,middle,0.1,10,forward_fill,0.676733,0.747372,-4.552437,101,101
@@ -135,6 +152,7 @@ block_middle,middle,0.1,10,linear_interpolation,0.491302,0.587023,-2.425467,101,
 block_middle,middle,0.1,10,random_forest,1.410898,1.446109,-19.787961,101,101
 block_middle,middle,0.1,10,spline_interpolation,0.861516,1.025999,-9.464144,101,101
 block_middle,middle,0.1,10,time_interpolation,0.491302,0.587023,-2.425467,101,101
+block_middle,middle,0.2,20,adaptive_imputation,1.144875,1.298753,-2.611996,202,202
 block_middle,middle,0.2,20,cubic_interpolation,1.342015,1.5821,-4.359963,202,202
 block_middle,middle,0.2,20,decision_tree,1.353909,1.445936,-3.477053,202,202
 block_middle,middle,0.2,20,forward_fill,2.142921,2.244245,-9.78536,202,202
@@ -143,6 +161,7 @@ block_middle,middle,0.2,20,linear_interpolation,1.144875,1.298753,-2.611996,202,
 block_middle,middle,0.2,20,random_forest,2.089221,2.188783,-9.258871,202,202
 block_middle,middle,0.2,20,spline_interpolation,1.342015,1.5821,-4.359963,202,202
 block_middle,middle,0.2,20,time_interpolation,1.144875,1.298753,-2.611996,202,202
+block_middle,middle,0.3,30,adaptive_imputation,3.919389,4.800258,-13.3868,302,302
 block_middle,middle,0.3,30,cubic_interpolation,3.919389,4.800258,-13.3868,302,302
 block_middle,middle,0.3,30,decision_tree,4.628286,4.884673,-13.897251,302,302
 block_middle,middle,0.3,30,forward_fill,5.970464,6.10312,-22.256207,302,302
@@ -151,6 +170,7 @@ block_middle,middle,0.3,30,linear_interpolation,4.055464,4.300194,-10.545459,302
 block_middle,middle,0.3,30,random_forest,5.16505,5.313399,-16.627059,302,302
 block_middle,middle,0.3,30,spline_interpolation,3.919389,4.800258,-13.3868,302,302
 block_middle,middle,0.3,30,time_interpolation,4.055464,4.300194,-10.545459,302,302
+block_middle,middle,0.4,40,adaptive_imputation,2.754525,3.005668,-0.275118,403,403
 block_middle,middle,0.4,40,cubic_interpolation,9.978282,11.095336,-16.375973,403,403
 block_middle,middle,0.4,40,decision_tree,7.471544,7.931509,-7.879324,403,403
 block_middle,middle,0.4,40,forward_fill,3.673722,4.0426,-1.306693,403,403
@@ -159,6 +179,7 @@ block_middle,middle,0.4,40,linear_interpolation,5.313284,5.841394,-3.816163,403,
 block_middle,middle,0.4,40,random_forest,2.754525,3.005668,-0.275118,403,403
 block_middle,middle,0.4,40,spline_interpolation,9.978282,11.095336,-16.375973,403,403
 block_middle,middle,0.4,40,time_interpolation,5.313284,5.841394,-3.816163,403,403
+block_middle,middle,0.5,50,adaptive_imputation,1.219242,1.726106,0.796586,504,504
 block_middle,middle,0.5,50,cubic_interpolation,1.219242,1.726106,0.796586,504,504
 block_middle,middle,0.5,50,decision_tree,11.376159,11.979661,-8.797925,504,504
 block_middle,middle,0.5,50,forward_fill,2.854603,4.114514,-0.155799,504,504
@@ -167,6 +188,7 @@ block_middle,middle,0.5,50,linear_interpolation,5.461431,6.385541,-1.783816,504,
 block_middle,middle,0.5,50,random_forest,2.897796,4.289539,-0.256222,504,504
 block_middle,middle,0.5,50,spline_interpolation,1.219242,1.726106,0.796586,504,504
 block_middle,middle,0.5,50,time_interpolation,5.461431,6.385541,-1.783816,504,504
+block_middle,middle,0.6,60,adaptive_imputation,3.393025,4.762414,-0.091859,605,605
 block_middle,middle,0.6,60,cubic_interpolation,4.357731,5.380387,-0.393604,605,605
 block_middle,middle,0.6,60,decision_tree,7.609015,8.306656,-2.321734,605,605
 block_middle,middle,0.6,60,forward_fill,3.393025,4.762414,-0.091859,605,605
@@ -175,6 +197,7 @@ block_middle,middle,0.6,60,linear_interpolation,4.080799,4.786952,-0.10314,605,6
 block_middle,middle,0.6,60,random_forest,3.483003,4.64294,-0.037764,605,605
 block_middle,middle,0.6,60,spline_interpolation,4.357731,5.380387,-0.393604,605,605
 block_middle,middle,0.6,60,time_interpolation,4.080799,4.786952,-0.10314,605,605
+block_middle,middle,0.7,70,adaptive_imputation,3.87915,5.454438,-0.100568,706,706
 block_middle,middle,0.7,70,cubic_interpolation,12.3579,13.644695,-5.887226,706,706
 block_middle,middle,0.7,70,decision_tree,14.765993,15.654369,-8.065417,706,706
 block_middle,middle,0.7,70,forward_fill,3.87915,5.454438,-0.100568,706,706
@@ -183,6 +206,7 @@ block_middle,middle,0.7,70,linear_interpolation,6.606983,7.91462,-1.317271,706,7
 block_middle,middle,0.7,70,random_forest,3.891704,5.42972,-0.090615,706,706
 block_middle,middle,0.7,70,spline_interpolation,12.3579,13.644695,-5.887226,706,706
 block_middle,middle,0.7,70,time_interpolation,6.606983,7.91462,-1.317271,706,706
+block_middle,middle,0.8,80,adaptive_imputation,4.631563,6.393105,-0.067288,806,806
 block_middle,middle,0.8,80,cubic_interpolation,7.660307,8.943082,-1.088489,806,806
 block_middle,middle,0.8,80,decision_tree,15.421663,16.610538,-6.204855,806,806
 block_middle,middle,0.8,80,forward_fill,4.631563,6.393105,-0.067288,806,806
@@ -191,6 +215,7 @@ block_middle,middle,0.8,80,linear_interpolation,6.862445,8.259125,-0.781255,806,
 block_middle,middle,0.8,80,random_forest,4.638203,6.385785,-0.064845,806,806
 block_middle,middle,0.8,80,spline_interpolation,7.660307,8.943082,-1.088489,806,806
 block_middle,middle,0.8,80,time_interpolation,6.862445,8.259125,-0.781255,806,806
+block_start,start,0.1,10,adaptive_imputation,0.963647,1.228095,0.247721,101,101
 block_start,start,0.1,10,cubic_interpolation,1.102206,1.220266,0.257282,101,101
 block_start,start,0.1,10,decision_tree,3.088442,3.233042,-4.213601,101,101
 block_start,start,0.1,10,forward_fill,1.238614,1.475901,-0.086499,101,101
@@ -199,6 +224,7 @@ block_start,start,0.1,10,linear_interpolation,0.963647,1.228095,0.247721,101,101
 block_start,start,0.1,10,random_forest,2.942192,3.265173,-4.317744,101,101
 block_start,start,0.1,10,spline_interpolation,1.088589,1.343593,0.09957,101,101
 block_start,start,0.1,10,time_interpolation,0.963647,1.228095,0.247721,101,101
+block_start,start,0.2,20,adaptive_imputation,0.699069,0.888876,0.763891,202,202
 block_start,start,0.2,20,cubic_interpolation,1.676155,1.77132,0.062388,202,202
 block_start,start,0.2,20,decision_tree,2.127445,2.681753,-1.149149,202,202
 block_start,start,0.2,20,forward_fill,2.339307,2.657889,-1.111069,202,202
@@ -207,6 +233,7 @@ block_start,start,0.2,20,linear_interpolation,0.699069,0.888876,0.763891,202,202
 block_start,start,0.2,20,random_forest,1.965983,2.540504,-0.928718,202,202
 block_start,start,0.2,20,spline_interpolation,2.193331,2.32589,-0.616617,202,202
 block_start,start,0.2,20,time_interpolation,0.699069,0.888876,0.763891,202,202
+block_start,start,0.3,30,adaptive_imputation,2.109621,2.61916,-0.725424,302,302
 block_start,start,0.3,30,cubic_interpolation,5.891267,6.847681,-10.793933,302,302
 block_start,start,0.3,30,decision_tree,2.222296,2.459586,-0.521583,302,302
 block_start,start,0.3,30,forward_fill,3.018344,3.391453,-1.892966,302,302
@@ -215,6 +242,7 @@ block_start,start,0.3,30,linear_interpolation,2.127212,2.394684,-0.442341,302,30
 block_start,start,0.3,30,random_forest,2.621655,2.93114,-1.160951,302,302
 block_start,start,0.3,30,spline_interpolation,7.70471,8.713041,-18.094626,302,302
 block_start,start,0.3,30,time_interpolation,2.127212,2.394684,-0.442341,302,302
+block_start,start,0.4,40,adaptive_imputation,1.7834,2.178713,-0.007786,403,403
 block_start,start,0.4,40,cubic_interpolation,7.293895,8.559623,-14.55528,403,403
 block_start,start,0.4,40,decision_tree,1.7834,2.178713,-0.007786,403,403
 block_start,start,0.4,40,forward_fill,2.932308,3.39072,-1.440913,403,403
@@ -223,6 +251,7 @@ block_start,start,0.4,40,linear_interpolation,1.803785,2.109271,0.055432,403,403
 block_start,start,0.4,40,random_forest,1.865346,2.182461,-0.011257,403,403
 block_start,start,0.4,40,spline_interpolation,10.617279,12.099507,-30.08164,403,403
 block_start,start,0.4,40,time_interpolation,1.803785,2.109271,0.055432,403,403
+block_start,start,0.5,50,adaptive_imputation,1.438639,1.951328,0.357644,504,504
 block_start,start,0.5,50,cubic_interpolation,1.449151,1.798803,0.454139,504,504
 block_start,start,0.5,50,decision_tree,2.521951,3.278791,-0.813604,504,504
 block_start,start,0.5,50,forward_fill,3.579087,4.115032,-1.856679,504,504
@@ -231,6 +260,7 @@ block_start,start,0.5,50,linear_interpolation,1.438639,1.951328,0.357644,504,504
 block_start,start,0.5,50,random_forest,2.142059,2.520449,-0.071694,504,504
 block_start,start,0.5,50,spline_interpolation,1.836307,2.218592,0.169633,504,504
 block_start,start,0.5,50,time_interpolation,1.438639,1.951328,0.357644,504,504
+block_start,start,0.6,60,adaptive_imputation,1.524341,1.818891,0.489823,605,605
 block_start,start,0.6,60,cubic_interpolation,1.524341,1.818891,0.489823,605,605
 block_start,start,0.6,60,decision_tree,3.047651,3.701979,-1.113367,605,605
 block_start,start,0.6,60,forward_fill,4.089603,4.63408,-2.311572,605,605
@@ -239,6 +269,7 @@ block_start,start,0.6,60,linear_interpolation,1.597157,1.88823,0.450184,605,605
 block_start,start,0.6,60,random_forest,3.536799,4.013249,-1.483702,605,605
 block_start,start,0.6,60,spline_interpolation,1.691279,1.96431,0.404986,605,605
 block_start,start,0.6,60,time_interpolation,1.597157,1.88823,0.450184,605,605
+block_start,start,0.7,70,adaptive_imputation,3.509432,4.738709,-2.395623,706,706
 block_start,start,0.7,70,cubic_interpolation,3.509432,4.738709,-2.395623,706,706
 block_start,start,0.7,70,decision_tree,5.520071,6.0777,-4.585704,706,706
 block_start,start,0.7,70,forward_fill,3.999391,4.538944,-2.115365,706,706
@@ -247,6 +278,7 @@ block_start,start,0.7,70,linear_interpolation,5.146531,5.842967,-4.162573,706,70
 block_start,start,0.7,70,random_forest,6.216046,6.714877,-5.818291,706,706
 block_start,start,0.7,70,spline_interpolation,7.41831,8.82425,-10.77484,706,706
 block_start,start,0.7,70,time_interpolation,5.146531,5.842967,-4.162573,706,706
+block_start,start,0.8,80,adaptive_imputation,4.255868,4.793013,-0.383488,806,806
 block_start,start,0.8,80,cubic_interpolation,23.76573,27.853168,-45.720494,806,806
 block_start,start,0.8,80,decision_tree,6.31371,6.892141,-1.860662,806,806
 block_start,start,0.8,80,forward_fill,4.255868,4.793013,-0.383488,806,806
@@ -255,6 +287,7 @@ block_start,start,0.8,80,linear_interpolation,5.25993,6.075162,-1.222665,806,806
 block_start,start,0.8,80,random_forest,6.128517,6.706695,-1.70879,806,806
 block_start,start,0.8,80,spline_interpolation,32.987328,36.910739,-81.047187,806,806
 block_start,start,0.8,80,time_interpolation,5.25993,6.075162,-1.222665,806,806
+random,none,0.1,10,adaptive_imputation,0.047038,0.082779,0.999798,101,101
 random,none,0.1,10,cubic_interpolation,0.047199,0.082943,0.999798,101,101
 random,none,0.1,10,decision_tree,0.514643,0.724838,0.984549,101,101
 random,none,0.1,10,forward_fill,0.158713,0.286686,0.997583,101,101
@@ -263,6 +296,7 @@ random,none,0.1,10,linear_interpolation,0.062591,0.098294,0.999716,101,101
 random,none,0.1,10,random_forest,0.622943,0.812275,0.980597,101,101
 random,none,0.1,10,spline_interpolation,0.047038,0.082779,0.999798,101,101
 random,none,0.1,10,time_interpolation,0.062591,0.098294,0.999716,101,101
+random,none,0.2,20,adaptive_imputation,0.063508,0.105197,0.9997,202,202
 random,none,0.2,20,cubic_interpolation,0.063528,0.105162,0.9997,202,202
 random,none,0.2,20,decision_tree,0.554564,0.730008,0.985535,202,202
 random,none,0.2,20,forward_fill,0.163465,0.258849,0.998181,202,202
@@ -271,6 +305,7 @@ random,none,0.2,20,linear_interpolation,0.073036,0.118472,0.999619,202,202
 random,none,0.2,20,random_forest,0.700285,0.944287,0.975797,202,202
 random,none,0.2,20,spline_interpolation,0.063508,0.105197,0.9997,202,202
 random,none,0.2,20,time_interpolation,0.073036,0.118472,0.999619,202,202
+random,none,0.3,30,adaptive_imputation,0.083355,0.140089,0.999457,302,302
 random,none,0.3,30,cubic_interpolation,0.08794,0.178861,0.999115,302,302
 random,none,0.3,30,decision_tree,0.538488,0.695593,0.986608,302,302
 random,none,0.3,30,forward_fill,0.18202,0.298881,0.997527,302,302
@@ -279,6 +314,7 @@ random,none,0.3,30,linear_interpolation,0.083355,0.140089,0.999457,302,302
 random,none,0.3,30,random_forest,0.720048,0.939001,0.975595,302,302
 random,none,0.3,30,spline_interpolation,0.087927,0.178875,0.999114,302,302
 random,none,0.3,30,time_interpolation,0.083355,0.140089,0.999457,302,302
+random,none,0.4,40,adaptive_imputation,0.09077,0.172446,0.999166,403,403
 random,none,0.4,40,cubic_interpolation,0.090897,0.172558,0.999165,403,403
 random,none,0.4,40,decision_tree,0.574876,0.786401,0.98265,403,403
 random,none,0.4,40,forward_fill,0.215707,0.349933,0.996565,403,403
@@ -287,6 +323,7 @@ random,none,0.4,40,linear_interpolation,0.094959,0.159641,0.999285,403,403
 random,none,0.4,40,random_forest,0.737954,1.00125,0.971875,403,403
 random,none,0.4,40,spline_interpolation,0.09077,0.172446,0.999166,403,403
 random,none,0.4,40,time_interpolation,0.094959,0.159641,0.999285,403,403
+random,none,0.5,50,adaptive_imputation,0.099718,0.210942,0.998762,504,504
 random,none,0.5,50,cubic_interpolation,0.099811,0.211011,0.998761,504,504
 random,none,0.5,50,decision_tree,0.608757,0.854793,0.979673,504,504
 random,none,0.5,50,forward_fill,0.241548,0.397881,0.995596,504,504
@@ -295,6 +332,7 @@ random,none,0.5,50,linear_interpolation,0.101995,0.180866,0.99909,504,504
 random,none,0.5,50,random_forest,0.825877,1.088483,0.967039,504,504
 random,none,0.5,50,spline_interpolation,0.099718,0.210942,0.998762,504,504
 random,none,0.5,50,time_interpolation,0.101995,0.180866,0.99909,504,504
+random,none,0.6,60,adaptive_imputation,0.122993,0.236891,0.99847,605,605
 random,none,0.6,60,cubic_interpolation,0.122993,0.236891,0.99847,605,605
 random,none,0.6,60,decision_tree,0.718201,1.024005,0.971419,605,605
 random,none,0.6,60,forward_fill,0.27405,0.423516,0.995111,605,605
@@ -303,6 +341,7 @@ random,none,0.6,60,linear_interpolation,0.127625,0.248372,0.998319,605,605
 random,none,0.6,60,random_forest,0.764352,0.984238,0.973596,605,605
 random,none,0.6,60,spline_interpolation,0.123189,0.237052,0.998468,605,605
 random,none,0.6,60,time_interpolation,0.127625,0.248372,0.998319,605,605
+random,none,0.7,70,adaptive_imputation,0.177387,0.332024,0.997066,706,706
 random,none,0.7,70,cubic_interpolation,0.213796,0.469148,0.994143,706,706
 random,none,0.7,70,decision_tree,0.663647,0.973025,0.974804,706,706
 random,none,0.7,70,forward_fill,0.40762,0.718256,0.986271,706,706
@@ -311,6 +350,7 @@ random,none,0.7,70,linear_interpolation,0.177387,0.332024,0.997066,706,706
 random,none,0.7,70,random_forest,0.807709,1.102752,0.967638,706,706
 random,none,0.7,70,spline_interpolation,0.213956,0.469216,0.994141,706,706
 random,none,0.7,70,time_interpolation,0.177387,0.332024,0.997066,706,706
+random,none,0.8,80,adaptive_imputation,0.17855,0.314456,0.997359,806,806
 random,none,0.8,80,cubic_interpolation,0.193895,0.344621,0.996827,806,806
 random,none,0.8,80,decision_tree,0.688137,0.999724,0.973302,806,806
 random,none,0.8,80,forward_fill,0.541638,0.983812,0.974145,806,806

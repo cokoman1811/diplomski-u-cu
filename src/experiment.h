@@ -6,7 +6,7 @@
 
 #include <stddef.h>
 
-#define EXP_NUM_METHODS 8
+#define EXP_NUM_METHODS 9
 
 /* Scenarij umjetnog uklanjanja vrijednosti. */
 typedef enum {
@@ -52,7 +52,7 @@ size_t exp_create_damage(ExpScenario scenario, const double *temp, size_t n,
                          double *damaged, int *mask);
 
 /*
- * Pokreni svih 8 metoda na istom damaged nizu i evaluiraj samo na mask[i]==1.
+ * Pokreni svih EXP_NUM_METHODS metoda na istom damaged nizu i evaluiraj samo na mask[i]==1.
  */
 int exp_run_methods(const Series *s, const double *original, const double *damaged,
                     const int *mask, size_t n, double *out, ExpMethodResult *results);

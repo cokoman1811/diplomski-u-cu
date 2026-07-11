@@ -41,6 +41,7 @@ ALL_METHODS = [
     "knn",
     "decision_tree",
     "random_forest",
+    "adaptive_imputation",
 ]
 
 METHOD_COLORS = {
@@ -52,6 +53,7 @@ METHOD_COLORS = {
     "knn": "#ff7f0e",
     "decision_tree": "#d62728",
     "random_forest": "#9467bd",
+    "adaptive_imputation": "#e377c2",
 }
 
 ALL_SCENARIOS = [

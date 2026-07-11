@@ -14,6 +14,7 @@ Automatski generirano iz `experiment_results.csv`.
 | metoda | MAE | RMSE | R² |
 |--------|-----|------|-----|
 | spline_interpolation | 0.0635 | 0.1052 | 0.9997 |
+| adaptive_imputation | 0.0635 | 0.1052 | 0.9997 |
 | cubic_interpolation | 0.0635 | 0.1052 | 0.9997 |
 | time_interpolation | 0.0730 | 0.1185 | 0.9996 |
 | linear_interpolation | 0.0730 | 0.1185 | 0.9996 |
@@ -28,6 +29,7 @@ Automatski generirano iz `experiment_results.csv`.
 |--------|-----|------|-----|
 | linear_interpolation | 1.4765 | 1.6968 | -2.6787 |
 | time_interpolation | 1.4765 | 1.6968 | -2.6787 |
+| adaptive_imputation | 1.4765 | 1.6968 | -2.6787 |
 | forward_fill | 1.6054 | 1.8330 | -3.2929 |
 | decision_tree | 2.0627 | 2.2444 | -5.4362 |
 | knn | 2.1354 | 2.5753 | -7.4734 |

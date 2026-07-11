@@ -1,5 +1,6 @@
 #include "experiment.h"
 
+#include "adaptive_imputation.h"
 #include "interpolation.h"
 #include "knn_upgraded.h"
 #include "decision_tree.h"
@@ -143,7 +144,7 @@ static void print_experiment_intro(const char *source, const char *label_city,
     printf("STO SE DOGADA:\n");
     printf("  1. Ucitavamo originalni temperaturni niz (bez mijenjanja)\n");
     printf("  2. Umjetno uklanjamo vrijednosti prema scenariju (maska = 1)\n");
-    printf("  3. Svaka od 8 metoda popunjava isti osteceni niz\n");
+    printf("  3. Svaka od %d metoda popunjava isti osteceni niz\n", EXP_NUM_METHODS);
     printf("  4. Usporedujemo rekonstrukciju s originalom SAMO na uklonjenim mjestima\n\n");
     printf("PODACI:\n");
     printf("  Izvor:            %s\n", source);
@@ -291,6 +292,15 @@ static int apply_random_forest(const Series *s, const double *damaged, size_t n,
     return rf_imputation(s, damaged, out);
 }
 
+static int apply_adaptive(const Series *s, const double *damaged, size_t n, double *out) {
+    (void)s;
+    (void)damaged;
+    (void)n;
+    (void)out;
+    fprintf(stderr, "adaptive_imputation zahtijeva masku; koristi exp_run_methods.\n");
+    return 1;
+}
+
 static const ExpMethodEntry EXP_METHOD_TABLE[] = {
     {"forward_fill", apply_forward_fill},
     {"linear_interpolation", apply_linear},
@@ -300,6 +310,7 @@ static const ExpMethodEntry EXP_METHOD_TABLE[] = {
     {"knn", apply_knn},
     {"decision_tree", apply_decision_tree},
     {"random_forest", apply_random_forest},
+    {"adaptive_imputation", apply_adaptive},
 };
 
 static const size_t EXP_METHOD_TABLE_SIZE =
@@ -453,6 +464,16 @@ int exp_run_methods(const Series *s, const double *original, const double *damag
 
     for (size_t i = 0; i < EXP_METHOD_TABLE_SIZE; i++) {
         results[i].name = EXP_METHOD_TABLE[i].name;
+        if (strcmp(EXP_METHOD_TABLE[i].name, "adaptive_imputation") == 0) {
+            if (adaptive_imputation(s, damaged, mask, n, out) == 0) {
+                results[i].ok = 1;
+                results[i].metrics = evaluate_reconstruction(original, out, mask, n);
+            } else {
+                results[i].ok = 0;
+                results[i].metrics = (Metrics){0};
+            }
+            continue;
+        }
         if (EXP_METHOD_TABLE[i].apply(s, damaged, n, out) == 0) {
             results[i].ok = 1;
             results[i].metrics = evaluate_reconstruction(original, out, mask, n);

@@ -6,6 +6,7 @@
 #include "series.h"
 #include "preprocessing.h"
 #include "interpolation.h"
+#include "adaptive_imputation.h"
 #include "knn_methods.h"
 #include "knn_upgraded.h"
 #include "decision_tree.h"
@@ -738,6 +739,57 @@ static void test_dataset(void) {
     series_free(&s);
 }
 
+static void test_adaptive_imputation(void) {
+    printf("\n== Adaptivna imputacija ==\n");
+
+    Series series = {0};
+    if (series_alloc(&series, JENA_SERIES_LENGTH) != 0) {
+        check(0, "alokacija serije za adaptive test");
+        return;
+    }
+
+    for (size_t i = 0; i < series.n; i++) {
+        series.epoch[i] = 1230768600LL + (long long)i * 600LL;
+        series.temp[i] = -5.0 + 3.0 * sin((double)i / 48.0);
+    }
+
+    double *damaged = (double *)malloc(series.n * sizeof(double));
+    int *mask = (int *)malloc(series.n * sizeof(int));
+    double *out = (double *)malloc(series.n * sizeof(double));
+    if (!damaged || !mask || !out) {
+        check(0, "alokacija buffera za adaptive test");
+        free(damaged);
+        free(mask);
+        free(out);
+        series_free(&series);
+        return;
+    }
+
+    size_t removed = create_missing_values(series.temp, series.n, 0.20, 42ULL,
+                                           damaged, mask);
+    check(removed > 0, "adaptive: kreirane random rupe");
+
+    check(adaptive_imputation(&series, damaged, mask, series.n, out) == 0,
+          "adaptive_imputation uspjeh");
+    check(count_nan(out, series.n) == 0, "adaptive: nema NaN u izlazu");
+
+    Metrics m = evaluate_reconstruction(series.temp, out, mask, series.n);
+    check(m.mae < 0.5, "adaptive random 20%: MAE razuman");
+
+    removed = create_single_block_missing_values(series.temp, series.n, 0.30, 42ULL,
+                                                 PREPROC_BLOCK_POS_MIDDLE,
+                                                 damaged, mask);
+    check(removed > 0, "adaptive: kreiran block_middle");
+    check(adaptive_imputation(&series, damaged, mask, series.n, out) == 0,
+          "adaptive block_middle uspjeh");
+    check(count_nan(out, series.n) == 0, "adaptive block: nema NaN");
+
+    free(damaged);
+    free(mask);
+    free(out);
+    series_free(&series);
+}
+
 int main(void) {
     printf("======================================================================\n");
     printf("TESTOVI -- C verzija diplomskog\n");
@@ -754,6 +806,7 @@ int main(void) {
     test_high_missing_rates();
     test_preprocessing();
     test_interpolation();
+    test_adaptive_imputation();
     test_metrics();
     test_dataset();
 
