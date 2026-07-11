@@ -1,6 +1,14 @@
 @echo off
 cd /d "%~dp0"
 
+echo === 0/4 Priprema podataka (7 dana) ===
+python scripts\prepare_jena_7d.py
+if errorlevel 1 (
+    echo Greska pri pripremi jena_temperature_7d.csv
+    exit /b 1
+)
+
+echo.
 echo === 1/4 Build ===
 call build.bat
 if errorlevel 1 exit /b 1

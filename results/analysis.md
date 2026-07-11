@@ -50,7 +50,8 @@ Automatski generirano iz `experiment_results.csv`.
 1. **Klasične interpolacijske metode** (posebno linear, spline, cubic) postižu najniži MAE na random scenariju za sve testirane missing rateove (10–80 %).
 2. **Linear i time interpolacija** daju identične rezultate jer su uzorci ravnomjerno raspoređeni u vremenu (Jena 10-min intervali).
 3. Na **block scenariju** linear/time i dalje vode; forward fill i cubic/spline znatno gore zbog dugačkih rupa.
-4. **ML metode** (KNN, decision tree, random forest) na ovom datasetu (288 uzoraka) **ne nadmašuju** klasične metode.
+    printf("Na ovom datasetu (7 dana, 10-min) ML metode (KNN, DT, RF) obicno ne nadmašuju klasicne.
+");
 5. **KNN** na block scenariju pokazuje najveću pogrešku (npr. MAE ≈ 1.95 pri 80% block).
 6. Pri visokim missing rateovima (50–80 %) pogreška naglo raste na block_start, block_middle i block_end scenarijima.
 

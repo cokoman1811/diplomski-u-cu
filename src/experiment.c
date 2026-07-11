@@ -20,7 +20,7 @@
 #endif
 
 #define DEMO_CSV "data/raw/temperature_demo_cities.csv"
-#define PROCESSED_CSV "data/processed/jena_temperature_48h.csv"
+#define PROCESSED_CSV "data/processed/jena_temperature_7d.csv"
 #define DEFAULT_CITY "Split"
 #define RANDOM_SEED 42ULL
 

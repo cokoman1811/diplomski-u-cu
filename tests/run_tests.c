@@ -18,7 +18,8 @@
 #include <string.h>
 
 #define JENA_INTERVAL_MINUTES 10
-#define QUICK_SAMPLE_HOURS 48
+#define QUICK_SAMPLE_HOURS (7 * 24)
+#define JENA_SERIES_LENGTH (7 * 24 * 6)  /* 7 dana, 10-min intervali = 1008 */
 #define DEMO_CSV "data/raw/temperature_demo_cities.csv"
 
 static int g_failures = 0;
@@ -364,7 +365,7 @@ static int mask_is_contiguous_block(const int *mask, size_t n) {
 static void test_random_missing_count(void) {
     printf("\n== Random missing — broj uklonjenih vrijednosti ==\n");
 
-    const size_t n = 288;
+    const size_t n = JENA_SERIES_LENGTH;
     const double missing_rate = 0.20;
     const size_t expected = (size_t)llround(missing_rate * (double)n);
 
@@ -504,7 +505,7 @@ static void test_mask_and_evaluation_scope(void) {
 static void test_high_missing_rates(void) {
     printf("\n== Visoki missing rateovi (50-80%%) ==\n");
 
-    const size_t n = 288;
+    const size_t n = JENA_SERIES_LENGTH;
     const double rates[] = {0.50, 0.60, 0.70, 0.80};
     const PreprocBlockPosition positions[] = {
         PREPROC_BLOCK_POS_START,
