@@ -20,7 +20,7 @@
 
 - **random** @ 10%: cubic_interpolation (MAE=0.0406)
 - **random** @ 20%: cubic_interpolation (MAE=0.0488)
-- **random** @ 30%: cubic_interpolation (MAE=0.0448)
+- **random** @ 30%: spline_interpolation (MAE=0.0448)
 - **random** @ 40%: linear_interpolation (MAE=0.0620)
 - **random** @ 50%: linear_interpolation (MAE=0.0676)
 - **random** @ 60%: linear_interpolation (MAE=0.0732)
@@ -36,7 +36,7 @@
 - **block** @ 80%: linear_interpolation (MAE=0.6705)
 - **block_start** @ 10%: linear_interpolation (MAE=0.2212)
 - **block_start** @ 20%: forward_fill (MAE=0.8097)
-- **block_start** @ 30%: cubic_interpolation (MAE=0.9713)
+- **block_start** @ 30%: spline_interpolation (MAE=0.9713)
 - **block_start** @ 40%: linear_interpolation (MAE=0.8763)
 - **block_start** @ 50%: linear_interpolation (MAE=0.7737)
 - **block_start** @ 60%: linear_interpolation (MAE=0.9158)
@@ -50,12 +50,12 @@
 - **block_middle** @ 60%: linear_interpolation (MAE=0.5395)
 - **block_middle** @ 70%: linear_interpolation (MAE=0.9671)
 - **block_middle** @ 80%: linear_interpolation (MAE=1.4370)
-- **block_end** @ 10%: linear_interpolation (MAE=0.1970)
-- **block_end** @ 20%: linear_interpolation (MAE=0.3538)
-- **block_end** @ 30%: cubic_interpolation (MAE=0.6671)
+- **block_end** @ 10%: cubic_interpolation (MAE=0.1812)
+- **block_end** @ 20%: cubic_interpolation (MAE=0.3076)
+- **block_end** @ 30%: spline_interpolation (MAE=0.6671)
 - **block_end** @ 40%: random_forest (MAE=1.0260)
 - **block_end** @ 50%: decision_tree (MAE=0.8176)
-- **block_end** @ 60%: cubic_interpolation (MAE=0.7227)
+- **block_end** @ 60%: spline_interpolation (MAE=0.7227)
 - **block_end** @ 70%: linear_interpolation (MAE=1.1760)
 - **block_end** @ 80%: linear_interpolation (MAE=1.5937)
 
@@ -93,12 +93,12 @@
 - **block_middle** @ 60%: linear_interpolation (RMSE=0.6247)
 - **block_middle** @ 70%: linear_interpolation (RMSE=1.1303)
 - **block_middle** @ 80%: linear_interpolation (RMSE=1.5759)
-- **block_end** @ 10%: linear_interpolation (RMSE=0.2523)
-- **block_end** @ 20%: linear_interpolation (RMSE=0.3940)
-- **block_end** @ 30%: cubic_interpolation (RMSE=0.7697)
+- **block_end** @ 10%: cubic_interpolation (RMSE=0.2320)
+- **block_end** @ 20%: cubic_interpolation (RMSE=0.3514)
+- **block_end** @ 30%: spline_interpolation (RMSE=0.7697)
 - **block_end** @ 40%: random_forest (RMSE=1.2487)
 - **block_end** @ 50%: decision_tree (RMSE=1.0873)
-- **block_end** @ 60%: cubic_interpolation (RMSE=0.8186)
+- **block_end** @ 60%: spline_interpolation (RMSE=0.8186)
 - **block_end** @ 70%: linear_interpolation (RMSE=1.3635)
 - **block_end** @ 80%: linear_interpolation (RMSE=1.7404)
 
@@ -136,33 +136,33 @@
 - **block_middle** @ 60%: linear_interpolation (R²=0.7016)
 - **block_middle** @ 70%: linear_interpolation (R²=0.4191)
 - **block_middle** @ 80%: linear_interpolation (R²=0.2636)
-- **block_end** @ 10%: linear_interpolation (R²=0.7258)
-- **block_end** @ 20%: linear_interpolation (R²=0.6565)
-- **block_end** @ 30%: cubic_interpolation (R²=-0.4063)
+- **block_end** @ 10%: cubic_interpolation (R²=0.7683)
+- **block_end** @ 20%: cubic_interpolation (R²=0.7268)
+- **block_end** @ 30%: spline_interpolation (R²=-0.4063)
 - **block_end** @ 40%: random_forest (R²=-1.7082)
 - **block_end** @ 50%: decision_tree (R²=-0.9642)
-- **block_end** @ 60%: cubic_interpolation (R²=-0.0491)
+- **block_end** @ 60%: spline_interpolation (R²=-0.0491)
 - **block_end** @ 70%: linear_interpolation (R²=-1.2691)
 - **block_end** @ 80%: linear_interpolation (R²=-1.0366)
 
 ### 4. Kako se MAE mijenja (10 % → 80 %)?
 
-Prosječni MAE svih metoda i scenarija: 0.4630 (10 %) → 2.0998 (80 %).
+Prosječni MAE svih metoda i scenarija: 0.4607 (10 %) → 2.0428 (80 %).
 Na **random** scenariju: 0,079 → 0,224. Na **block_end**: 0,422 → 3,468.
 
 ### 5. Kako se RMSE mijenja?
 
-Prosjek svih metoda: 0.5497 (10 %) → 2.4441 (80 %).
+Prosjek svih metoda: 0.5472 (10 %) → 2.3859 (80 %).
 
 ### 6. Kako se R² mijenja?
 
-Prosjek svih metoda: -11.7866 (10 %) → -3.1835 (80 %).
+Prosjek svih metoda: -11.7779 (10 %) → -2.6825 (80 %).
 Na random scenariju klasične metode zadržavaju R² > 0,99. Na block scenarijima mnoge metode imaju negativan R².
 
 ### 7. Najteži scenarij pri 80 %?
 
-**block_end** — prosječni MAE svih metoda = **3.4677** °C.
-Slijedi block_middle (3.3376), block (1.8690), block_start (1.6005), random (0.2240).
+**block_end** — prosječni MAE svih metoda = **3.1643** °C.
+Slijedi block_middle (3.3376), block (1.8690), block_start (1.6190), random (0.2239).
 
 ### 8. Najstabilnija metoda (10–80 %)?
 
@@ -179,7 +179,7 @@ Na block scenarijima KNN ima MAE 1,95–3,52 pri 50–80 %.
 
 ### 11. Ostaje li linear_interpolation najbolja ukupno?
 
-**Da.** Pobjeđuje u **27 od 40** kombinacija scenarij/rate po MAE.
+**Da.** Pobjeđuje u **25 od 40** kombinacija scenarij/rate po MAE.
 
 ### 12. Ostaje li cubic_interpolation najbolja za random?
 
@@ -197,7 +197,7 @@ DT je nešto bolji u prosjeku. Obje metode znatno gore od linear interpolacije n
 
 ### 15. Negativan R² pri većim rateovima?
 
-**Da.** Ukupno **198** od 320 rezultata ima R² < 0.
+**Da.** Ukupno **197** od 320 rezultata ima R² < 0.
 Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline na block scenarijima.
 
 ---
@@ -214,12 +214,12 @@ Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline n
 | block | none | 0.60 | linear_interpolation | 0.6108 | 0.7029 | 0.6128 |
 | block | none | 0.70 | linear_interpolation | 0.7720 | 0.8781 | 0.4953 |
 | block | none | 0.80 | linear_interpolation | 0.6705 | 0.9274 | 0.7914 |
-| block_end | end | 0.10 | linear_interpolation | 0.1970 | 0.2523 | 0.7258 |
-| block_end | end | 0.20 | linear_interpolation | 0.3538 | 0.3940 | 0.6565 |
-| block_end | end | 0.30 | cubic_interpolation | 0.6671 | 0.7697 | -0.4063 |
+| block_end | end | 0.10 | cubic_interpolation | 0.1812 | 0.2320 | 0.7683 |
+| block_end | end | 0.20 | cubic_interpolation | 0.3076 | 0.3514 | 0.7268 |
+| block_end | end | 0.30 | spline_interpolation | 0.6671 | 0.7697 | -0.4063 |
 | block_end | end | 0.40 | random_forest | 1.0260 | 1.2487 | -1.7082 |
 | block_end | end | 0.50 | decision_tree | 0.8176 | 1.0873 | -0.9642 |
-| block_end | end | 0.60 | cubic_interpolation | 0.7227 | 0.8186 | -0.0491 |
+| block_end | end | 0.60 | spline_interpolation | 0.7227 | 0.8186 | -0.0491 |
 | block_end | end | 0.70 | linear_interpolation | 1.1760 | 1.3635 | -1.2691 |
 | block_end | end | 0.80 | linear_interpolation | 1.5937 | 1.7404 | -1.0366 |
 | block_middle | middle | 0.10 | decision_tree | 0.1081 | 0.1322 | 0.1342 |
@@ -232,7 +232,7 @@ Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline n
 | block_middle | middle | 0.80 | linear_interpolation | 1.4370 | 1.5759 | 0.2636 |
 | block_start | start | 0.10 | linear_interpolation | 0.2212 | 0.2870 | 0.6913 |
 | block_start | start | 0.20 | forward_fill | 0.8097 | 0.9592 | -0.7258 |
-| block_start | start | 0.30 | cubic_interpolation | 0.9713 | 1.1943 | -0.0214 |
+| block_start | start | 0.30 | spline_interpolation | 0.9713 | 1.1943 | -0.0214 |
 | block_start | start | 0.40 | linear_interpolation | 0.8763 | 1.1887 | 0.4144 |
 | block_start | start | 0.50 | linear_interpolation | 0.7737 | 1.0082 | 0.6682 |
 | block_start | start | 0.60 | linear_interpolation | 0.9158 | 1.0451 | 0.6670 |
@@ -240,7 +240,7 @@ Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline n
 | block_start | start | 0.80 | linear_interpolation | 0.6939 | 0.9373 | 0.7794 |
 | random | none | 0.10 | cubic_interpolation | 0.0406 | 0.0503 | 0.9993 |
 | random | none | 0.20 | cubic_interpolation | 0.0488 | 0.0672 | 0.9987 |
-| random | none | 0.30 | cubic_interpolation | 0.0448 | 0.0606 | 0.9991 |
+| random | none | 0.30 | spline_interpolation | 0.0448 | 0.0606 | 0.9991 |
 | random | none | 0.40 | linear_interpolation | 0.0620 | 0.0920 | 0.9980 |
 | random | none | 0.50 | linear_interpolation | 0.0676 | 0.0984 | 0.9976 |
 | random | none | 0.60 | linear_interpolation | 0.0732 | 0.1053 | 0.9974 |
@@ -269,8 +269,8 @@ Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline n
 | 0.20 | knn | 0.0841 | 0.1068 | 0.9966 |
 | 0.20 | decision_tree | 0.1662 | 0.2198 | 0.9858 |
 | 0.20 | random_forest | 0.1903 | 0.2719 | 0.9782 |
-| 0.30 | cubic_interpolation | 0.0448 | 0.0606 | 0.9991 |
 | 0.30 | spline_interpolation | 0.0448 | 0.0606 | 0.9991 |
+| 0.30 | cubic_interpolation | 0.0448 | 0.0606 | 0.9991 |
 | 0.30 | linear_interpolation | 0.0502 | 0.0662 | 0.9989 |
 | 0.30 | time_interpolation | 0.0502 | 0.0662 | 0.9989 |
 | 0.30 | forward_fill | 0.1012 | 0.1588 | 0.9936 |
@@ -279,15 +279,15 @@ Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline n
 | 0.30 | random_forest | 0.1952 | 0.2728 | 0.9812 |
 | 0.40 | linear_interpolation | 0.0620 | 0.0920 | 0.9980 |
 | 0.40 | time_interpolation | 0.0620 | 0.0920 | 0.9980 |
-| 0.40 | cubic_interpolation | 0.0849 | 0.1421 | 0.9953 |
 | 0.40 | spline_interpolation | 0.0849 | 0.1421 | 0.9953 |
+| 0.40 | cubic_interpolation | 0.0849 | 0.1419 | 0.9953 |
 | 0.40 | knn | 0.1304 | 0.1880 | 0.9917 |
 | 0.40 | forward_fill | 0.1366 | 0.2002 | 0.9906 |
 | 0.40 | decision_tree | 0.1693 | 0.2320 | 0.9874 |
 | 0.40 | random_forest | 0.2136 | 0.2921 | 0.9801 |
 | 0.50 | linear_interpolation | 0.0676 | 0.0984 | 0.9976 |
 | 0.50 | time_interpolation | 0.0676 | 0.0984 | 0.9976 |
-| 0.50 | cubic_interpolation | 0.0788 | 0.1304 | 0.9958 |
+| 0.50 | cubic_interpolation | 0.0786 | 0.1300 | 0.9959 |
 | 0.50 | spline_interpolation | 0.0788 | 0.1304 | 0.9958 |
 | 0.50 | forward_fill | 0.1549 | 0.2230 | 0.9878 |
 | 0.50 | decision_tree | 0.1729 | 0.2408 | 0.9858 |
@@ -295,7 +295,7 @@ Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline n
 | 0.50 | knn | 0.3761 | 1.0710 | 0.7197 |
 | 0.60 | linear_interpolation | 0.0732 | 0.1053 | 0.9974 |
 | 0.60 | time_interpolation | 0.0732 | 0.1053 | 0.9974 |
-| 0.60 | cubic_interpolation | 0.0876 | 0.1321 | 0.9960 |
+| 0.60 | cubic_interpolation | 0.0874 | 0.1319 | 0.9960 |
 | 0.60 | spline_interpolation | 0.0876 | 0.1321 | 0.9960 |
 | 0.60 | forward_fill | 0.1648 | 0.2324 | 0.9875 |
 | 0.60 | decision_tree | 0.1861 | 0.2517 | 0.9853 |
@@ -303,7 +303,7 @@ Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline n
 | 0.60 | knn | 0.2792 | 0.7796 | 0.8592 |
 | 0.70 | linear_interpolation | 0.0815 | 0.1119 | 0.9971 |
 | 0.70 | time_interpolation | 0.0815 | 0.1119 | 0.9971 |
-| 0.70 | cubic_interpolation | 0.0913 | 0.1365 | 0.9956 |
+| 0.70 | cubic_interpolation | 0.0912 | 0.1364 | 0.9956 |
 | 0.70 | spline_interpolation | 0.0913 | 0.1365 | 0.9956 |
 | 0.70 | forward_fill | 0.1722 | 0.2351 | 0.9870 |
 | 0.70 | decision_tree | 0.2082 | 0.2831 | 0.9812 |
@@ -311,7 +311,7 @@ Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline n
 | 0.70 | knn | 0.3915 | 0.8069 | 0.8472 |
 | 0.80 | linear_interpolation | 0.0919 | 0.1259 | 0.9964 |
 | 0.80 | time_interpolation | 0.0919 | 0.1259 | 0.9964 |
-| 0.80 | cubic_interpolation | 0.1056 | 0.1567 | 0.9944 |
+| 0.80 | cubic_interpolation | 0.1055 | 0.1566 | 0.9944 |
 | 0.80 | spline_interpolation | 0.1056 | 0.1567 | 0.9944 |
 | 0.80 | forward_fill | 0.1970 | 0.2685 | 0.9834 |
 | 0.80 | random_forest | 0.2819 | 0.3783 | 0.9671 |
@@ -350,8 +350,8 @@ Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline n
 | 0.30 | knn | 3.4313 | 3.6477 | -16.6670 |
 | 0.40 | linear_interpolation | 0.6903 | 0.9168 | 0.6616 |
 | 0.40 | time_interpolation | 0.6903 | 0.9168 | 0.6616 |
-| 0.40 | cubic_interpolation | 1.1448 | 1.3846 | 0.2281 |
 | 0.40 | spline_interpolation | 1.1448 | 1.3846 | 0.2281 |
+| 0.40 | cubic_interpolation | 1.1989 | 1.4507 | 0.1526 |
 | 0.40 | random_forest | 1.3887 | 1.5848 | -0.0113 |
 | 0.40 | forward_fill | 1.6503 | 2.0226 | -0.6472 |
 | 0.40 | decision_tree | 2.3168 | 2.8002 | -2.1573 |
@@ -361,7 +361,7 @@ Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline n
 | 0.50 | linear_interpolation | 0.7461 | 0.9694 | -0.5720 |
 | 0.50 | time_interpolation | 0.7461 | 0.9694 | -0.5720 |
 | 0.50 | random_forest | 0.8577 | 1.1304 | -1.1375 |
-| 0.50 | cubic_interpolation | 1.8066 | 2.3389 | -8.1505 |
+| 0.50 | cubic_interpolation | 1.8066 | 2.3389 | -8.1503 |
 | 0.50 | spline_interpolation | 1.8066 | 2.3389 | -8.1505 |
 | 0.50 | knn | 3.0574 | 3.3506 | -17.7785 |
 | 0.60 | linear_interpolation | 0.6108 | 0.7029 | 0.6128 |
@@ -382,7 +382,7 @@ Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline n
 | 0.70 | random_forest | 2.6946 | 2.9494 | -4.6935 |
 | 0.80 | linear_interpolation | 0.6705 | 0.9274 | 0.7914 |
 | 0.80 | time_interpolation | 0.6705 | 0.9274 | 0.7914 |
-| 0.80 | cubic_interpolation | 1.8286 | 2.2011 | -0.1747 |
+| 0.80 | cubic_interpolation | 1.8285 | 2.2010 | -0.1746 |
 | 0.80 | spline_interpolation | 1.8286 | 2.2011 | -0.1747 |
 | 0.80 | knn | 1.9468 | 2.3307 | -0.3171 |
 | 0.80 | forward_fill | 2.5757 | 2.9049 | -1.0461 |
@@ -395,12 +395,12 @@ Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline n
 
 | scenario | block_position | missing_rate | najbolja metoda | MAE | RMSE | R² |
 |----------|----------------|--------------|-----------------|-----|------|-----|
-| block_end | end | 0.10 | linear_interpolation | 0.1970 | 0.2523 | 0.7258 |
-| block_end | end | 0.20 | linear_interpolation | 0.3538 | 0.3940 | 0.6565 |
-| block_end | end | 0.30 | cubic_interpolation | 0.6671 | 0.7697 | -0.4063 |
+| block_end | end | 0.10 | cubic_interpolation | 0.1812 | 0.2320 | 0.7683 |
+| block_end | end | 0.20 | cubic_interpolation | 0.3076 | 0.3514 | 0.7268 |
+| block_end | end | 0.30 | spline_interpolation | 0.6671 | 0.7697 | -0.4063 |
 | block_end | end | 0.40 | random_forest | 1.0260 | 1.2487 | -1.7082 |
 | block_end | end | 0.50 | decision_tree | 0.8176 | 1.0873 | -0.9642 |
-| block_end | end | 0.60 | cubic_interpolation | 0.7227 | 0.8186 | -0.0491 |
+| block_end | end | 0.60 | spline_interpolation | 0.7227 | 0.8186 | -0.0491 |
 | block_end | end | 0.70 | linear_interpolation | 1.1760 | 1.3635 | -1.2691 |
 | block_end | end | 0.80 | linear_interpolation | 1.5937 | 1.7404 | -1.0366 |
 | block_middle | middle | 0.10 | decision_tree | 0.1081 | 0.1322 | 0.1342 |
@@ -413,7 +413,7 @@ Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline n
 | block_middle | middle | 0.80 | linear_interpolation | 1.4370 | 1.5759 | 0.2636 |
 | block_start | start | 0.10 | linear_interpolation | 0.2212 | 0.2870 | 0.6913 |
 | block_start | start | 0.20 | forward_fill | 0.8097 | 0.9592 | -0.7258 |
-| block_start | start | 0.30 | cubic_interpolation | 0.9713 | 1.1943 | -0.0214 |
+| block_start | start | 0.30 | spline_interpolation | 0.9713 | 1.1943 | -0.0214 |
 | block_start | start | 0.40 | linear_interpolation | 0.8763 | 1.1887 | 0.4144 |
 | block_start | start | 0.50 | linear_interpolation | 0.7737 | 1.0082 | 0.6682 |
 | block_start | start | 0.60 | linear_interpolation | 0.9158 | 1.0451 | 0.6670 |
@@ -431,7 +431,7 @@ Pri 80 %: **24** od 40 rezultata. Najčešće: knn, forward_fill, cubic/spline n
 | decision_tree | 1.1612 | 1.3951 | -1.6507 | 0.8239 | Ponekad dobra na block_middle; nestabilna na visokim rateovima |
 | forward_fill | 1.3310 | 1.5139 | -2.2151 | 1.1057 | Loša na block scenarijima |
 | random_forest | 1.3450 | 1.5295 | -2.4593 | 1.0685 | Manja varijabilnost od DT, ali veći prosječni MAE |
-| cubic_interpolation | 1.6570 | 1.9057 | -7.1157 | 2.0747 | Odlična na random 10-30%; loša na block pri visokim rateovima |
+| cubic_interpolation | 1.4907 | 1.7255 | -5.3113 | 1.8347 | Odlična na random 10-30%; loša na block pri visokim rateovima |
 | spline_interpolation | 1.6570 | 1.9057 | -7.1157 | 2.0747 | Ista jezgra kao cubic |
 | knn | 2.2143 | 2.5606 | -24.4797 | 1.1841 | Najveće pogreške na block scenarijima; gubi najviše kvalitete s rateom |
 

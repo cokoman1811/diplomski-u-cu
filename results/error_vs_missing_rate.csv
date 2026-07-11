@@ -2,7 +2,7 @@ scenario,block_position,missing_rate,method,mae,rmse,r2
 random,none,0.10,forward_fill,0.052069,0.072611,0.998505
 random,none,0.10,linear_interpolation,0.047126,0.058799,0.999020
 random,none,0.10,time_interpolation,0.047126,0.058799,0.999020
-random,none,0.10,cubic_interpolation,0.040600,0.050289,0.999283
+random,none,0.10,cubic_interpolation,0.040592,0.050278,0.999283
 random,none,0.10,spline_interpolation,0.040600,0.050289,0.999283
 random,none,0.10,knn,0.086481,0.110954,0.996509
 random,none,0.10,decision_tree,0.156845,0.193868,0.989342
@@ -10,7 +10,7 @@ random,none,0.10,random_forest,0.161830,0.220434,0.986221
 random,none,0.20,forward_fill,0.074138,0.107687,0.996579
 random,none,0.20,linear_interpolation,0.050172,0.067993,0.998636
 random,none,0.20,time_interpolation,0.050172,0.067993,0.998636
-random,none,0.20,cubic_interpolation,0.048762,0.067240,0.998666
+random,none,0.20,cubic_interpolation,0.048758,0.067235,0.998666
 random,none,0.20,spline_interpolation,0.048762,0.067240,0.998666
 random,none,0.20,knn,0.084087,0.106820,0.996634
 random,none,0.20,decision_tree,0.166241,0.219789,0.985750
@@ -18,7 +18,7 @@ random,none,0.20,random_forest,0.190285,0.271879,0.978195
 random,none,0.30,forward_fill,0.101163,0.158833,0.993619
 random,none,0.30,linear_interpolation,0.050229,0.066223,0.998891
 random,none,0.30,time_interpolation,0.050229,0.066223,0.998891
-random,none,0.30,cubic_interpolation,0.044815,0.060635,0.999070
+random,none,0.30,cubic_interpolation,0.044820,0.060632,0.999070
 random,none,0.30,spline_interpolation,0.044815,0.060635,0.999070
 random,none,0.30,knn,0.101559,0.142171,0.994887
 random,none,0.30,decision_tree,0.163283,0.227479,0.986911
@@ -26,7 +26,7 @@ random,none,0.30,random_forest,0.195157,0.272757,0.981182
 random,none,0.40,forward_fill,0.136609,0.200159,0.990640
 random,none,0.40,linear_interpolation,0.061983,0.091954,0.998025
 random,none,0.40,time_interpolation,0.061983,0.091954,0.998025
-random,none,0.40,cubic_interpolation,0.084856,0.142062,0.995285
+random,none,0.40,cubic_interpolation,0.084893,0.141910,0.995295
 random,none,0.40,spline_interpolation,0.084856,0.142062,0.995285
 random,none,0.40,knn,0.130441,0.187956,0.991747
 random,none,0.40,decision_tree,0.169261,0.232006,0.987425
@@ -34,7 +34,7 @@ random,none,0.40,random_forest,0.213592,0.292134,0.980062
 random,none,0.50,forward_fill,0.154931,0.223011,0.987849
 random,none,0.50,linear_interpolation,0.067558,0.098450,0.997632
 random,none,0.50,time_interpolation,0.067558,0.098450,0.997632
-random,none,0.50,cubic_interpolation,0.078839,0.130379,0.995847
+random,none,0.50,cubic_interpolation,0.078573,0.130034,0.995869
 random,none,0.50,spline_interpolation,0.078839,0.130379,0.995847
 random,none,0.50,knn,0.376107,1.071030,0.719748
 random,none,0.50,decision_tree,0.172927,0.240818,0.985831
@@ -42,7 +42,7 @@ random,none,0.50,random_forest,0.231565,0.300444,0.977947
 random,none,0.60,forward_fill,0.164798,0.232370,0.987487
 random,none,0.60,linear_interpolation,0.073223,0.105291,0.997431
 random,none,0.60,time_interpolation,0.073223,0.105291,0.997431
-random,none,0.60,cubic_interpolation,0.087632,0.132136,0.995954
+random,none,0.60,cubic_interpolation,0.087411,0.131854,0.995971
 random,none,0.60,spline_interpolation,0.087632,0.132136,0.995954
 random,none,0.60,knn,0.279178,0.779583,0.859165
 random,none,0.60,decision_tree,0.186087,0.251694,0.985320
@@ -50,7 +50,7 @@ random,none,0.60,random_forest,0.262134,0.337455,0.973611
 random,none,0.70,forward_fill,0.172228,0.235112,0.987028
 random,none,0.70,linear_interpolation,0.081516,0.111850,0.997064
 random,none,0.70,time_interpolation,0.081516,0.111850,0.997064
-random,none,0.70,cubic_interpolation,0.091271,0.136509,0.995627
+random,none,0.70,cubic_interpolation,0.091156,0.136413,0.995633
 random,none,0.70,spline_interpolation,0.091271,0.136509,0.995627
 random,none,0.70,knn,0.391537,0.806868,0.847218
 random,none,0.70,decision_tree,0.208230,0.283147,0.981186
@@ -58,7 +58,7 @@ random,none,0.70,random_forest,0.270013,0.379355,0.966228
 random,none,0.80,forward_fill,0.197043,0.268464,0.983445
 random,none,0.80,linear_interpolation,0.091938,0.125903,0.996359
 random,none,0.80,time_interpolation,0.091938,0.125903,0.996359
-random,none,0.80,cubic_interpolation,0.105574,0.156678,0.994362
+random,none,0.80,cubic_interpolation,0.105480,0.156630,0.994365
 random,none,0.80,spline_interpolation,0.105574,0.156678,0.994362
 random,none,0.80,knn,0.635350,1.064325,0.739808
 random,none,0.80,decision_tree,0.282356,0.405236,0.962281
@@ -90,7 +90,7 @@ block,none,0.30,random_forest,0.910039,1.178421,-0.843875
 block,none,0.40,forward_fill,1.650261,2.022614,-0.647203
 block,none,0.40,linear_interpolation,0.690333,0.916761,0.661598
 block,none,0.40,time_interpolation,0.690333,0.916761,0.661598
-block,none,0.40,cubic_interpolation,1.144761,1.384630,0.228051
+block,none,0.40,cubic_interpolation,1.198896,1.450740,0.152577
 block,none,0.40,spline_interpolation,1.144761,1.384630,0.228051
 block,none,0.40,knn,3.446756,3.649311,-4.362200
 block,none,0.40,decision_tree,2.316804,2.800232,-2.157252
@@ -98,7 +98,7 @@ block,none,0.40,random_forest,1.388682,1.584816,-0.011297
 block,none,0.50,forward_fill,0.691319,0.891930,-0.330727
 block,none,0.50,linear_interpolation,0.746074,0.969436,-0.572045
 block,none,0.50,time_interpolation,0.746074,0.969436,-0.572045
-block,none,0.50,cubic_interpolation,1.806596,2.338891,-8.150543
+block,none,0.50,cubic_interpolation,1.806566,2.338855,-8.150265
 block,none,0.50,spline_interpolation,1.806596,2.338891,-8.150543
 block,none,0.50,knn,3.057401,3.350556,-17.778492
 block,none,0.50,decision_tree,0.736399,0.996688,-0.661673
@@ -122,7 +122,7 @@ block,none,0.70,random_forest,2.694550,2.949413,-4.693532
 block,none,0.80,forward_fill,2.575696,2.904890,-1.046118
 block,none,0.80,linear_interpolation,0.670461,0.927421,0.791443
 block,none,0.80,time_interpolation,0.670461,0.927421,0.791443
-block,none,0.80,cubic_interpolation,1.828572,2.201069,-0.174731
+block,none,0.80,cubic_interpolation,1.828461,2.200969,-0.174625
 block,none,0.80,spline_interpolation,1.828572,2.201069,-0.174731
 block,none,0.80,knn,1.946805,2.330664,-0.317136
 block,none,0.80,decision_tree,2.856043,3.461274,-1.904980
@@ -130,7 +130,7 @@ block,none,0.80,random_forest,2.575696,2.904890,-1.046118
 block_start,start,0.10,forward_fill,0.786552,0.889194,-1.963635
 block_start,start,0.10,linear_interpolation,0.221207,0.286968,0.691326
 block_start,start,0.10,time_interpolation,0.221207,0.286968,0.691326
-block_start,start,0.10,cubic_interpolation,0.536873,0.608520,-0.387975
+block_start,start,0.10,cubic_interpolation,0.480590,0.550720,-0.136827
 block_start,start,0.10,spline_interpolation,0.536873,0.608520,-0.387975
 block_start,start,0.10,knn,3.656018,3.954634,-57.619847
 block_start,start,0.10,decision_tree,0.711034,0.811073,-1.465764
@@ -138,7 +138,7 @@ block_start,start,0.10,random_forest,0.494712,0.589221,-0.301332
 block_start,start,0.20,forward_fill,0.809655,0.959244,-0.725779
 block_start,start,0.20,linear_interpolation,1.133472,1.318881,-2.262412
 block_start,start,0.20,time_interpolation,1.133472,1.318881,-2.262412
-block_start,start,0.20,cubic_interpolation,0.931054,1.095394,-1.250442
+block_start,start,0.20,cubic_interpolation,1.033110,1.209252,-1.742593
 block_start,start,0.20,spline_interpolation,0.931054,1.095394,-1.250442
 block_start,start,0.20,knn,4.012587,4.160657,-31.467675
 block_start,start,0.20,decision_tree,1.474598,1.682885,-4.311736
@@ -146,7 +146,7 @@ block_start,start,0.20,random_forest,1.016144,1.193357,-1.670966
 block_start,start,0.30,forward_fill,1.005698,1.182391,-0.001152
 block_start,start,0.30,linear_interpolation,1.115543,1.345496,-0.296412
 block_start,start,0.30,time_interpolation,1.115543,1.345496,-0.296412
-block_start,start,0.30,cubic_interpolation,0.971258,1.194274,-0.021377
+block_start,start,0.30,cubic_interpolation,1.112531,1.358855,-0.322284
 block_start,start,0.30,spline_interpolation,0.971258,1.194274,-0.021377
 block_start,start,0.30,knn,3.712749,3.908118,-9.937387
 block_start,start,0.30,decision_tree,1.634845,1.891201,-1.561258
@@ -154,7 +154,7 @@ block_start,start,0.30,random_forest,1.225533,1.452118,-0.510017
 block_start,start,0.40,forward_fill,1.438609,1.710693,-0.212760
 block_start,start,0.40,linear_interpolation,0.876330,1.188737,0.414398
 block_start,start,0.40,time_interpolation,0.876330,1.188737,0.414398
-block_start,start,0.40,cubic_interpolation,2.289966,2.557596,-1.710781
+block_start,start,0.40,cubic_interpolation,1.944027,2.161361,-0.935910
 block_start,start,0.40,spline_interpolation,2.289966,2.557596,-1.710781
 block_start,start,0.40,knn,3.464682,3.650834,-4.523508
 block_start,start,0.40,decision_tree,1.695391,2.051598,-0.744276
@@ -162,7 +162,7 @@ block_start,start,0.40,random_forest,1.535619,1.761078,-0.285251
 block_start,start,0.50,forward_fill,1.825556,2.150200,-0.509108
 block_start,start,0.50,linear_interpolation,0.773673,1.008189,0.668223
 block_start,start,0.50,time_interpolation,0.773673,1.008189,0.668223
-block_start,start,0.50,cubic_interpolation,1.121923,1.411519,0.349667
+block_start,start,0.50,cubic_interpolation,1.043958,1.325014,0.426935
 block_start,start,0.50,spline_interpolation,1.121923,1.411519,0.349667
 block_start,start,0.50,knn,2.959162,3.304451,-2.564193
 block_start,start,0.50,decision_tree,1.636991,2.009812,-0.318479
@@ -170,7 +170,7 @@ block_start,start,0.50,random_forest,1.699807,1.879743,-0.153346
 block_start,start,0.60,forward_fill,2.110694,2.437138,-0.810601
 block_start,start,0.60,linear_interpolation,0.915790,1.045103,0.667049
 block_start,start,0.60,time_interpolation,0.915790,1.045103,0.667049
-block_start,start,0.60,cubic_interpolation,3.085711,3.679453,-3.126948
+block_start,start,0.60,cubic_interpolation,2.457923,2.860222,-1.493802
 block_start,start,0.60,spline_interpolation,3.085711,3.679453,-3.126948
 block_start,start,0.60,knn,2.471959,2.907756,-1.577379
 block_start,start,0.60,decision_tree,1.586686,1.872707,-0.069060
@@ -178,7 +178,7 @@ block_start,start,0.60,random_forest,1.424665,1.719096,0.099129
 block_start,start,0.70,forward_fill,2.339307,2.657889,-1.111069
 block_start,start,0.70,linear_interpolation,0.699069,0.888876,0.763891
 block_start,start,0.70,time_interpolation,0.699069,0.888876,0.763891
-block_start,start,0.70,cubic_interpolation,2.193331,2.325890,-0.616617
+block_start,start,0.70,cubic_interpolation,1.676155,1.771320,0.062388
 block_start,start,0.70,spline_interpolation,2.193331,2.325890,-0.616617
 block_start,start,0.70,knn,2.206444,2.707613,-1.190796
 block_start,start,0.70,decision_tree,2.083729,2.615003,-1.043494
@@ -186,7 +186,7 @@ block_start,start,0.70,random_forest,2.078016,2.313465,-0.599392
 block_start,start,0.80,forward_fill,2.661957,3.045617,-1.329673
 block_start,start,0.80,linear_interpolation,0.693941,0.937296,0.779353
 block_start,start,0.80,time_interpolation,0.693941,0.937296,0.779353
-block_start,start,0.80,cubic_interpolation,0.882981,1.102841,0.694529
+block_start,start,0.80,cubic_interpolation,1.030693,1.223813,0.623838
 block_start,start,0.80,spline_interpolation,0.882981,1.102841,0.694529
 block_start,start,0.80,knn,2.267883,2.813223,-0.987709
 block_start,start,0.80,decision_tree,3.002645,3.566478,-2.194653
@@ -258,7 +258,7 @@ block_middle,middle,0.80,random_forest,4.435213,4.782667,-5.782737
 block_end,end,0.10,forward_fill,0.500000,0.688006,-1.038228
 block_end,end,0.10,linear_interpolation,0.196977,0.252333,0.725832
 block_end,end,0.10,time_interpolation,0.196977,0.252333,0.725832
-block_end,end,0.10,cubic_interpolation,0.219478,0.276524,0.670743
+block_end,end,0.10,cubic_interpolation,0.181154,0.231963,0.768311
 block_end,end,0.10,spline_interpolation,0.219478,0.276524,0.670743
 block_end,end,0.10,knn,0.626196,0.896914,-2.463940
 block_end,end,0.10,decision_tree,0.577701,0.752313,-1.437061
@@ -266,7 +266,7 @@ block_end,end,0.10,random_forest,0.839245,0.967765,-3.032817
 block_end,end,0.20,forward_fill,0.781897,0.964173,-1.057329
 block_end,end,0.20,linear_interpolation,0.353793,0.394000,0.656453
 block_end,end,0.20,time_interpolation,0.353793,0.394000,0.656453
-block_end,end,0.20,cubic_interpolation,0.410821,0.450142,0.551572
+block_end,end,0.20,cubic_interpolation,0.307639,0.351382,0.726755
 block_end,end,0.20,spline_interpolation,0.410821,0.450142,0.551572
 block_end,end,0.20,knn,1.497735,1.781370,-6.022671
 block_end,end,0.20,decision_tree,0.776879,0.902290,-0.801716
@@ -274,7 +274,7 @@ block_end,end,0.20,random_forest,0.894498,1.080723,-1.584773
 block_end,end,0.30,forward_fill,0.777209,0.914151,-0.983577
 block_end,end,0.30,linear_interpolation,1.049563,1.198046,-2.406905
 block_end,end,0.30,time_interpolation,1.049563,1.198046,-2.406905
-block_end,end,0.30,cubic_interpolation,0.667062,0.769711,-0.406269
+block_end,end,0.30,cubic_interpolation,0.764224,0.868886,-0.792005
 block_end,end,0.30,spline_interpolation,0.667062,0.769711,-0.406269
 block_end,end,0.30,knn,2.234110,2.564383,-14.609146
 block_end,end,0.30,decision_tree,1.038651,1.156458,-2.174484
@@ -282,7 +282,7 @@ block_end,end,0.30,random_forest,1.032106,1.182750,-2.320466
 block_end,end,0.40,forward_fill,1.322957,1.520743,-3.016677
 block_end,end,0.40,linear_interpolation,1.248091,1.450467,-2.654019
 block_end,end,0.40,time_interpolation,1.248091,1.450467,-2.654019
-block_end,end,0.40,cubic_interpolation,2.923715,3.250883,-17.355148
+block_end,end,0.40,cubic_interpolation,2.372090,2.662934,-11.316183
 block_end,end,0.40,spline_interpolation,2.923715,3.250883,-17.355148
 block_end,end,0.40,knn,2.762509,3.098139,-15.670821
 block_end,end,0.40,decision_tree,1.189942,1.415679,-2.480846
@@ -290,7 +290,7 @@ block_end,end,0.40,random_forest,1.026029,1.248723,-1.708240
 block_end,end,0.50,forward_fill,0.883333,1.152156,-1.205488
 block_end,end,0.50,linear_interpolation,0.943836,1.213756,-1.447626
 block_end,end,0.50,time_interpolation,0.943836,1.213756,-1.447626
-block_end,end,0.50,cubic_interpolation,6.349068,6.949935,-79.249721
+block_end,end,0.50,cubic_interpolation,4.536216,5.051840,-41.401493
 block_end,end,0.50,spline_interpolation,6.349068,6.949935,-79.249721
 block_end,end,0.50,knn,3.057264,3.350507,-17.651037
 block_end,end,0.50,decision_tree,0.817639,1.087308,-0.964207
@@ -298,7 +298,7 @@ block_end,end,0.50,random_forest,0.933388,1.204096,-1.408820
 block_end,end,0.60,forward_fill,1.222023,1.460144,-2.338164
 block_end,end,0.60,linear_interpolation,1.022023,1.256734,-1.472878
 block_end,end,0.60,time_interpolation,1.022023,1.256734,-1.472878
-block_end,end,0.60,cubic_interpolation,0.722704,0.818569,-0.049125
+block_end,end,0.60,cubic_interpolation,0.805150,0.992051,-0.540933
 block_end,end,0.60,spline_interpolation,0.722704,0.818569,-0.049125
 block_end,end,0.60,knn,3.048956,3.324900,-16.309051
 block_end,end,0.60,decision_tree,1.099697,1.359276,-1.892888
@@ -306,7 +306,7 @@ block_end,end,0.60,random_forest,1.181296,1.426233,-2.184909
 block_end,end,0.70,forward_fill,1.740990,1.962230,-3.699556
 block_end,end,0.70,linear_interpolation,1.175990,1.363479,-1.269100
 block_end,end,0.70,time_interpolation,1.175990,1.363479,-1.269100
-block_end,end,0.70,cubic_interpolation,2.646819,3.187375,-11.400049
+block_end,end,0.70,cubic_interpolation,1.927389,2.234575,-5.094623
 block_end,end,0.70,spline_interpolation,2.646819,3.187375,-11.400049
 block_end,end,0.70,knn,3.216380,3.445787,-13.492182
 block_end,end,0.70,decision_tree,1.410660,1.665156,-2.384285
@@ -314,7 +314,7 @@ block_end,end,0.70,random_forest,1.808271,2.022164,-3.991023
 block_end,end,0.80,forward_fill,2.878391,3.122010,-5.553357
 block_end,end,0.80,linear_interpolation,1.593685,1.740442,-1.036641
 block_end,end,0.80,time_interpolation,1.593685,1.740442,-1.036641
-block_end,end,0.80,cubic_interpolation,6.466504,7.334357,-35.167564
+block_end,end,0.80,cubic_interpolation,4.038971,4.886624,-15.055103
 block_end,end,0.80,spline_interpolation,6.466504,7.334357,-35.167564
 block_end,end,0.80,knn,3.517043,3.746753,-8.438552
 block_end,end,0.80,decision_tree,2.196130,2.431862,-2.976245

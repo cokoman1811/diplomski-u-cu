@@ -21,10 +21,10 @@ void linear_interpolation(const double *temp, size_t n, double *out);
 /* Linearna interpolacija uz stvarno vrijeme (epoch sekunde) kao os. */
 void time_interpolation(const double *temp, size_t n, const long long *epoch, double *out);
 
-/* Kubicni (prirodni) spline. Zahtijeva >= 4 poznate tocke. */
+/* Zakljucani kubicki spline (zadana prva derivacija na rubovima). >= 4 poznate tocke. */
 int cubic_interpolation(const double *temp, size_t n, double *out);
 
-/* Spline reda 3 (ista jezgra kao cubic). Zahtijeva >= 4 poznate tocke. */
+/* Prirodni kubicki spline (druga derivacija = 0 na rubovima). >= 4 poznate tocke. */
 int spline_interpolation(const double *temp, size_t n, double *out);
 
 #endif /* INTERPOLATION_H */

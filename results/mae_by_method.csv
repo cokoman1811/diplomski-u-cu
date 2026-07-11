@@ -2,7 +2,7 @@ method,mae,scenario,block_position,missing_rate
 forward_fill,0.052069,random,none,0.10
 linear_interpolation,0.047126,random,none,0.10
 time_interpolation,0.047126,random,none,0.10
-cubic_interpolation,0.040600,random,none,0.10
+cubic_interpolation,0.040592,random,none,0.10
 spline_interpolation,0.040600,random,none,0.10
 knn,0.086481,random,none,0.10
 decision_tree,0.156845,random,none,0.10
@@ -10,7 +10,7 @@ random_forest,0.161830,random,none,0.10
 forward_fill,0.074138,random,none,0.20
 linear_interpolation,0.050172,random,none,0.20
 time_interpolation,0.050172,random,none,0.20
-cubic_interpolation,0.048762,random,none,0.20
+cubic_interpolation,0.048758,random,none,0.20
 spline_interpolation,0.048762,random,none,0.20
 knn,0.084087,random,none,0.20
 decision_tree,0.166241,random,none,0.20
@@ -18,7 +18,7 @@ random_forest,0.190285,random,none,0.20
 forward_fill,0.101163,random,none,0.30
 linear_interpolation,0.050229,random,none,0.30
 time_interpolation,0.050229,random,none,0.30
-cubic_interpolation,0.044815,random,none,0.30
+cubic_interpolation,0.044820,random,none,0.30
 spline_interpolation,0.044815,random,none,0.30
 knn,0.101559,random,none,0.30
 decision_tree,0.163283,random,none,0.30
@@ -26,7 +26,7 @@ random_forest,0.195157,random,none,0.30
 forward_fill,0.136609,random,none,0.40
 linear_interpolation,0.061983,random,none,0.40
 time_interpolation,0.061983,random,none,0.40
-cubic_interpolation,0.084856,random,none,0.40
+cubic_interpolation,0.084893,random,none,0.40
 spline_interpolation,0.084856,random,none,0.40
 knn,0.130441,random,none,0.40
 decision_tree,0.169261,random,none,0.40
@@ -34,7 +34,7 @@ random_forest,0.213592,random,none,0.40
 forward_fill,0.154931,random,none,0.50
 linear_interpolation,0.067558,random,none,0.50
 time_interpolation,0.067558,random,none,0.50
-cubic_interpolation,0.078839,random,none,0.50
+cubic_interpolation,0.078573,random,none,0.50
 spline_interpolation,0.078839,random,none,0.50
 knn,0.376107,random,none,0.50
 decision_tree,0.172927,random,none,0.50
@@ -42,7 +42,7 @@ random_forest,0.231565,random,none,0.50
 forward_fill,0.164798,random,none,0.60
 linear_interpolation,0.073223,random,none,0.60
 time_interpolation,0.073223,random,none,0.60
-cubic_interpolation,0.087632,random,none,0.60
+cubic_interpolation,0.087411,random,none,0.60
 spline_interpolation,0.087632,random,none,0.60
 knn,0.279178,random,none,0.60
 decision_tree,0.186087,random,none,0.60
@@ -50,7 +50,7 @@ random_forest,0.262134,random,none,0.60
 forward_fill,0.172228,random,none,0.70
 linear_interpolation,0.081516,random,none,0.70
 time_interpolation,0.081516,random,none,0.70
-cubic_interpolation,0.091271,random,none,0.70
+cubic_interpolation,0.091156,random,none,0.70
 spline_interpolation,0.091271,random,none,0.70
 knn,0.391537,random,none,0.70
 decision_tree,0.208230,random,none,0.70
@@ -58,7 +58,7 @@ random_forest,0.270013,random,none,0.70
 forward_fill,0.197043,random,none,0.80
 linear_interpolation,0.091938,random,none,0.80
 time_interpolation,0.091938,random,none,0.80
-cubic_interpolation,0.105574,random,none,0.80
+cubic_interpolation,0.105480,random,none,0.80
 spline_interpolation,0.105574,random,none,0.80
 knn,0.635350,random,none,0.80
 decision_tree,0.282356,random,none,0.80
@@ -90,7 +90,7 @@ random_forest,0.910039,block,none,0.30
 forward_fill,1.650261,block,none,0.40
 linear_interpolation,0.690333,block,none,0.40
 time_interpolation,0.690333,block,none,0.40
-cubic_interpolation,1.144761,block,none,0.40
+cubic_interpolation,1.198896,block,none,0.40
 spline_interpolation,1.144761,block,none,0.40
 knn,3.446756,block,none,0.40
 decision_tree,2.316804,block,none,0.40
@@ -98,7 +98,7 @@ random_forest,1.388682,block,none,0.40
 forward_fill,0.691319,block,none,0.50
 linear_interpolation,0.746074,block,none,0.50
 time_interpolation,0.746074,block,none,0.50
-cubic_interpolation,1.806596,block,none,0.50
+cubic_interpolation,1.806566,block,none,0.50
 spline_interpolation,1.806596,block,none,0.50
 knn,3.057401,block,none,0.50
 decision_tree,0.736399,block,none,0.50
@@ -122,7 +122,7 @@ random_forest,2.694550,block,none,0.70
 forward_fill,2.575696,block,none,0.80
 linear_interpolation,0.670461,block,none,0.80
 time_interpolation,0.670461,block,none,0.80
-cubic_interpolation,1.828572,block,none,0.80
+cubic_interpolation,1.828461,block,none,0.80
 spline_interpolation,1.828572,block,none,0.80
 knn,1.946805,block,none,0.80
 decision_tree,2.856043,block,none,0.80
@@ -130,7 +130,7 @@ random_forest,2.575696,block,none,0.80
 forward_fill,0.786552,block_start,start,0.10
 linear_interpolation,0.221207,block_start,start,0.10
 time_interpolation,0.221207,block_start,start,0.10
-cubic_interpolation,0.536873,block_start,start,0.10
+cubic_interpolation,0.480590,block_start,start,0.10
 spline_interpolation,0.536873,block_start,start,0.10
 knn,3.656018,block_start,start,0.10
 decision_tree,0.711034,block_start,start,0.10
@@ -138,7 +138,7 @@ random_forest,0.494712,block_start,start,0.10
 forward_fill,0.809655,block_start,start,0.20
 linear_interpolation,1.133472,block_start,start,0.20
 time_interpolation,1.133472,block_start,start,0.20
-cubic_interpolation,0.931054,block_start,start,0.20
+cubic_interpolation,1.033110,block_start,start,0.20
 spline_interpolation,0.931054,block_start,start,0.20
 knn,4.012587,block_start,start,0.20
 decision_tree,1.474598,block_start,start,0.20
@@ -146,7 +146,7 @@ random_forest,1.016144,block_start,start,0.20
 forward_fill,1.005698,block_start,start,0.30
 linear_interpolation,1.115543,block_start,start,0.30
 time_interpolation,1.115543,block_start,start,0.30
-cubic_interpolation,0.971258,block_start,start,0.30
+cubic_interpolation,1.112531,block_start,start,0.30
 spline_interpolation,0.971258,block_start,start,0.30
 knn,3.712749,block_start,start,0.30
 decision_tree,1.634845,block_start,start,0.30
@@ -154,7 +154,7 @@ random_forest,1.225533,block_start,start,0.30
 forward_fill,1.438609,block_start,start,0.40
 linear_interpolation,0.876330,block_start,start,0.40
 time_interpolation,0.876330,block_start,start,0.40
-cubic_interpolation,2.289966,block_start,start,0.40
+cubic_interpolation,1.944027,block_start,start,0.40
 spline_interpolation,2.289966,block_start,start,0.40
 knn,3.464682,block_start,start,0.40
 decision_tree,1.695391,block_start,start,0.40
@@ -162,7 +162,7 @@ random_forest,1.535619,block_start,start,0.40
 forward_fill,1.825556,block_start,start,0.50
 linear_interpolation,0.773673,block_start,start,0.50
 time_interpolation,0.773673,block_start,start,0.50
-cubic_interpolation,1.121923,block_start,start,0.50
+cubic_interpolation,1.043958,block_start,start,0.50
 spline_interpolation,1.121923,block_start,start,0.50
 knn,2.959162,block_start,start,0.50
 decision_tree,1.636991,block_start,start,0.50
@@ -170,7 +170,7 @@ random_forest,1.699807,block_start,start,0.50
 forward_fill,2.110694,block_start,start,0.60
 linear_interpolation,0.915790,block_start,start,0.60
 time_interpolation,0.915790,block_start,start,0.60
-cubic_interpolation,3.085711,block_start,start,0.60
+cubic_interpolation,2.457923,block_start,start,0.60
 spline_interpolation,3.085711,block_start,start,0.60
 knn,2.471959,block_start,start,0.60
 decision_tree,1.586686,block_start,start,0.60
@@ -178,7 +178,7 @@ random_forest,1.424665,block_start,start,0.60
 forward_fill,2.339307,block_start,start,0.70
 linear_interpolation,0.699069,block_start,start,0.70
 time_interpolation,0.699069,block_start,start,0.70
-cubic_interpolation,2.193331,block_start,start,0.70
+cubic_interpolation,1.676155,block_start,start,0.70
 spline_interpolation,2.193331,block_start,start,0.70
 knn,2.206444,block_start,start,0.70
 decision_tree,2.083729,block_start,start,0.70
@@ -186,7 +186,7 @@ random_forest,2.078016,block_start,start,0.70
 forward_fill,2.661957,block_start,start,0.80
 linear_interpolation,0.693941,block_start,start,0.80
 time_interpolation,0.693941,block_start,start,0.80
-cubic_interpolation,0.882981,block_start,start,0.80
+cubic_interpolation,1.030693,block_start,start,0.80
 spline_interpolation,0.882981,block_start,start,0.80
 knn,2.267883,block_start,start,0.80
 decision_tree,3.002645,block_start,start,0.80
@@ -258,7 +258,7 @@ random_forest,4.435213,block_middle,middle,0.80
 forward_fill,0.500000,block_end,end,0.10
 linear_interpolation,0.196977,block_end,end,0.10
 time_interpolation,0.196977,block_end,end,0.10
-cubic_interpolation,0.219478,block_end,end,0.10
+cubic_interpolation,0.181154,block_end,end,0.10
 spline_interpolation,0.219478,block_end,end,0.10
 knn,0.626196,block_end,end,0.10
 decision_tree,0.577701,block_end,end,0.10
@@ -266,7 +266,7 @@ random_forest,0.839245,block_end,end,0.10
 forward_fill,0.781897,block_end,end,0.20
 linear_interpolation,0.353793,block_end,end,0.20
 time_interpolation,0.353793,block_end,end,0.20
-cubic_interpolation,0.410821,block_end,end,0.20
+cubic_interpolation,0.307639,block_end,end,0.20
 spline_interpolation,0.410821,block_end,end,0.20
 knn,1.497735,block_end,end,0.20
 decision_tree,0.776879,block_end,end,0.20
@@ -274,7 +274,7 @@ random_forest,0.894498,block_end,end,0.20
 forward_fill,0.777209,block_end,end,0.30
 linear_interpolation,1.049563,block_end,end,0.30
 time_interpolation,1.049563,block_end,end,0.30
-cubic_interpolation,0.667062,block_end,end,0.30
+cubic_interpolation,0.764224,block_end,end,0.30
 spline_interpolation,0.667062,block_end,end,0.30
 knn,2.234110,block_end,end,0.30
 decision_tree,1.038651,block_end,end,0.30
@@ -282,7 +282,7 @@ random_forest,1.032106,block_end,end,0.30
 forward_fill,1.322957,block_end,end,0.40
 linear_interpolation,1.248091,block_end,end,0.40
 time_interpolation,1.248091,block_end,end,0.40
-cubic_interpolation,2.923715,block_end,end,0.40
+cubic_interpolation,2.372090,block_end,end,0.40
 spline_interpolation,2.923715,block_end,end,0.40
 knn,2.762509,block_end,end,0.40
 decision_tree,1.189942,block_end,end,0.40
@@ -290,7 +290,7 @@ random_forest,1.026029,block_end,end,0.40
 forward_fill,0.883333,block_end,end,0.50
 linear_interpolation,0.943836,block_end,end,0.50
 time_interpolation,0.943836,block_end,end,0.50
-cubic_interpolation,6.349068,block_end,end,0.50
+cubic_interpolation,4.536216,block_end,end,0.50
 spline_interpolation,6.349068,block_end,end,0.50
 knn,3.057264,block_end,end,0.50
 decision_tree,0.817639,block_end,end,0.50
@@ -298,7 +298,7 @@ random_forest,0.933388,block_end,end,0.50
 forward_fill,1.222023,block_end,end,0.60
 linear_interpolation,1.022023,block_end,end,0.60
 time_interpolation,1.022023,block_end,end,0.60
-cubic_interpolation,0.722704,block_end,end,0.60
+cubic_interpolation,0.805150,block_end,end,0.60
 spline_interpolation,0.722704,block_end,end,0.60
 knn,3.048956,block_end,end,0.60
 decision_tree,1.099697,block_end,end,0.60
@@ -306,7 +306,7 @@ random_forest,1.181296,block_end,end,0.60
 forward_fill,1.740990,block_end,end,0.70
 linear_interpolation,1.175990,block_end,end,0.70
 time_interpolation,1.175990,block_end,end,0.70
-cubic_interpolation,2.646819,block_end,end,0.70
+cubic_interpolation,1.927389,block_end,end,0.70
 spline_interpolation,2.646819,block_end,end,0.70
 knn,3.216380,block_end,end,0.70
 decision_tree,1.410660,block_end,end,0.70
@@ -314,7 +314,7 @@ random_forest,1.808271,block_end,end,0.70
 forward_fill,2.878391,block_end,end,0.80
 linear_interpolation,1.593685,block_end,end,0.80
 time_interpolation,1.593685,block_end,end,0.80
-cubic_interpolation,6.466504,block_end,end,0.80
+cubic_interpolation,4.038971,block_end,end,0.80
 spline_interpolation,6.466504,block_end,end,0.80
 knn,3.517043,block_end,end,0.80
 decision_tree,2.196130,block_end,end,0.80

@@ -39,11 +39,11 @@ Automatski generirano iz `experiment_results.csv`.
 
 | scenarij | 10% | 20% | 30% | 40% | 50% | 60% | 70% | 80% |
 |----------|---- | ---- | ---- | ---- | ---- | ---- | ---- | ----|
-| random | cubic_interpolation | cubic_interpolation | cubic_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation |
+| random | cubic_interpolation | cubic_interpolation | spline_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation |
 | block | linear_interpolation | cubic_interpolation | linear_interpolation | linear_interpolation | forward_fill | linear_interpolation | linear_interpolation | linear_interpolation |
-| block_start | linear_interpolation | forward_fill | cubic_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation |
+| block_start | linear_interpolation | forward_fill | spline_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation |
 | block_middle | decision_tree | forward_fill | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation | linear_interpolation |
-| block_end | linear_interpolation | linear_interpolation | cubic_interpolation | random_forest | decision_tree | cubic_interpolation | linear_interpolation | linear_interpolation |
+| block_end | cubic_interpolation | cubic_interpolation | spline_interpolation | random_forest | decision_tree | spline_interpolation | linear_interpolation | linear_interpolation |
 
 ## Ključni nalazi (za poglavlje Rezultati)
 

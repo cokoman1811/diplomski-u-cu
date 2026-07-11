@@ -653,6 +653,27 @@ static void test_interpolation(void) {
         check(0, "spline_interpolation: metoda nije primjenjiva");
     }
 
+    {
+        double *cubic_out = (double *)malloc(n * sizeof(double));
+        double *spline_out = (double *)malloc(n * sizeof(double));
+        if (cubic_out && spline_out
+            && cubic_interpolation(damaged, n, cubic_out) == 0
+            && spline_interpolation(damaged, n, spline_out) == 0) {
+            int found_diff = 0;
+            for (size_t i = 0; i < n; i++) {
+                if (mask[i] == 1 && fabs(cubic_out[i] - spline_out[i]) > 1e-9) {
+                    found_diff = 1;
+                    break;
+                }
+            }
+            check(found_diff, "cubic i spline daju razlicite rezultate");
+        } else {
+            check(0, "cubic/spline usporedba: alokacija ili interpolacija");
+        }
+        free(cubic_out);
+        free(spline_out);
+    }
+
     /* forward_fill: rupa dobiva zadnju poznatu vrijednost. */
     double tiny[] = {5.0, NAN, 9.0};
     forward_fill(tiny, 3, out);
