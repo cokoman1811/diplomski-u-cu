@@ -12,10 +12,13 @@ FIGURES = ROOT / "slike i videa" / "2026" / "diplomski-grafovi"
 ZIP_PATH = RESULTS / "chatgpt_prilozi.zip"
 
 DATA_FILES = [
+    RESULTS / "sto_je_novo_od_prosle_verzije.md",
     RESULTS / "experiment_results.csv",
     RESULTS / "analysis.md",
     RESULTS / "diplomski_dokument_10_80_za_chat.md",
     RESULTS / "tablice" / "sve_tablice_pregled.md",
+    RESULTS / "tablice" / "knn_usporedba.csv",
+    RESULTS / "tablice" / "moving_average_pregled.csv",
     RESULTS / "tablice" / "najbolja_metoda_po_scenariju.csv",
     RESULTS / "chatgpt_prompt_za_nadopunu.md",
 ]
@@ -99,6 +102,14 @@ def write_prompt() -> Path:
 
 
 def main() -> None:
+    # Generiraj changelog i pomoćne tablice prije pakiranja
+    import subprocess
+    import sys
+
+    changelog_script = ROOT / "scripts" / "generate_changelog_for_chatgpt.py"
+    if changelog_script.exists():
+        subprocess.run([sys.executable, str(changelog_script)], check=True)
+
     write_prompt()
 
     missing = [p for p in DATA_FILES if not p.exists()]

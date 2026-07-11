@@ -44,6 +44,7 @@ if errorlevel 1 exit /b 1
 
 echo.
 echo === 6/6 ChatGPT zip prilozi ===
+python scripts\generate_changelog_for_chatgpt.py
 python scripts\generate_chatgpt_zip.py
 if errorlevel 1 exit /b 1
 

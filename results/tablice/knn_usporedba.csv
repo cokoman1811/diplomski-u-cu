@@ -1,0 +1,6 @@
+scenario,knn_osnovni_mae,knn_napredni_mae,bolji
+random,0.2358,0.5381,knn (osnovni)
+block,3.8452,5.1048,knn (osnovni)
+block_start,3.2199,5.4829,knn (osnovni)
+block_middle,4.5991,6.1636,knn (osnovni)
+block_end,6.7937,7.6762,knn (osnovni)
