@@ -12,6 +12,7 @@ FIGURES = ROOT / "slike i videa" / "2026" / "diplomski-grafovi"
 ZIP_PATH = RESULTS / "chatgpt_prilozi.zip"
 
 DATA_FILES = [
+    RESULTS / "novo_za_diplomski.md",
     RESULTS / "sto_je_novo_od_prosle_verzije.md",
     RESULTS / "experiment_results.csv",
     RESULTS / "analysis.md",

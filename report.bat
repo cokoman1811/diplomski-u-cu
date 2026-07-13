@@ -38,7 +38,8 @@ python scripts\generate_results_tables.py
 if errorlevel 1 exit /b 1
 
 echo.
-echo === 5/6 Diplomski dokument za ChatGPT ===
+echo === 5/6 Dokumentacija za diplomski i ChatGPT ===
+python scripts\generate_changelog_for_chatgpt.py
 python scripts\generate_thesis_doc_10_80.py
 if errorlevel 1 exit /b 1
 
@@ -53,6 +54,7 @@ echo Sve spremno:
 echo   results\experiment_results.csv       - tablice rezultata
 echo   results\tablice\                   - sve tablice (CSV, Excel, MD)
 echo   results\analysis.md                  - tekstualna analiza
+echo   results\novo_za_diplomski.md            - tekst novina za diplomski
 echo   results\diplomski_dokument_10_80_za_chat.md - sazetak za ChatGPT
 echo   results\chatgpt_prilozi.zip          - ZIP za slanje ChatGPT-u
 echo   results\chatgpt_prompt_za_nadopunu.md - prompt za kopiranje
