@@ -88,12 +88,61 @@ def _series_close(a, b, metric: str, tol: float = 1e-6) -> bool:
     return bool(np.allclose(a[metric].values, b[metric].values, atol=tol, rtol=0))
 
 
-def group_methods_for_plot(sub, metric: str) -> list[tuple[str, object, str]]:
-    """
-    Grupira metode s identičnim rezultatima u jednu liniju/stupac.
-    Vraća (label, dataframe_sortiran_po_rate, boja).
-    """
-    groups: list[tuple[str, object, str]] = []
+# Paleta po grupi (identične metode dijele jednu boju unutar grupe).
+GROUP_PALETTE = [
+    "#1f77b4",
+    "#ff7f0e",
+    "#2ca02c",
+    "#d62728",
+    "#9467bd",
+    "#8c564b",
+    "#e377c2",
+    "#17becf",
+    "#bcbd22",
+    "#7f7f7f",
+    "#aec7e8",
+]
+
+
+def _short_method_name(name: str) -> str:
+    return (
+        name.replace("_interpolation", "")
+        .replace("_imputation", "")
+        .replace("_forest", "")
+        .replace("_average", "")
+        .replace("_upgraded", "+")
+        .replace("_", " ")
+    )
+
+
+def identical_pairs_note(groups: list[dict]) -> str:
+    pairs = [g["members"] for g in groups if g["identical"]]
+    if not pairs:
+        return ""
+    parts = [" = ".join(_short_method_name(m) for m in members) for members in pairs]
+    return "≡ Identični rezultati: " + "  |  ".join(parts)
+
+
+def add_identical_note(ax, groups: list[dict], y: float = -0.22) -> None:
+    note = identical_pairs_note(groups)
+    if not note:
+        return
+    ax.text(
+        0.5,
+        y,
+        note,
+        transform=ax.transAxes,
+        ha="center",
+        va="top",
+        fontsize=8,
+        color="#444444",
+        bbox={"boxstyle": "round,pad=0.35", "facecolor": "#fff8e1", "edgecolor": "#e6c200"},
+    )
+
+
+def group_methods_for_plot(sub, metric: str) -> list[dict]:
+    """Grupira identične metode; svaka grupa dobiva jednu boju."""
+    groups: list[dict] = []
     used: set[str] = set()
 
     for method in ALL_METHODS:
@@ -103,7 +152,7 @@ def group_methods_for_plot(sub, metric: str) -> list[tuple[str, object, str]]:
         if part.empty:
             continue
 
-        same = [method]
+        members = [method]
         for other in ALL_METHODS:
             if other == method or other in used:
                 continue
@@ -111,16 +160,30 @@ def group_methods_for_plot(sub, metric: str) -> list[tuple[str, object, str]]:
             if other_part.empty:
                 continue
             if _series_close(part, other_part, metric):
-                same.append(other)
+                members.append(other)
 
-        for name in same:
+        for name in members:
             used.add(name)
 
-        if len(same) > 1:
-            label = " / ".join(same)
+        identical = len(members) > 1
+        if identical:
+            label = " ≡ ".join(_short_method_name(m) for m in members)
+            tick = " ≡\n".join(_short_method_name(m) for m in members)
         else:
-            label = same[0]
-        groups.append((label, part, METHOD_COLORS.get(method, "#333333")))
+            label = _short_method_name(members[0])
+            tick = label
+
+        color_idx = len(groups) % len(GROUP_PALETTE)
+        groups.append(
+            {
+                "members": members,
+                "identical": identical,
+                "label": label,
+                "tick": tick,
+                "data": part,
+                "color": GROUP_PALETTE[color_idx],
+            }
+        )
 
     return groups
 
@@ -157,23 +220,32 @@ def plot_mae_bars(df, scenario: str, rate: float, out_path: Path):
         return False
 
     groups = group_methods_for_plot(sub, "mae")
-    groups.sort(key=lambda g: g[1]["mae"].iloc[0])
-    labels = [g[0] for g in groups]
-    values = [g[1]["mae"].iloc[0] for g in groups]
-    colors = ["#4C78A8" if any(m in CLASSICAL for m in lbl.split(" / ")) else "#F58518" for lbl in labels]
+    groups.sort(key=lambda g: g["data"]["mae"].iloc[0])
+    labels = [g["tick"] for g in groups]
+    values = [g["data"]["mae"].iloc[0] for g in groups]
+    colors = [g["color"] for g in groups]
+    hatches = ["///" if g["identical"] else "" for g in groups]
     label = SCENARIO_LABELS.get(scenario, scenario)
     n_methods = len(sub)
-    n_bars = len(groups)
 
-    fig, ax = plt.subplots(figsize=(12, 5))
-    ax.bar(labels, values, color=colors)
+    fig, ax = plt.subplots(figsize=(12, 5.8))
+    bars = ax.bar(labels, values, color=colors, edgecolor="#333333", linewidth=0.6)
+    for bar, hatch in zip(bars, hatches):
+        if hatch:
+            bar.set_hatch(hatch)
+            bar.set_edgecolor("#111111")
+            bar.set_linewidth(1.2)
+
     ax.set_ylabel("MAE (°C)")
-    title = f"MAE po metodama — {label}, {rate:.0%} missing"
-    if n_bars < n_methods:
-        title += f"\n({n_bars} stupaca = {n_methods} metoda; identični rezultati spojeni)"
-    ax.set_title(title, fontsize=11)
-    ax.tick_params(axis="x", rotation=40, labelsize=8)
+    ax.set_title(
+        f"MAE po metodama — {label}, {rate:.0%} missing\n"
+        f"({len(groups)} grupa = {n_methods} metoda; ≡ = identičan rezultat, ista boja + šrafura)",
+        fontsize=10,
+    )
+    ax.tick_params(axis="x", rotation=0, labelsize=8)
+    add_identical_note(ax, groups, y=-0.28)
     plt.tight_layout()
+    fig.subplots_adjust(bottom=0.22)
     fig.savefig(out_path, dpi=150)
     plt.close(fig)
     return True
@@ -191,32 +263,35 @@ def plot_metric_vs_rate(df, scenario: str, metric: str, out_path: Path):
     title_metric = metric.upper() if metric != "r2" else "R²"
     groups = group_methods_for_plot(sub, metric)
     n_methods = sub["method"].nunique()
-    n_lines = len(groups)
 
-    fig, ax = plt.subplots(figsize=(11, 6))
-    linestyles = ["-", "--", "-.", ":", (0, (3, 1, 1, 1))]
-    for idx, (method_label, part, color) in enumerate(groups):
+    fig, ax = plt.subplots(figsize=(11, 6.8))
+    for g in groups:
+        part = g["data"]
+        legend_label = g["label"] + ("  [identično]" if g["identical"] else "")
         ax.plot(
             part["missing_rate"] * 100,
             part[metric],
             marker="o",
-            label=method_label,
-            color=color,
-            linewidth=1.8,
-            markersize=5,
-            linestyle=linestyles[idx % len(linestyles)],
+            label=legend_label,
+            color=g["color"],
+            linewidth=2.4 if g["identical"] else 1.8,
+            markersize=6 if g["identical"] else 5,
+            linestyle="-",
         )
 
     ax.set_xlabel("Missing rate (%)")
     ax.set_ylabel(ylabel)
-    title = f"{title_metric} vs missing rate — {label}"
-    if n_lines < n_methods:
-        title += f"\n({n_lines} linija = {n_methods} metoda; identični rezultati spojeni u legendi)"
-    ax.set_title(title, fontsize=11)
+    ax.set_title(
+        f"{title_metric} vs missing rate — {label}\n"
+        f"({len(groups)} linija = {n_methods} metoda; ista boja = identičan rezultat)",
+        fontsize=11,
+    )
     ax.set_xticks([10, 20, 30, 40, 50, 60, 70, 80])
-    ax.legend(fontsize=6.5, ncol=2, loc="best")
+    ax.legend(fontsize=7, ncol=2, loc="best", title="≡ = identične metode")
     ax.grid(True, alpha=0.3)
+    add_identical_note(ax, groups, y=-0.18)
     plt.tight_layout()
+    fig.subplots_adjust(bottom=0.20)
     fig.savefig(out_path, dpi=150)
     plt.close(fig)
     return True
@@ -237,10 +312,10 @@ def plot_mae_overview_panel(df, scenario: str, out_path: Path):
 
     ncols = 4
     nrows = int(np.ceil(len(rates) / ncols))
-    fig, axes = plt.subplots(nrows, ncols, figsize=(18, 3.8 * nrows), squeeze=False)
+    fig, axes = plt.subplots(nrows, ncols, figsize=(18, 4.2 * nrows), squeeze=False)
     fig.suptitle(
-        f"MAE po metodama — {label} (10–80 %, {n_methods} metoda)",
-        fontsize=14,
+        f"MAE po metodama — {label} (10–80 %, {n_methods} metoda; ≡ = identično, ista boja)",
+        fontsize=13,
         y=1.01,
     )
 
@@ -249,21 +324,21 @@ def plot_mae_overview_panel(df, scenario: str, out_path: Path):
         ax = axes[row][col]
         part = sub[sub["missing_rate"] == rate]
         groups = group_methods_for_plot(part, "mae")
-        groups.sort(key=lambda g: g[1]["mae"].iloc[0])
-        values = [g[1]["mae"].iloc[0] for g in groups]
-        names = [g[0] for g in groups]
-        colors = [
-            "#4C78A8" if any(m in CLASSICAL for m in lbl.split(" / ")) else "#F58518"
-            for lbl in names
-        ]
-        ax.bar(range(len(groups)), values, color=colors)
+        groups.sort(key=lambda g: g["data"]["mae"].iloc[0])
+        values = [g["data"]["mae"].iloc[0] for g in groups]
+        names = [g["tick"] for g in groups]
+        colors = [g["color"] for g in groups]
+        hatches = ["///" if g["identical"] else "" for g in groups]
+        bars = ax.bar(range(len(groups)), values, color=colors, edgecolor="#333333", linewidth=0.5)
+        for bar, hatch in zip(bars, hatches):
+            if hatch:
+                bar.set_hatch(hatch)
+                bar.set_edgecolor("#111111")
         ax.set_xticks(range(len(groups)))
-        ax.set_xticklabels(names, rotation=60, ha="right", fontsize=5.5)
+        ax.set_xticklabels(names, rotation=0, ha="center", fontsize=5)
         ax.set_ylabel("MAE (°C)", fontsize=8)
-        suffix = ""
-        if len(groups) < n_methods:
-            suffix = f" ({len(groups)}/{n_methods} linija)"
-        ax.set_title(f"{rate:.0%} missing{suffix}", fontsize=9)
+        suffix = f" ({len(groups)}/{n_methods})" if len(groups) < n_methods else ""
+        ax.set_title(f"{rate:.0%}{suffix}", fontsize=9)
         ax.grid(True, axis="y", alpha=0.25)
 
     for idx in range(len(rates), nrows * ncols):
@@ -537,9 +612,9 @@ def write_html_gallery(generated: list[tuple[str, Path, str]]) -> None:
         "<li><b>MAE</b> — prosječna pogreška u °C (niže = bolje)</li>",
         "<li><b>Plavi stupci</b> — klasične metode | <b>Narančasti</b> — ML metode</li>",
         "<li><b>Crvene točke</b> na rekonstrukciji — mjesta gdje su vrijednosti umjetno uklonjene</li>",
-        "<li><b>Manje linija nego metoda?</b> — linear i time (te ponekad cubic i spline) "
-        "daju identične rezultate pa se prikazuju kao jedna linija s oznakom npr. "
-        "<code>linear_interpolation / time_interpolation</code></li>",
+        "<li><b>Manje linija nego metoda?</b> — Metode s <b>identičnim rezultatima</b> "
+        "imaju <b>istu boju</b> na grafu, oznaku <b>≡</b> u nazivu i žutu napomenu ispod. "
+        "Na stupcima identični parovi imaju i <b>šrafuru</b>.</li>",
         "<li><b>Rekonstrukcijski grafovi</b> prikazuju samo najbolju i najgoru metodu po scenariju "
         "(ne svih 11 odjednom)</li>",
         "</ul>",
