@@ -212,6 +212,12 @@ def ensure_dirs():
     RESULTS.mkdir(parents=True, exist_ok=True)
 
 
+def identical_mae_pairs_at_rate(sub) -> list[list[str]]:
+    """Pronalazi parove/grupe metoda s identičnim MAE na jednom rateu."""
+    groups = group_methods_for_plot(sub, "mae")
+    return [g["members"] for g in groups if g["identical"]]
+
+
 def plot_mae_bars(df, scenario: str, rate: float, out_path: Path):
     import matplotlib.pyplot as plt
 
@@ -219,34 +225,39 @@ def plot_mae_bars(df, scenario: str, rate: float, out_path: Path):
     if sub.empty:
         return False
 
-    groups = group_methods_for_plot(sub, "mae")
-    groups.sort(key=lambda g: g["data"]["mae"].iloc[0])
-    labels = [g["tick"] for g in groups]
-    values = [g["data"]["mae"].iloc[0] for g in groups]
-    colors = [g["color"] for g in groups]
-    hatches = ["///" if g["identical"] else "" for g in groups]
+    sub = sub.sort_values("mae")
+    methods = sub["method"].tolist()
+    values = sub["mae"].tolist()
+    colors = [METHOD_COLORS.get(m, "#888888") for m in methods]
     label = SCENARIO_LABELS.get(scenario, scenario)
-    n_methods = len(sub)
+    pairs = identical_mae_pairs_at_rate(sub)
 
-    fig, ax = plt.subplots(figsize=(12, 5.8))
-    bars = ax.bar(labels, values, color=colors, edgecolor="#333333", linewidth=0.6)
-    for bar, hatch in zip(bars, hatches):
-        if hatch:
-            bar.set_hatch(hatch)
-            bar.set_edgecolor("#111111")
-            bar.set_linewidth(1.2)
-
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.bar(methods, values, color=colors, edgecolor="#333333", linewidth=0.5)
     ax.set_ylabel("MAE (°C)")
-    ax.set_title(
-        f"MAE po metodama — {label}, {rate:.0%} missing\n"
-        f"({len(groups)} grupa = {n_methods} metoda; ≡ = identičan rezultat, ista boja + šrafura)",
-        fontsize=10,
-    )
-    ax.tick_params(axis="x", rotation=0, labelsize=8)
-    add_identical_note(ax, groups, y=-0.28)
+    ax.set_title(f"MAE po metodama — {label}, {rate:.0%} missing", fontsize=11)
+    ax.tick_params(axis="x", rotation=35, labelsize=8)
+    ax.grid(True, axis="y", alpha=0.25)
+
+    if pairs:
+        note = "≡ Ista visina stupca = identičan MAE: " + " | ".join(
+            " = ".join(_short_method_name(m) for m in p) for p in pairs
+        )
+        ax.text(
+            0.5,
+            -0.32,
+            note,
+            transform=ax.transAxes,
+            ha="center",
+            va="top",
+            fontsize=7.5,
+            color="#444444",
+            bbox={"boxstyle": "round,pad=0.35", "facecolor": "#fff8e1", "edgecolor": "#e6c200"},
+        )
+        fig.subplots_adjust(bottom=0.28)
+
     plt.tight_layout()
-    fig.subplots_adjust(bottom=0.22)
-    fig.savefig(out_path, dpi=150)
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return True
 
@@ -312,9 +323,9 @@ def plot_mae_overview_panel(df, scenario: str, out_path: Path):
 
     ncols = 4
     nrows = int(np.ceil(len(rates) / ncols))
-    fig, axes = plt.subplots(nrows, ncols, figsize=(18, 4.2 * nrows), squeeze=False)
+    fig, axes = plt.subplots(nrows, ncols, figsize=(18, 3.8 * nrows), squeeze=False)
     fig.suptitle(
-        f"MAE po metodama — {label} (10–80 %, {n_methods} metoda; ≡ = identično, ista boja)",
+        f"MAE po metodama — {label} (10–80 %, {n_methods} metoda, svaka svojom bojom)",
         fontsize=13,
         y=1.01,
     )
@@ -322,23 +333,15 @@ def plot_mae_overview_panel(df, scenario: str, out_path: Path):
     for idx, rate in enumerate(rates):
         row, col = divmod(idx, ncols)
         ax = axes[row][col]
-        part = sub[sub["missing_rate"] == rate]
-        groups = group_methods_for_plot(part, "mae")
-        groups.sort(key=lambda g: g["data"]["mae"].iloc[0])
-        values = [g["data"]["mae"].iloc[0] for g in groups]
-        names = [g["tick"] for g in groups]
-        colors = [g["color"] for g in groups]
-        hatches = ["///" if g["identical"] else "" for g in groups]
-        bars = ax.bar(range(len(groups)), values, color=colors, edgecolor="#333333", linewidth=0.5)
-        for bar, hatch in zip(bars, hatches):
-            if hatch:
-                bar.set_hatch(hatch)
-                bar.set_edgecolor("#111111")
-        ax.set_xticks(range(len(groups)))
-        ax.set_xticklabels(names, rotation=0, ha="center", fontsize=5)
+        part = sub[sub["missing_rate"] == rate].sort_values("mae")
+        methods = part["method"].tolist()
+        values = part["mae"].tolist()
+        colors = [METHOD_COLORS.get(m, "#888888") for m in methods]
+        ax.bar(range(len(methods)), values, color=colors, edgecolor="#333333", linewidth=0.4)
+        ax.set_xticks(range(len(methods)))
+        ax.set_xticklabels(methods, rotation=60, ha="right", fontsize=5)
         ax.set_ylabel("MAE (°C)", fontsize=8)
-        suffix = f" ({len(groups)}/{n_methods})" if len(groups) < n_methods else ""
-        ax.set_title(f"{rate:.0%}{suffix}", fontsize=9)
+        ax.set_title(f"{rate:.0%} missing", fontsize=9)
         ax.grid(True, axis="y", alpha=0.25)
 
     for idx in range(len(rates), nrows * ncols):
@@ -610,11 +613,12 @@ def write_html_gallery(generated: list[tuple[str, Path, str]]) -> None:
         "<strong>Kako čitati:</strong>",
         "<ul>",
         "<li><b>MAE</b> — prosječna pogreška u °C (niže = bolje)</li>",
-        "<li><b>Plavi stupci</b> — klasične metode | <b>Narančasti</b> — ML metode</li>",
+        "<li><b>Boje stupaca</b> — svaka metoda ima svoju boju (vidi METHOD_COLORS u report.py)</li>",
         "<li><b>Crvene točke</b> na rekonstrukciji — mjesta gdje su vrijednosti umjetno uklonjene</li>",
-        "<li><b>Manje linija nego metoda?</b> — Metode s <b>identičnim rezultatima</b> "
-        "imaju <b>istu boju</b> na grafu, oznaku <b>≡</b> u nazivu i žutu napomenu ispod. "
-        "Na stupcima identični parovi imaju i <b>šrafuru</b>.</li>",
+        "<li><b>Stupčasti grafovi (MAE po metodama):</b> svih 11 metoda, "
+        "<b>svaka svojom bojom</b>. Ako dva stupca imaju istu visinu — rezultat je identičan.</li>",
+        "<li><b>Linijski grafovi (MAE/RMSE/R² vs rate):</b> metode s identičnim vrijednostima "
+        "spojene su u jednu liniju (≡ u legendi, ista boja, žuta napomena ispod).</li>",
         "<li><b>Rekonstrukcijski grafovi</b> prikazuju samo najbolju i najgoru metodu po scenariju "
         "(ne svih 11 odjednom)</li>",
         "</ul>",
