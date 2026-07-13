@@ -22,6 +22,8 @@ h2 { color: #16213e; border-bottom: 2px solid #4C78A8; padding-bottom: 6px; }
 <li><b>MAE</b> — prosječna pogreška u °C (niže = bolje)</li>
 <li><b>Plavi stupci</b> — klasične metode | <b>Narančasti</b> — ML metode</li>
 <li><b>Crvene točke</b> na rekonstrukciji — mjesta gdje su vrijednosti umjetno uklonjene</li>
+<li><b>Manje linija nego metoda?</b> — linear i time (te ponekad cubic i spline) daju identične rezultate pa se prikazuju kao jedna linija s oznakom npr. <code>linear_interpolation / time_interpolation</code></li>
+<li><b>Rekonstrukcijski grafovi</b> prikazuju samo najbolju i najgoru metodu po scenariju (ne svih 11 odjednom)</li>
 </ul>
 </div>
 <h2>Pregled po scenariju (10–80 %)</h2>
@@ -129,7 +131,7 @@ h2 { color: #16213e; border-bottom: 2px solid #4C78A8; padding-bottom: 6px; }
 <h3>Block na kraju niza — MAE po metodama (20%)</h3>
 <img src='../slike i videa/2026/diplomski-grafovi/mae_by_method_block_end_20.png' alt='Block na kraju niza — MAE po metodama (20%)'>
 </div>
-<h2>Rekonstrukcija (linear, 20%)</h2>
+<h2>Rekonstrukcija (najbolja vs najgora, 20%)</h2>
 <div class='card'>
 <h3>Random missing — najbolja vs najgora @ 20%</h3>
 <img src='../slike i videa/2026/diplomski-grafovi/reconstruction_best_worst_random_20.png' alt='Random missing — najbolja vs najgora @ 20%'>

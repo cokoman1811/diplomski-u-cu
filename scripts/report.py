@@ -80,6 +80,51 @@ SCENARIO_LABELS = {
 SNAPSHOT_RATE = 0.20
 
 
+def _series_close(a, b, metric: str, tol: float = 1e-6) -> bool:
+    import numpy as np
+
+    if len(a) != len(b) or len(a) == 0:
+        return False
+    return bool(np.allclose(a[metric].values, b[metric].values, atol=tol, rtol=0))
+
+
+def group_methods_for_plot(sub, metric: str) -> list[tuple[str, object, str]]:
+    """
+    Grupira metode s identičnim rezultatima u jednu liniju/stupac.
+    Vraća (label, dataframe_sortiran_po_rate, boja).
+    """
+    groups: list[tuple[str, object, str]] = []
+    used: set[str] = set()
+
+    for method in ALL_METHODS:
+        if method in used:
+            continue
+        part = sub[sub["method"] == method].sort_values("missing_rate")
+        if part.empty:
+            continue
+
+        same = [method]
+        for other in ALL_METHODS:
+            if other == method or other in used:
+                continue
+            other_part = sub[sub["method"] == other].sort_values("missing_rate")
+            if other_part.empty:
+                continue
+            if _series_close(part, other_part, metric):
+                same.append(other)
+
+        for name in same:
+            used.add(name)
+
+        if len(same) > 1:
+            label = " / ".join(same)
+        else:
+            label = same[0]
+        groups.append((label, part, METHOD_COLORS.get(method, "#333333")))
+
+    return groups
+
+
 def require_pandas_matplotlib():
     try:
         import pandas  # noqa: F401
@@ -111,15 +156,23 @@ def plot_mae_bars(df, scenario: str, rate: float, out_path: Path):
     if sub.empty:
         return False
 
-    sub = sub.sort_values("mae")
-    colors = ["#4C78A8" if m in CLASSICAL else "#F58518" for m in sub["method"]]
+    groups = group_methods_for_plot(sub, "mae")
+    groups.sort(key=lambda g: g[1]["mae"].iloc[0])
+    labels = [g[0] for g in groups]
+    values = [g[1]["mae"].iloc[0] for g in groups]
+    colors = ["#4C78A8" if any(m in CLASSICAL for m in lbl.split(" / ")) else "#F58518" for lbl in labels]
     label = SCENARIO_LABELS.get(scenario, scenario)
+    n_methods = len(sub)
+    n_bars = len(groups)
 
-    fig, ax = plt.subplots(figsize=(11, 5))
-    ax.bar(sub["method"], sub["mae"], color=colors)
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.bar(labels, values, color=colors)
     ax.set_ylabel("MAE (°C)")
-    ax.set_title(f"MAE po metodama — {label}, {rate:.0%} missing")
-    ax.tick_params(axis="x", rotation=35)
+    title = f"MAE po metodama — {label}, {rate:.0%} missing"
+    if n_bars < n_methods:
+        title += f"\n({n_bars} stupaca = {n_methods} metoda; identični rezultati spojeni)"
+    ax.set_title(title, fontsize=11)
+    ax.tick_params(axis="x", rotation=40, labelsize=8)
     plt.tight_layout()
     fig.savefig(out_path, dpi=150)
     plt.close(fig)
@@ -136,27 +189,32 @@ def plot_metric_vs_rate(df, scenario: str, metric: str, out_path: Path):
     label = SCENARIO_LABELS.get(scenario, scenario)
     ylabel = {"mae": "MAE (°C)", "rmse": "RMSE (°C)", "r2": "R²"}[metric]
     title_metric = metric.upper() if metric != "r2" else "R²"
+    groups = group_methods_for_plot(sub, metric)
+    n_methods = sub["method"].nunique()
+    n_lines = len(groups)
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    for method in ALL_METHODS:
-        m = sub[sub["method"] == method].sort_values("missing_rate")
-        if m.empty:
-            continue
+    fig, ax = plt.subplots(figsize=(11, 6))
+    linestyles = ["-", "--", "-.", ":", (0, (3, 1, 1, 1))]
+    for idx, (method_label, part, color) in enumerate(groups):
         ax.plot(
-            m["missing_rate"] * 100,
-            m[metric],
+            part["missing_rate"] * 100,
+            part[metric],
             marker="o",
-            label=method,
-            color=METHOD_COLORS.get(method),
+            label=method_label,
+            color=color,
             linewidth=1.8,
             markersize=5,
+            linestyle=linestyles[idx % len(linestyles)],
         )
 
     ax.set_xlabel("Missing rate (%)")
     ax.set_ylabel(ylabel)
-    ax.set_title(f"{title_metric} vs missing rate — {label}")
+    title = f"{title_metric} vs missing rate — {label}"
+    if n_lines < n_methods:
+        title += f"\n({n_lines} linija = {n_methods} metoda; identični rezultati spojeni u legendi)"
+    ax.set_title(title, fontsize=11)
     ax.set_xticks([10, 20, 30, 40, 50, 60, 70, 80])
-    ax.legend(fontsize=7, ncol=2, loc="best")
+    ax.legend(fontsize=6.5, ncol=2, loc="best")
     ax.grid(True, alpha=0.3)
     plt.tight_layout()
     fig.savefig(out_path, dpi=150)
@@ -175,22 +233,37 @@ def plot_mae_overview_panel(df, scenario: str, out_path: Path):
 
     rates = sorted(sub["missing_rate"].unique())
     label = SCENARIO_LABELS.get(scenario, scenario)
+    n_methods = sub["method"].nunique()
 
     ncols = 4
     nrows = int(np.ceil(len(rates) / ncols))
-    fig, axes = plt.subplots(nrows, ncols, figsize=(16, 3.5 * nrows), squeeze=False)
-    fig.suptitle(f"MAE po metodama — {label} (10–80 %)", fontsize=14, y=1.01)
+    fig, axes = plt.subplots(nrows, ncols, figsize=(18, 3.8 * nrows), squeeze=False)
+    fig.suptitle(
+        f"MAE po metodama — {label} (10–80 %, {n_methods} metoda)",
+        fontsize=14,
+        y=1.01,
+    )
 
     for idx, rate in enumerate(rates):
         row, col = divmod(idx, ncols)
         ax = axes[row][col]
-        part = sub[sub["missing_rate"] == rate].sort_values("mae")
-        colors = ["#4C78A8" if m in CLASSICAL else "#F58518" for m in part["method"]]
-        ax.bar(range(len(part)), part["mae"], color=colors)
-        ax.set_xticks(range(len(part)))
-        ax.set_xticklabels(part["method"], rotation=55, ha="right", fontsize=6)
+        part = sub[sub["missing_rate"] == rate]
+        groups = group_methods_for_plot(part, "mae")
+        groups.sort(key=lambda g: g[1]["mae"].iloc[0])
+        values = [g[1]["mae"].iloc[0] for g in groups]
+        names = [g[0] for g in groups]
+        colors = [
+            "#4C78A8" if any(m in CLASSICAL for m in lbl.split(" / ")) else "#F58518"
+            for lbl in names
+        ]
+        ax.bar(range(len(groups)), values, color=colors)
+        ax.set_xticks(range(len(groups)))
+        ax.set_xticklabels(names, rotation=60, ha="right", fontsize=5.5)
         ax.set_ylabel("MAE (°C)", fontsize=8)
-        ax.set_title(f"{rate:.0%} missing", fontsize=10)
+        suffix = ""
+        if len(groups) < n_methods:
+            suffix = f" ({len(groups)}/{n_methods} linija)"
+        ax.set_title(f"{rate:.0%} missing{suffix}", fontsize=9)
         ax.grid(True, axis="y", alpha=0.25)
 
     for idx in range(len(rates), nrows * ncols):
@@ -421,7 +494,7 @@ def write_html_gallery(generated: list[tuple[str, Path, str]]) -> None:
         "RMSE vs missing rate (sve metode)": [],
         "R² vs missing rate (sve metode)": [],
         "MAE po metodama (20%)": [],
-        "Rekonstrukcija (linear, 20%)": [],
+        "Rekonstrukcija (najbolja vs najgora, 20%)": [],
     }
 
     for category, path, title in generated:
@@ -436,7 +509,7 @@ def write_html_gallery(generated: list[tuple[str, Path, str]]) -> None:
         elif category == "mae_bars":
             sections["MAE po metodama (20%)"].append((title, path, title))
         elif category == "reconstruction":
-            sections["Rekonstrukcija (linear, 20%)"].append((title, path, title))
+            sections["Rekonstrukcija (najbolja vs najgora, 20%)"].append((title, path, title))
 
     parts = [
         "<!DOCTYPE html>",
@@ -464,6 +537,11 @@ def write_html_gallery(generated: list[tuple[str, Path, str]]) -> None:
         "<li><b>MAE</b> — prosječna pogreška u °C (niže = bolje)</li>",
         "<li><b>Plavi stupci</b> — klasične metode | <b>Narančasti</b> — ML metode</li>",
         "<li><b>Crvene točke</b> na rekonstrukciji — mjesta gdje su vrijednosti umjetno uklonjene</li>",
+        "<li><b>Manje linija nego metoda?</b> — linear i time (te ponekad cubic i spline) "
+        "daju identične rezultate pa se prikazuju kao jedna linija s oznakom npr. "
+        "<code>linear_interpolation / time_interpolation</code></li>",
+        "<li><b>Rekonstrukcijski grafovi</b> prikazuju samo najbolju i najgoru metodu po scenariju "
+        "(ne svih 11 odjednom)</li>",
         "</ul>",
         "</div>",
     ]
