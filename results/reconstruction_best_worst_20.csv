@@ -1,0 +1,6 @@
+scenario,block_position,missing_rate,best_method,best_mae,worst_method,worst_mae
+random,none,0.20,spline_interpolation,0.063508,random_forest,0.700285
+block,none,0.20,linear_interpolation,1.476546,cubic_interpolation,4.244165
+block_start,start,0.20,linear_interpolation,0.699069,knn_upgraded,2.369012
+block_middle,middle,0.20,linear_interpolation,1.144875,knn_upgraded,5.384372
+block_end,end,0.20,cubic_interpolation,4.182814,spline_interpolation,8.396873

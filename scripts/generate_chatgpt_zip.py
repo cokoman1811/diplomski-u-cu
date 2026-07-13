@@ -17,6 +17,7 @@ DATA_FILES = [
     RESULTS / "analysis.md",
     RESULTS / "diplomski_dokument_10_80_za_chat.md",
     RESULTS / "tablice" / "sve_tablice_pregled.md",
+    RESULTS / "reconstruction_best_worst_20.csv",
     RESULTS / "tablice" / "knn_usporedba.csv",
     RESULTS / "tablice" / "moving_average_pregled.csv",
     RESULTS / "tablice" / "najbolja_metoda_po_scenariju.csv",

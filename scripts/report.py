@@ -203,6 +203,37 @@ def plot_mae_overview_panel(df, scenario: str, out_path: Path):
     return True
 
 
+def plot_reconstruction_on_ax(df, ax, title: str):
+    """Crta original, rekonstrukciju i maskirane točke na zadani axes."""
+    orig_col = "original_temperature" if "original_temperature" in df.columns else "original"
+    recon_col = (
+        "reconstructed_temperature"
+        if "reconstructed_temperature" in df.columns
+        else "reconstructed"
+    )
+
+    ax.plot(df["index"], df[orig_col], label="original", color="#1f77b4", linewidth=1.0)
+    ax.plot(df["index"], df[recon_col], label="rekonstruirano", color="#ff7f0e", linewidth=1.0)
+
+    masked = df[df["mask"] == 1]
+    if not masked.empty:
+        ax.scatter(
+            masked["index"],
+            masked[orig_col],
+            s=8,
+            color="red",
+            alpha=0.45,
+            label="maskirano (original)",
+            zorder=3,
+        )
+
+    ax.set_xlabel("Indeks")
+    ax.set_ylabel("Temperatura (°C)")
+    ax.set_title(title, fontsize=10)
+    ax.legend(loc="upper right", fontsize=7)
+    ax.grid(True, alpha=0.3)
+
+
 def plot_reconstruction(csv_path: Path, out_path: Path, title: str):
     import matplotlib.pyplot as plt
     import pandas as pd
@@ -211,36 +242,66 @@ def plot_reconstruction(csv_path: Path, out_path: Path, title: str):
         return False
 
     df = pd.read_csv(csv_path)
-    orig_col = "original_temperature" if "original_temperature" in df.columns else "original"
-    recon_col = (
-        "reconstructed_temperature"
-        if "reconstructed_temperature" in df.columns
-        else "reconstructed"
-    )
-
     fig, ax = plt.subplots(figsize=(12, 4))
-    ax.plot(df["index"], df[orig_col], label="original", color="#1f77b4", linewidth=1.2)
-    ax.plot(df["index"], df[recon_col], label="rekonstruirano", color="#ff7f0e", linewidth=1.2)
-
-    masked = df[df["mask"] == 1]
-    if not masked.empty:
-        ax.scatter(
-            masked["index"],
-            masked[orig_col],
-            s=12,
-            color="red",
-            alpha=0.5,
-            label="maskirano (original)",
-            zorder=3,
-        )
-
-    ax.set_xlabel("Indeks")
-    ax.set_ylabel("Temperatura (°C)")
-    ax.set_title(title)
-    ax.legend(loc="upper right", fontsize=8)
-    ax.grid(True, alpha=0.3)
+    plot_reconstruction_on_ax(df, ax, title)
     plt.tight_layout()
     fig.savefig(out_path, dpi=150)
+    plt.close(fig)
+    return True
+
+
+def plot_best_worst_reconstruction(
+    scenario: str,
+    rate: float,
+    best_method: str,
+    worst_method: str,
+    best_mae: float,
+    worst_mae: float,
+    out_path: Path,
+    scenario_label: str,
+):
+    import matplotlib.pyplot as plt
+    import pandas as pd
+
+    best_csv = RESULTS / f"reconstruction_{best_method}_{scenario}_{rate:.2f}.csv"
+    worst_csv = RESULTS / f"reconstruction_{worst_method}_{scenario}_{rate:.2f}.csv"
+    if not best_csv.exists():
+        return False
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 4), sharey=True)
+
+    best_df = pd.read_csv(best_csv)
+    plot_reconstruction_on_ax(
+        best_df,
+        axes[0],
+        f"NAJBOLJA: {best_method}\nMAE = {best_mae:.4f} °C",
+    )
+
+    if worst_csv.exists() and worst_method != best_method:
+        worst_df = pd.read_csv(worst_csv)
+        plot_reconstruction_on_ax(
+            worst_df,
+            axes[1],
+            f"NAJGORA: {worst_method}\nMAE = {worst_mae:.4f} °C",
+        )
+    else:
+        axes[1].text(
+            0.5,
+            0.5,
+            "Najbolja i najgora metoda\nsu iste za ovaj scenarij.",
+            ha="center",
+            va="center",
+            transform=axes[1].transAxes,
+        )
+        axes[1].set_title("NAJGORA — nema razlike")
+
+    fig.suptitle(
+        f"Rekonstrukcija @ {rate * 100:.0f}% — {scenario_label}",
+        fontsize=12,
+        y=1.02,
+    )
+    plt.tight_layout()
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     return True
 
@@ -477,14 +538,43 @@ def main() -> int:
             generated.append(("mae_bars", out, f"{label} — MAE po metodama (20%)"))
             print(f"  graf:     {FIGURES_DISPLAY}/{fname}")
 
-    for recon in sorted(RESULTS.glob("reconstruction_linear_interpolation_*.csv")):
-        name = recon.stem.replace("reconstruction_linear_interpolation_", "")
-        fname = f"reconstruction_linear_{name}.png"
-        out = FIGURES / fname
-        title = f"Original vs linear — {name.replace('_', ' ')}"
-        if plot_reconstruction(recon, out, title):
-            generated.append(("reconstruction", out, title))
-            print(f"  graf:     {FIGURES_DISPLAY}/{fname}")
+    recon_summary = RESULTS / "reconstruction_best_worst_20.csv"
+    if recon_summary.exists():
+        import pandas as pd
+
+        bw = pd.read_csv(recon_summary)
+        for _, row in bw.iterrows():
+            scenario = row["scenario"]
+            rate = float(row["missing_rate"])
+            label = SCENARIO_LABELS.get(scenario, scenario)
+            fname = f"reconstruction_best_worst_{scenario}_{int(rate * 100)}.png"
+            out = FIGURES / fname
+            title = f"{label} — najbolja vs najgora @ {rate * 100:.0f}%"
+            if plot_best_worst_reconstruction(
+                scenario,
+                rate,
+                row["best_method"],
+                row["worst_method"],
+                float(row["best_mae"]),
+                float(row["worst_mae"]),
+                out,
+                label,
+            ):
+                generated.append(("reconstruction", out, title))
+                print(f"  graf:     {FIGURES_DISPLAY}/{fname}")
+
+            for role, method in [("best", row["best_method"]), ("worst", row["worst_method"])]:
+                if role == "worst" and method == row["best_method"]:
+                    continue
+                csv_path = RESULTS / f"reconstruction_{method}_{scenario}_{rate:.2f}.csv"
+                role_fname = f"reconstruction_{role}_{scenario}_{int(rate * 100)}.png"
+                role_out = FIGURES / role_fname
+                role_title = f"{label} — {role} ({method}) @ {rate * 100:.0f}%"
+                if plot_reconstruction(csv_path, role_out, role_title):
+                    generated.append(("reconstruction", role_out, role_title))
+                    print(f"  graf:     {FIGURES_DISPLAY}/{role_fname}")
+    else:
+        print("  upozorenje: nema reconstruction_best_worst_20.csv — pokreni eksperiment")
 
     write_analysis(df)
     write_html_gallery(generated)

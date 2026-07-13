@@ -78,6 +78,21 @@ static void find_best_method(const ExpMethodResult *results, size_t n,
     }
 }
 
+static void find_worst_method(const ExpMethodResult *results, size_t n,
+                              const char **worst_name, double *worst_mae) {
+    *worst_name = NULL;
+    *worst_mae = -INFINITY;
+    for (size_t i = 0; i < n; i++) {
+        if (!results[i].ok) {
+            continue;
+        }
+        if (results[i].metrics.mae > *worst_mae) {
+            *worst_mae = results[i].metrics.mae;
+            *worst_name = results[i].name;
+        }
+    }
+}
+
 static void print_methods_table(const ExpMethodResult *results, size_t n) {
     printf("\n");
     printf("  #  %-24s %8s %8s %8s  %s\n",
@@ -86,8 +101,11 @@ static void print_methods_table(const ExpMethodResult *results, size_t n) {
            "------------------------", "------", "------", "------", "-------------------------");
 
     const char *best_name = NULL;
+    const char *worst_name = NULL;
     double best_mae = INFINITY;
+    double worst_mae = -INFINITY;
     find_best_method(results, n, &best_name, &best_mae);
+    find_worst_method(results, n, &worst_name, &worst_mae);
 
     int rank = 0;
     for (size_t i = 0; i < n; i++) {
@@ -97,7 +115,12 @@ static void print_methods_table(const ExpMethodResult *results, size_t n) {
             continue;
         }
         rank++;
-        const char *marker = (results[i].name == best_name) ? " <-- NAJBOLJA" : "";
+        const char *marker = "";
+        if (results[i].name == best_name) {
+            marker = " <-- NAJBOLJA";
+        } else if (results[i].name == worst_name) {
+            marker = " <-- NAJGORA";
+        }
         const char *r2_hint = "";
         if (results[i].metrics.r2 >= 0.99) {
             r2_hint = "odlicno";
@@ -118,6 +141,10 @@ static void print_methods_table(const ExpMethodResult *results, size_t n) {
     if (best_name) {
         printf("\n  >> Najbolja metoda: %s (MAE = %.4f C)\n",
                best_name, best_mae);
+    }
+    if (worst_name && worst_name != best_name) {
+        printf("  >> Najgora metoda:  %s (MAE = %.4f C)\n",
+               worst_name, worst_mae);
     }
 }
 
@@ -212,8 +239,10 @@ static void print_experiment_footer(const char *results_dir,
     printf("    -> MAE po metodi (za brze usporedbe)\n\n");
     printf("  %s\n", error_csv);
     printf("    -> MAE/RMSE/R2 po scenariju i rateu\n\n");
-    printf("  %s/reconstruction_linear_interpolation_*_0.20.csv\n", results_dir);
-    printf("    -> original vs osteceno vs rekonstruirano (za grafove, pri 20%%)\n\n");
+    printf("  %s/reconstruction_{metoda}_{scenario}_0.20.csv\n", results_dir);
+    printf("    -> original vs rekonstruirano (najbolja i najgora metoda, pri 20%%)\n\n");
+    printf("  %s/reconstruction_best_worst_20.csv\n", results_dir);
+    printf("    -> pregled najbolje i najgore metode po scenariju (20%%)\n\n");
 
     printf("KAKO KORISTITI ZA DIPLOMSKI:\n");
     printf("  - Otvori experiment_results.csv u Excelu\n");
@@ -233,16 +262,6 @@ static void print_experiment_footer(const char *results_dir,
 
 /* Missing rate pri kojem se automatski sprema reconstruction CSV u --experiment. */
 #define EXP_RECON_SNAPSHOT_RATE 0.20
-
-/*
- * Metode za koje se sprema reconstruction CSV (lako dodati vise imena).
- * Za graf original vs rekonstruirano koristi npr. linear_interpolation.
- */
-static const char *EXP_RECON_EXPORT_METHODS[] = {
-    "linear_interpolation",
-};
-static const size_t EXP_NUM_RECON_EXPORTS =
-    sizeof(EXP_RECON_EXPORT_METHODS) / sizeof(EXP_RECON_EXPORT_METHODS[0]);
 
 typedef int (*ExpApplyFn)(const Series *s, const double *damaged, size_t n, double *out);
 
@@ -466,6 +485,15 @@ int exp_apply_method(const char *method_name, const Series *s,
     return entry->apply(s, damaged, n, out);
 }
 
+static int apply_method_with_mask(const char *method_name, const Series *s,
+                                  const double *damaged, const int *mask,
+                                  size_t n, double *out) {
+    if (strcmp(method_name, "adaptive_imputation") == 0) {
+        return adaptive_imputation(s, damaged, mask, n, out);
+    }
+    return exp_apply_method(method_name, s, damaged, n, out);
+}
+
 int exp_run_methods(const Series *s, const double *original, const double *damaged,
                     const int *mask, size_t n, double *out, ExpMethodResult *results) {
     if (!s || !original || !damaged || !mask || !out || !results) {
@@ -577,7 +605,7 @@ int exp_export_reconstruction(const char *results_dir, const char *method_name,
         fprintf(stderr, "Ne mogu kreirati mapu %s\n", results_dir);
         return 1;
     }
-    if (exp_apply_method(method_name, s, damaged, n, out) != 0) {
+    if (apply_method_with_mask(method_name, s, damaged, mask, n, out) != 0) {
         fprintf(stderr, "Metoda %s nije uspjela za reconstruction export.\n", method_name);
         return 1;
     }
@@ -588,20 +616,77 @@ int exp_export_reconstruction(const char *results_dir, const char *method_name,
                                   scenario, missing_rate, method_name);
 }
 
-static void export_configured_reconstructions(const char *results_dir, ExpScenario scenario,
+static int append_best_worst_summary(const char *results_dir, ExpScenario scenario,
+                                     double missing_rate, const char *best_name,
+                                     double best_mae, const char *worst_name,
+                                     double worst_mae) {
+    char path[512];
+    int need_header = 0;
+    FILE *fp;
+
+    snprintf(path, sizeof(path), "%s/reconstruction_best_worst_20.csv", results_dir);
+    fp = fopen(path, "r");
+    if (fp == NULL) {
+        need_header = 1;
+    } else {
+        fclose(fp);
+    }
+
+    fp = fopen(path, need_header ? "w" : "a");
+    if (!fp) {
+        return 1;
+    }
+    if (need_header) {
+        fprintf(fp, "scenario,block_position,missing_rate,best_method,best_mae,"
+                    "worst_method,worst_mae\n");
+    }
+    fprintf(fp, "%s,%s,%.2f,%s,%.6f,%s,%.6f\n",
+            exp_scenario_name(scenario), exp_block_position_name(scenario),
+            missing_rate, best_name, best_mae, worst_name, worst_mae);
+    fclose(fp);
+    return 0;
+}
+
+static void export_best_worst_reconstructions(const char *results_dir, ExpScenario scenario,
                                               double missing_rate, const Series *s,
                                               const double *original, const double *damaged,
-                                              const int *mask, size_t n, double *out) {
-    for (size_t i = 0; i < EXP_NUM_RECON_EXPORTS; i++) {
-        if (exp_export_reconstruction(results_dir, EXP_RECON_EXPORT_METHODS[i],
-                                    scenario, missing_rate, s, original, damaged, mask, n,
-                                    out) == 0) {
-            char path[512];
-            reconstruction_path(path, sizeof(path), results_dir,
-                                  EXP_RECON_EXPORT_METHODS[i], scenario, missing_rate);
-            printf("  [CSV] Rekonstrukcija spremljena: %s\n", path);
+                                              const int *mask, size_t n, double *out,
+                                              const ExpMethodResult *results, size_t n_results) {
+    const char *best_name = NULL;
+    const char *worst_name = NULL;
+    double best_mae = INFINITY;
+    double worst_mae = -INFINITY;
+    char path[512];
+
+    find_best_method(results, n_results, &best_name, &best_mae);
+    find_worst_method(results, n_results, &worst_name, &worst_mae);
+
+    if (!best_name || !worst_name) {
+        fprintf(stderr, "  [CSV] Nema dovoljno metoda za export rekonstrukcije.\n");
+        return;
+    }
+
+    printf("\n  Spremam rekonstrukcije (najbolja i najgora metoda, 20%%):\n");
+    printf("    najbolja: %s (MAE = %.4f)\n", best_name, best_mae);
+    printf("    najgora:  %s (MAE = %.4f)\n", worst_name, worst_mae);
+
+    if (exp_export_reconstruction(results_dir, best_name, scenario, missing_rate,
+                                    s, original, damaged, mask, n, out) == 0) {
+        reconstruction_path(path, sizeof(path), results_dir, best_name, scenario, missing_rate);
+        printf("  [CSV] Najbolja: %s\n", path);
+    }
+
+    if (strcmp(best_name, worst_name) != 0) {
+        if (exp_export_reconstruction(results_dir, worst_name, scenario, missing_rate,
+                                      s, original, damaged, mask, n, out) == 0) {
+            reconstruction_path(path, sizeof(path), results_dir, worst_name, scenario,
+                                missing_rate);
+            printf("  [CSV] Najgora:  %s\n", path);
         }
     }
+
+    append_best_worst_summary(results_dir, scenario, missing_rate,
+                              best_name, best_mae, worst_name, worst_mae);
 }
 
 static int scenario_matches_filter(ExpScenario scenario, const ExpRunFilter *filter) {
@@ -665,8 +750,9 @@ int exp_run_compare(const char *source, const char *city, ExpScenario scenario,
 
     if (export_reconstruction && results_dir) {
         printf("\nExport reconstruction CSV:\n");
-        export_configured_reconstructions(results_dir, scenario, missing_rate,
-                                          &s, s.temp, damaged, mask, n, out);
+        export_best_worst_reconstructions(results_dir, scenario, missing_rate,
+                                          &s, s.temp, damaged, mask, n, out,
+                                          results, EXP_NUM_METHODS);
     }
 
     printf("\nNapomena: MAE i RMSE — nizi je bolje. R2 — blize 1.0 je bolje.\n\n");
@@ -714,6 +800,13 @@ int exp_run_all(const char *source, const char *city, const char *results_dir,
     snprintf(main_csv, sizeof(main_csv), "%s/experiment_results.csv", results_dir);
     snprintf(mae_csv, sizeof(mae_csv), "%s/mae_by_method.csv", results_dir);
     snprintf(error_csv, sizeof(error_csv), "%s/error_vs_missing_rate.csv", results_dir);
+
+    {
+        char recon_summary[512];
+        snprintf(recon_summary, sizeof(recon_summary),
+                 "%s/reconstruction_best_worst_20.csv", results_dir);
+        remove(recon_summary);
+    }
 
     FILE *fp_main = fopen(main_csv, "w");
     FILE *fp_mae = fopen(mae_csv, "w");
@@ -810,9 +903,9 @@ int exp_run_all(const char *source, const char *city, const char *results_dir,
             }
 
             if (fabs(rate - EXP_RECON_SNAPSHOT_RATE) < 1e-9) {
-                printf("\n  Spremam primjer rekonstrukcije (linear, 20%%) za graf:\n");
-                export_configured_reconstructions(results_dir, scenario, rate,
-                                                  &s, s.temp, damaged, mask, n, out);
+                export_best_worst_reconstructions(results_dir, scenario, rate,
+                                                  &s, s.temp, damaged, mask, n, out,
+                                                  results, EXP_NUM_METHODS);
             }
         }
     }
