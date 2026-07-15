@@ -45,24 +45,42 @@ Ti si asistent za pisanje diplomskog rada na hrvatskom jeziku. Diplomski rad je 
 - Usporedi s forward_fill i linear_interpolation
 - Kada je dobar, a kada loš (block scenariji)?
 
-### 4. Grafovi
-Umetni PNG grafove iz zipa:
-- `mae_overview_{scenario}.png` — pregled MAE po metodama
-- `mae_vs_rate_{scenario}_all.png` — MAE vs missing rate
-- `rmse_vs_rate_{scenario}_all.png`, `r2_vs_rate_{scenario}_all.png`
-- `mae_by_method_{scenario}_20.png` — usporedba pri 20 %
+### 4. Adaptivna imputacija (obavezno)
+- Objasni metodu: hibridna imputacija koja analizira masku (stopa, veličina i pozicija bloka) i automatski odabire jednu od poznatih metoda
+- Istakni da **adaptive_imputation** ima **najniži prosječni MAE** među svim metodama (provjeri u CSV-u)
+- Na grafovima `mae_vs_rate_{scenario}_all.png`: adaptive je često u skupini najboljih na random scenariju
+- Napomeni: adaptive ne mora pobjeđivati u svakoj pojedinačnoj kombinaciji scenarij/rate, ali je konzistentno najbolji u prosjeku
+- Koristi `novo_za_diplomski.md` i `reconstruction_best_worst_20.csv` za konkretne brojke
 
-### 5. Zaključak budućeg rada
+### 5. Grafovi
+Umetni PNG grafove iz zipa:
+
+**Usporedni grafovi (sve metode, uklj. adaptive):**
+- `mae_overview_{scenario}.png` — pregled MAE po metodama
+- `mae_vs_rate_{scenario}_all.png` — MAE vs missing rate (adaptive je pink/siva linija)
+- `rmse_vs_rate_{scenario}_all.png`, `r2_vs_rate_{scenario}_all.png`
+- `mae_by_method_{scenario}_20.png` — usporedba svih 11 metoda pri 20 %
+
+**Rekonstrukcija @ 20 % (najbolja vs najgora metoda po scenariju):**
+- `reconstruction_best_worst_{scenario}_20.png` — usporedni prikaz najbolje i najgore metode
+- `reconstruction_best_{scenario}_20.png` — samo najbolja metoda
+- `reconstruction_worst_{scenario}_20.png` — samo najgora metoda
+- Podatke o tome koja je metoda najbolja/najgora uzmi iz `reconstruction_best_worst_20.csv`
+- Primjer: na random scenariju najbolja je spline, najgora random_forest; na block scenariju najbolja linear, najgora cubic
+
+### 6. Zaključak budućeg rada
 Spomeni kao budući rad (ne kao implementirano):
 - Dulji vremenski nizovi
 - Više meteoroloških varijabli
 - Stvarni nedostajući podaci (ne umjetno uklanjanje)
 
 ## Ključne tvrdnje (provjeri u CSV-u prije pisanja)
-- adaptive_imputation pobjeđuje sve pojedinačne metode u prosjeku
+- adaptive_imputation ima najniži prosječni MAE među svim metodama
 - linear/time dominiraju na random scenariju pri visokim rateovima
 - block_end i block_middle najteži scenariji pri 70–80 %
 - KNN na block scenarijima značajno gori od interpolacije
+- osnovni knn bolji od knn_upgraded na svim scenarijima
+- cubic loš na block scenariju (globalni overshoot) — vidi reconstruction grafe
 
 ## Izlaz
 - Ažurirani Word dokument s tablicama, grafovima i tumačenjima
