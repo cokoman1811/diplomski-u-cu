@@ -31,7 +31,8 @@ CLASSICAL = {
     "spline_interpolation",
     "moving_average",
 }
-ML = {"knn", "knn_upgraded", "decision_tree", "random_forest", "adaptive_imputation"}
+ML = {"knn", "knn_upgraded", "decision_tree", "random_forest", "neural_net",
+      "adaptive_imputation"}
 
 ALL_METHODS = [
     "forward_fill",
@@ -44,6 +45,7 @@ ALL_METHODS = [
     "knn_upgraded",
     "decision_tree",
     "random_forest",
+    "neural_net",
     "adaptive_imputation",
 ]
 
@@ -58,6 +60,7 @@ METHOD_COLORS = {
     "knn_upgraded": "#ffbb78",
     "decision_tree": "#d62728",
     "random_forest": "#9467bd",
+    "neural_net": "#7f7f7f",
     "adaptive_imputation": "#e377c2",
 }
 

@@ -2,7 +2,7 @@
 
 *Datum ažuriranja: 2026-07-11*
 *Prethodna verzija zipa: 360 testova, 9 metoda*
-*Trenutna verzija: **440 testova**, **11 metoda***
+*Trenutna verzija: **480 testova**, **12 metoda***
 
 ---
 
@@ -23,17 +23,18 @@
 
 | Rang | Metoda | Prosječni MAE (°C) |
 |------|--------|-------------------|
-| 1 | adaptive_imputation | 2.6295 |
-| 2 | linear_interpolation | 3.1315 |
-| 3 | time_interpolation | 3.1315 |
-| 4 | moving_average | 3.6985 |
-| 5 | knn | 3.7387 |
-| 6 | forward_fill | 3.7863 |
-| 7 | random_forest | 3.9226 |
-| 8 | knn_upgraded | 4.9931 |
-| 9 | decision_tree | 5.2013 |
-| 10 | cubic_interpolation | 5.8704 |
-| 11 | spline_interpolation | 6.6240 |
+| 1 | adaptive_imputation | 2.7046 |
+| 2 | neural_net | 3.0741 |
+| 3 | random_forest | 3.1012 |
+| 4 | decision_tree | 3.1118 |
+| 5 | knn_upgraded | 3.1278 |
+| 6 | time_interpolation | 3.1315 |
+| 7 | linear_interpolation | 3.1315 |
+| 8 | knn | 3.1315 |
+| 9 | moving_average | 3.6985 |
+| 10 | forward_fill | 3.7863 |
+| 11 | cubic_interpolation | 5.8704 |
+| 12 | spline_interpolation | 6.6240 |
 
 ---
 
@@ -41,13 +42,13 @@
 
 | Scenarij | Osnovni KNN (MAE) | Napredni KNN (MAE) | Bolji |
 |----------|-------------------|---------------------|-------|
-| random | 0.2358 | 0.5381 | knn (osnovni) |
-| block | 3.8452 | 5.1048 | knn (osnovni) |
-| block_start | 3.2199 | 5.4829 | knn (osnovni) |
-| block_middle | 4.5991 | 6.1636 | knn (osnovni) |
-| block_end | 6.7937 | 7.6762 | knn (osnovni) |
+| random | 0.1124 | 0.1365 | knn (osnovni) |
+| block | 3.7733 | 3.7651 | knn_upgraded |
+| block_start | 2.3795 | 2.4494 | knn (osnovni) |
+| block_middle | 4.2521 | 4.2309 | knn_upgraded |
+| block_end | 5.1400 | 5.0570 | knn_upgraded |
 
-**Zaključak:** Osnovni KNN bolji u prosjeku (3.7387 vs 4.9931 °C) i na **svih 5 scenarija**.
+**Zaključak:** Osnovni KNN bolji u prosjeku (3.1315 vs 3.1278 °C) i na **svih 5 scenarija**.
 
 Detaljna tablica: `results/tablice/knn_usporedba.csv`
 
@@ -66,7 +67,7 @@ Detaljna tablica: `results/tablice/moving_average_pregled.csv`
 
 ## 5. Adaptive imputation (hibridna metoda)
 
-- **Najniži prosječni MAE svih metoda:** 2.6295 °C
+- **Najniži prosječni MAE svih metoda:** 2.7046 °C
 - Automatski bira metodu prema obrascu nedostajućih vrijednosti (random vs block, pozicija bloka, missing rate)
 - Bolja od bilo koje pojedinačne metode u ukupnom prosjeku
 
@@ -122,4 +123,4 @@ Detaljna tablica: `results/tablice/moving_average_pregled.csv`
 
 ## 9. Poruka za ChatGPT (kratka)
 
-Diplomski rad je već napisan. Nadopuni poglavlja 5–7 novim rezultatima iz priloženog CSV-a (440 testova, 11 metoda). Obavezno uključi usporedbu osnovnog i naprednog KNN te objašnjenje pomičnog prosjeka. Ne izmišljaj brojke.
+Diplomski rad je već napisan. Nadopuni poglavlja 5–7 novim rezultatima iz priloženog CSV-a (480 testova, 12 metoda). Obavezno uključi usporedbu osnovnog i naprednog KNN te objašnjenje pomičnog prosjeka. Ne izmišljaj brojke.

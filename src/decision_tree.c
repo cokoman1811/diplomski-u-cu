@@ -1,13 +1,32 @@
 #include "decision_tree.h"
 
+#include "ml_features.h"
+
 #include <math.h>
 #include <stdlib.h>
 
-#define DT_MAX_DEPTH    5
-#define DT_MIN_LEAF     3
-#define DT_NUM_FEATURES 5
+/*
+ * Regresijsko stablo (CART) za imputaciju.
+ *
+ * Kljucne razlike prema prvoj verziji:
+ *
+ *   1. Znacajke ukljucuju vrijednosti najblizih poznatih susjeda (gap-znacajke).
+ *      Bez njih model uci preslikavanje vrijeme -> temperatura, sto je na signalu
+ *      s lag-1 autokorelacijom 0,999 neusporedivo tezi problem od onoga koji
+ *      rjesava interpolacija (susjedi -> temperatura).
+ *
+ *   2. Cilj ucenja je REZIDUAL iznad linearne baze, a ne sama temperatura.
+ *      Stablo tako popravlja linearnu interpolaciju umjesto da je zamjenjuje;
+ *      predikcija 0 znaci "linearna baza je vec dobra".
+ *
+ *   3. Matrica znacajki racuna se jednom, a najbolji rez trazi se sortiranjem
+ *      i prefiksnim sumama umjesto kvadratnom pretragom s trigonometrijom.
+ *      To je red velicine brze i tek time dublja stabla postaju izvediva.
+ */
 
-static const double TWO_PI = 2.0 * 3.14159265358979323846;
+#define DT_MAX_DEPTH 8
+#define DT_MIN_LEAF  4
+#define DT_NUM_FEATURES ML_NUM_FEATURES
 
 typedef struct DtNode {
     int is_leaf;
@@ -18,210 +37,205 @@ typedef struct DtNode {
     struct DtNode *right;
 } DtNode;
 
-/*
- * Znacajke (5) — ista logika kao knn_upgraded za usporedivost ML metoda:
- *   [0] position_norm
- *   [1] hour_sin, [2] hour_cos
- *   [3] yday_sin, [4] yday_cos
- */
-static void dt_features(const Series *s, size_t idx, size_t n, double out[5]) {
-    double denom = (n > 1) ? (double)(n - 1) : 1.0;
-    out[0] = (double)idx / denom;
+typedef struct {
+    double v; /* vrijednost znacajke */
+    double y; /* ciljna vrijednost (rezidual) */
+} DtPair;
 
-    double hour_angle = TWO_PI * (double)s->hour[idx] / 24.0;
-    out[1] = sin(hour_angle);
-    out[2] = cos(hour_angle);
-
-    double yday_angle = TWO_PI * (double)(s->yday[idx] - 1) / 365.0;
-    out[3] = sin(yday_angle);
-    out[4] = cos(yday_angle);
+static int dt_cmp_pair(const void *a, const void *b) {
+    double va = ((const DtPair *)a)->v;
+    double vb = ((const DtPair *)b)->v;
+    if (va < vb) {
+        return -1;
+    }
+    return (va > vb) ? 1 : 0;
 }
 
-static double feature_value(const Series *s, size_t idx, size_t n, int feature) {
-    double feats[5];
-    dt_features(s, idx, n, feats);
-    return feats[feature];
+static double dt_feature(const double *F, size_t idx, int feature) {
+    return F[idx * DT_NUM_FEATURES + feature];
 }
 
-static double mean_temp(const double *temp, const size_t *idx, size_t count) {
+static double dt_mean(const double *y, const size_t *idx, size_t count) {
     double sum = 0.0;
-    for (size_t i = 0; i < count; i++) {
-        sum += temp[idx[i]];
+    size_t i;
+    for (i = 0; i < count; i++) {
+        sum += y[idx[i]];
     }
     return sum / (double)count;
 }
 
-static void free_tree(DtNode *node) {
+static void dt_free(DtNode *node) {
     if (!node) {
         return;
     }
-    free_tree(node->left);
-    free_tree(node->right);
+    dt_free(node->left);
+    dt_free(node->right);
     free(node);
 }
 
-static DtNode *make_leaf(double value) {
+static DtNode *dt_leaf(double value) {
     DtNode *node = (DtNode *)calloc(1, sizeof(DtNode));
-    if (!node) {
-        return NULL;
+    if (node) {
+        node->is_leaf = 1;
+        node->value = value;
     }
-    node->is_leaf = 1;
-    node->value = value;
     return node;
 }
 
-/* Suma kvadratnih pogresaka nakon podjele: feature <= threshold ide lijevo. */
-static double split_mse(const double *temp, const size_t *idx, size_t count,
-                        int feature, double threshold, const Series *s, size_t n,
-                        size_t *left_count, size_t *right_count) {
-    double sum_l = 0.0, sum_r = 0.0;
-    size_t n_l = 0, n_r = 0;
+/*
+ * Najbolji rez po jednoj znacajci: sortiraj po vrijednosti znacajke, zatim
+ * jednim prolazom kroz prefiksne sume evaluiraj sve pragove.
+ * SSE grane = sum(y^2) - sum(y)^2 / count.
+ */
+static int dt_best_split_for_feature(const double *F, const double *y,
+                                     const size_t *idx, size_t count, int feature,
+                                     DtPair *buf, double *best_sse, double *best_thr) {
+    double total = 0.0, total_sq = 0.0;
+    double sum_l = 0.0, sum_sq_l = 0.0;
+    size_t i;
+    int found = 0;
 
-    for (size_t i = 0; i < count; i++) {
-        double y = temp[idx[i]];
-        if (feature_value(s, idx[i], n, feature) <= threshold) {
-            sum_l += y;
-            n_l++;
-        } else {
-            sum_r += y;
-            n_r++;
+    for (i = 0; i < count; i++) {
+        buf[i].v = dt_feature(F, idx[i], feature);
+        buf[i].y = y[idx[i]];
+    }
+    qsort(buf, count, sizeof(DtPair), dt_cmp_pair);
+
+    for (i = 0; i < count; i++) {
+        total += buf[i].y;
+        total_sq += buf[i].y * buf[i].y;
+    }
+
+    for (i = 0; i + 1 < count; i++) {
+        size_t n_l = i + 1;
+        size_t n_r = count - n_l;
+        double sse;
+
+        sum_l += buf[i].y;
+        sum_sq_l += buf[i].y * buf[i].y;
+
+        if (n_l < (size_t)DT_MIN_LEAF || n_r < (size_t)DT_MIN_LEAF) {
+            continue;
+        }
+        if (buf[i].v == buf[i + 1].v) {
+            continue;
+        }
+
+        sse = (sum_sq_l - sum_l * sum_l / (double)n_l)
+            + ((total_sq - sum_sq_l) - (total - sum_l) * (total - sum_l) / (double)n_r);
+
+        if (!found || sse < *best_sse) {
+            found = 1;
+            *best_sse = sse;
+            *best_thr = 0.5 * (buf[i].v + buf[i + 1].v);
         }
     }
-
-    *left_count = n_l;
-    *right_count = n_r;
-    if (n_l < (size_t)DT_MIN_LEAF || n_r < (size_t)DT_MIN_LEAF) {
-        return INFINITY;
-    }
-
-    double mean_l = sum_l / (double)n_l;
-    double mean_r = sum_r / (double)n_r;
-    double mse = 0.0;
-
-    for (size_t i = 0; i < count; i++) {
-        double y = temp[idx[i]];
-        double m = (feature_value(s, idx[i], n, feature) <= threshold) ? mean_l : mean_r;
-        double d = y - m;
-        mse += d * d;
-    }
-    return mse;
+    return found;
 }
 
-static DtNode *build_tree(const Series *s, const double *temp,
-                          const size_t *idx, size_t count, size_t n, int depth) {
+static DtNode *dt_build(const double *F, const double *y, const size_t *idx,
+                        size_t count, int depth, DtPair *buf,
+                        const int *feature_subset, int n_subset) {
+    double best_sse = 0.0, best_thr = 0.0;
+    int best_feature = -1;
+    int fi;
+    size_t i, li = 0, ri = 0, n_left = 0;
+    size_t *left_idx, *right_idx;
+    DtNode *node;
+
     if (count == 0) {
         return NULL;
     }
-
     if (depth >= DT_MAX_DEPTH || count < (size_t)DT_MIN_LEAF * 2) {
-        return make_leaf(mean_temp(temp, idx, count));
+        return dt_leaf(dt_mean(y, idx, count));
     }
 
-    double best_mse = INFINITY;
-    int best_feature = 0;
-    double best_threshold = 0.0;
-    size_t best_l = 0, best_r = 0;
-
-    for (int f = 0; f < DT_NUM_FEATURES; f++) {
-        for (size_t i = 0; i < count; i++) {
-            double thr = feature_value(s, idx[i], n, f);
-            size_t n_l = 0, n_r = 0;
-            double mse = split_mse(temp, idx, count, f, thr, s, n, &n_l, &n_r);
-            if (mse < best_mse) {
-                best_mse = mse;
-                best_feature = f;
-                best_threshold = thr;
-                best_l = n_l;
-                best_r = n_r;
-            }
+    for (fi = 0; fi < n_subset; fi++) {
+        int f = feature_subset[fi];
+        double sse = 0.0, thr = 0.0;
+        if (!dt_best_split_for_feature(F, y, idx, count, f, buf, &sse, &thr)) {
+            continue;
+        }
+        if (best_feature < 0 || sse < best_sse) {
+            best_feature = f;
+            best_sse = sse;
+            best_thr = thr;
         }
     }
 
-    if (best_mse == INFINITY || best_l == 0 || best_r == 0) {
-        return make_leaf(mean_temp(temp, idx, count));
+    if (best_feature < 0) {
+        return dt_leaf(dt_mean(y, idx, count));
     }
 
-    DtNode *node = (DtNode *)calloc(1, sizeof(DtNode));
-    if (!node) {
-        return NULL;
+    for (i = 0; i < count; i++) {
+        if (dt_feature(F, idx[i], best_feature) <= best_thr) {
+            n_left++;
+        }
     }
-    node->feature = best_feature;
-    node->threshold = best_threshold;
+    if (n_left == 0 || n_left == count) {
+        return dt_leaf(dt_mean(y, idx, count));
+    }
 
-    size_t *left_idx = (size_t *)malloc(best_l * sizeof(size_t));
-    size_t *right_idx = (size_t *)malloc(best_r * sizeof(size_t));
+    left_idx = (size_t *)malloc(n_left * sizeof(size_t));
+    right_idx = (size_t *)malloc((count - n_left) * sizeof(size_t));
     if (!left_idx || !right_idx) {
         free(left_idx);
         free(right_idx);
-        free(node);
-        return make_leaf(mean_temp(temp, idx, count));
+        return dt_leaf(dt_mean(y, idx, count));
     }
 
-    size_t li = 0, ri = 0;
-    for (size_t i = 0; i < count; i++) {
-        if (feature_value(s, idx[i], n, best_feature) <= best_threshold) {
+    for (i = 0; i < count; i++) {
+        if (dt_feature(F, idx[i], best_feature) <= best_thr) {
             left_idx[li++] = idx[i];
         } else {
             right_idx[ri++] = idx[i];
         }
     }
 
-    node->left = build_tree(s, temp, left_idx, li, n, depth + 1);
-    node->right = build_tree(s, temp, right_idx, ri, n, depth + 1);
+    node = (DtNode *)calloc(1, sizeof(DtNode));
+    if (!node) {
+        free(left_idx);
+        free(right_idx);
+        return dt_leaf(dt_mean(y, idx, count));
+    }
+    node->feature = best_feature;
+    node->threshold = best_thr;
+    node->left = dt_build(F, y, left_idx, li, depth + 1, buf, feature_subset, n_subset);
+    node->right = dt_build(F, y, right_idx, ri, depth + 1, buf, feature_subset, n_subset);
     free(left_idx);
     free(right_idx);
 
     if (!node->left || !node->right) {
-        double fallback = mean_temp(temp, idx, count);
-        free_tree(node->left);
-        free_tree(node->right);
+        double fallback = dt_mean(y, idx, count);
+        dt_free(node->left);
+        dt_free(node->right);
         free(node);
-        return make_leaf(fallback);
+        return dt_leaf(fallback);
     }
     return node;
 }
 
-static double predict_tree(const DtNode *node, const Series *s, size_t query_idx, size_t n) {
-    if (!node) {
-        return NAN;
+static double dt_predict(const DtNode *node, const double *F, size_t idx) {
+    while (node && !node->is_leaf) {
+        node = (dt_feature(F, idx, node->feature) <= node->threshold)
+             ? node->left : node->right;
     }
-    if (node->is_leaf) {
-        return node->value;
-    }
-    if (feature_value(s, query_idx, n, node->feature) <= node->threshold) {
-        return predict_tree(node->left, s, query_idx, n);
-    }
-    return predict_tree(node->right, s, query_idx, n);
-}
-
-static void fill_remaining_gaps(double *out, size_t n) {
-    double last = NAN;
-    for (size_t i = 0; i < n; i++) {
-        if (!isnan(out[i])) {
-            last = out[i];
-        } else if (!isnan(last)) {
-            out[i] = last;
-        }
-    }
-    double next = NAN;
-    for (size_t i = n; i-- > 0;) {
-        if (!isnan(out[i])) {
-            next = out[i];
-        } else if (!isnan(next)) {
-            out[i] = next;
-        }
-    }
+    return node ? node->value : 0.0;
 }
 
 int decision_tree_imputation(const Series *series, const double *temp, double *out) {
     size_t n = series->n;
+    size_t known_count = 0, kc = 0, i;
+    double lo = INFINITY, hi = -INFINITY;
+    double *F = NULL, *resid = NULL;
+    size_t *known = NULL;
+    DtPair *buf = NULL;
+    DtNode *tree = NULL;
+    int all_features[DT_NUM_FEATURES];
+    int f;
 
-    for (size_t i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {
         out[i] = temp[i];
-    }
-
-    size_t known_count = 0;
-    for (size_t i = 0; i < n; i++) {
         if (!isnan(temp[i])) {
             known_count++;
         }
@@ -229,33 +243,61 @@ int decision_tree_imputation(const Series *series, const double *temp, double *o
     if (known_count == 0) {
         return 1;
     }
+    ml_known_range(temp, n, &lo, &hi);
 
-    size_t *known = (size_t *)malloc(known_count * sizeof(size_t));
-    if (!known) {
+    F = (double *)malloc(n * DT_NUM_FEATURES * sizeof(double));
+    resid = (double *)malloc(n * sizeof(double));
+    known = (size_t *)malloc(known_count * sizeof(size_t));
+    buf = (DtPair *)malloc(known_count * sizeof(DtPair));
+    if (!F || !resid || !known || !buf) {
+        free(F);
+        free(resid);
+        free(known);
+        free(buf);
         return 1;
     }
-    size_t kc = 0;
-    for (size_t i = 0; i < n; i++) {
+
+    ml_features_build(series, temp, n, F);
+
+    for (i = 0; i < n; i++) {
+        resid[i] = isnan(temp[i]) ? NAN : temp[i] - F[i * DT_NUM_FEATURES + GAP_F_LIN_BASE];
         if (!isnan(temp[i])) {
             known[kc++] = i;
         }
     }
+    for (f = 0; f < DT_NUM_FEATURES; f++) {
+        all_features[f] = f;
+    }
 
-    DtNode *tree = build_tree(series, temp, known, known_count, n, 0);
+    tree = dt_build(F, resid, known, known_count, 0, buf, all_features, DT_NUM_FEATURES);
     free(known);
-
+    free(buf);
     if (!tree) {
+        free(F);
+        free(resid);
         return 1;
     }
 
-    for (size_t i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {
+        double value;
         if (!isnan(temp[i])) {
             continue;
         }
-        out[i] = predict_tree(tree, series, i, n);
+        value = F[i * DT_NUM_FEATURES + GAP_F_LIN_BASE] + dt_predict(tree, F, i);
+        /* Predikcija se drzi unutar raspona opazenih temperatura — sprjecava
+           ekstrapolacijski overshoot na dugim prazninama. */
+        if (value < lo) {
+            value = lo;
+        }
+        if (value > hi) {
+            value = hi;
+        }
+        out[i] = value;
     }
 
-    free_tree(tree);
-    fill_remaining_gaps(out, n);
+    dt_free(tree);
+    free(F);
+    free(resid);
+    ml_fill_remaining_gaps(out, n);
     return 0;
 }

@@ -6,7 +6,7 @@
 
 #include <stddef.h>
 
-#define EXP_NUM_METHODS 11
+#define EXP_NUM_METHODS 12
 
 /* Scenarij umjetnog uklanjanja vrijednosti. */
 typedef enum {
