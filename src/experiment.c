@@ -778,42 +778,163 @@ int exp_run_compare(const char *source, const char *city, ExpScenario scenario,
     return 0;
 }
 
-int exp_run_all(const char *source, const char *city, const char *results_dir,
-                const ExpRunFilter *filter) {
-    Series s = {0};
-    const char *label_city = NULL;
+typedef struct {
+    double mean;
+    double sd;
+    double min;
+    double max;
+    int count;
+} ExpStat;
 
-    if (load_series(source, city, &s, &label_city) != 0) {
+/* Srednja vrijednost i uzoracka standardna devijacija (nazivnik n - 1). */
+static ExpStat exp_stat(const double *v, int n) {
+    ExpStat st;
+    double sum = 0.0;
+    int i;
+
+    st.mean = 0.0;
+    st.sd = 0.0;
+    st.min = 0.0;
+    st.max = 0.0;
+    st.count = n;
+    if (n <= 0) {
+        return st;
+    }
+
+    st.min = v[0];
+    st.max = v[0];
+    for (i = 0; i < n; i++) {
+        sum += v[i];
+        if (v[i] < st.min) {
+            st.min = v[i];
+        }
+        if (v[i] > st.max) {
+            st.max = v[i];
+        }
+    }
+    st.mean = sum / (double)n;
+
+    if (n > 1) {
+        double ss = 0.0;
+        for (i = 0; i < n; i++) {
+            double d = v[i] - st.mean;
+            ss += d * d;
+        }
+        st.sd = sqrt(ss / (double)(n - 1));
+    }
+    return st;
+}
+
+static int file_readable(const char *path) {
+    FILE *fp = fopen(path, "r");
+    if (fp) {
+        fclose(fp);
         return 1;
+    }
+    return 0;
+}
+
+/* Ucitava window_00.csv, window_01.csv ... Vraca broj ucitanih prozora. */
+static int load_windows(Series *windows, int wanted) {
+    char path[512];
+    int loaded = 0;
+    int r;
+
+    for (r = 0; r < wanted; r++) {
+        snprintf(path, sizeof(path), "%s/window_%02d.csv", EXP_WINDOW_DIR, r);
+        if (!file_readable(path)) {
+            break;
+        }
+        if (series_load_csv(&windows[r], path, NULL) != 0) {
+            break;
+        }
+        loaded++;
+    }
+    return loaded;
+}
+
+int exp_run_all(const char *source, const char *city, const char *results_dir,
+                const ExpRunFilter *filter, int repeats) {
+    Series windows[EXP_MAX_REPEATS];
+    const char *label_city = NULL;
+    int n_reps = 1;
+    int use_windows = 0;
+    int r;
+
+    memset(windows, 0, sizeof(windows));
+
+    if (repeats > EXP_MAX_REPEATS) {
+        repeats = EXP_MAX_REPEATS;
+    }
+    if (repeats < 1) {
+        repeats = 1;
+    }
+
+    if (repeats > 1) {
+        n_reps = load_windows(windows, repeats);
+        if (n_reps >= 2) {
+            use_windows = 1;
+            if (n_reps < repeats) {
+                printf("  [napomena] Trazeno %d prozora, pronadjeno %d u %s\n",
+                       repeats, n_reps, EXP_WINDOW_DIR);
+            }
+        } else {
+            for (r = 0; r < n_reps; r++) {
+                series_free(&windows[r]);
+            }
+            memset(windows, 0, sizeof(windows));
+            n_reps = repeats;
+            printf("  [napomena] Nema tjednih prozora u %s — ponavljam samo po seedu "
+                   "maske.\n", EXP_WINDOW_DIR);
+            printf("             Za punu varijabilnost pokreni: "
+                   "python scripts/prepare_jena_windows.py %d\n", repeats);
+        }
+    }
+
+    if (!use_windows) {
+        if (load_series(source, city, &windows[0], &label_city) != 0) {
+            return 1;
+        }
     }
 
     if (ensure_results_dir(results_dir) != 0) {
         fprintf(stderr, "Ne mogu kreirati mapu %s\n", results_dir);
-        series_free(&s);
+        for (r = 0; r < (use_windows ? n_reps : 1); r++) {
+            series_free(&windows[r]);
+        }
         return 1;
     }
 
-    size_t n = s.n;
+    size_t n = windows[0].n;
     double *damaged = (double *)malloc(n * sizeof(double));
     int *mask = (int *)malloc(n * sizeof(int));
     double *out = (double *)malloc(n * sizeof(double));
     ExpMethodResult results[EXP_NUM_METHODS];
+    ExpMethodResult agg[EXP_NUM_METHODS];
+    static double acc_mae[EXP_NUM_METHODS][EXP_MAX_REPEATS];
+    static double acc_rmse[EXP_NUM_METHODS][EXP_MAX_REPEATS];
+    static double acc_r2[EXP_NUM_METHODS][EXP_MAX_REPEATS];
+    int acc_count[EXP_NUM_METHODS];
 
     if (!damaged || !mask || !out) {
         fprintf(stderr, "Greska: nedostatak memorije.\n");
         free(damaged);
         free(mask);
         free(out);
-        series_free(&s);
+        for (r = 0; r < (use_windows ? n_reps : 1); r++) {
+            series_free(&windows[r]);
+        }
         return 1;
     }
 
     char main_csv[512];
     char mae_csv[512];
     char error_csv[512];
+    char runs_csv[512];
     snprintf(main_csv, sizeof(main_csv), "%s/experiment_results.csv", results_dir);
     snprintf(mae_csv, sizeof(mae_csv), "%s/mae_by_method.csv", results_dir);
     snprintf(error_csv, sizeof(error_csv), "%s/error_vs_missing_rate.csv", results_dir);
+    snprintf(runs_csv, sizeof(runs_csv), "%s/experiment_runs.csv", results_dir);
 
     {
         char recon_summary[512];
@@ -825,29 +946,43 @@ int exp_run_all(const char *source, const char *city, const char *results_dir,
     FILE *fp_main = fopen(main_csv, "w");
     FILE *fp_mae = fopen(mae_csv, "w");
     FILE *fp_err = fopen(error_csv, "w");
-    if (!fp_main || !fp_mae || !fp_err) {
+    FILE *fp_runs = fopen(runs_csv, "w");
+    if (!fp_main || !fp_mae || !fp_err || !fp_runs) {
         fprintf(stderr, "Ne mogu otvoriti CSV datoteke u %s\n", results_dir);
         fclose(fp_main);
         fclose(fp_mae);
         fclose(fp_err);
+        fclose(fp_runs);
         free(damaged);
         free(mask);
         free(out);
-        series_free(&s);
+        for (r = 0; r < (use_windows ? n_reps : 1); r++) {
+            series_free(&windows[r]);
+        }
         return 1;
     }
 
     write_csv_header(fp_main,
         "scenario,block_position,missing_rate,method,mae,rmse,r2,"
+        "mae_sd,rmse_sd,r2_sd,mae_min,mae_max,n_repeats,"
         "number_of_missing_values,number_of_evaluated_values");
     write_csv_header(fp_mae, "method,mae,scenario,block_position,missing_rate");
     write_csv_header(fp_err, "scenario,block_position,missing_rate,method,mae,rmse,r2");
+    write_csv_header(fp_runs,
+        "repeat,window_id,seed,scenario,block_position,missing_rate,method,"
+        "mae,rmse,r2,number_of_missing_values,number_of_evaluated_values");
 
     ExpRunSummary summary[EXP_NUM_SCENARIOS * EXP_NUM_RATES];
     size_t summary_count = 0;
     size_t total_method_runs = 0;
 
     print_experiment_intro(source, label_city, n, filter);
+    if (n_reps > 1) {
+        printf("  Ponavljanja:      %d %s\n", n_reps,
+               use_windows ? "(razliciti tjedni + seedovi)" : "(razliciti seedovi maske)");
+        printf("  Rezultati:        srednja vrijednost +- sd po %d ponavljanja\n\n",
+               n_reps);
+    }
 
     for (size_t sc = 0; sc < EXP_NUM_SCENARIOS; sc++) {
         ExpScenario scenario = EXP_ALL_SCENARIOS[sc];
@@ -857,28 +992,108 @@ int exp_run_all(const char *source, const char *city, const char *results_dir,
 
         for (size_t ri = 0; ri < EXP_NUM_RATES; ri++) {
             double rate = EXP_MISSING_RATES[ri];
+            size_t removed = 0;
+            size_t evaluated = 0;
+            const char *best_name = NULL;
+            double best_mae = INFINITY;
+
             if (!rate_matches_filter(rate, filter)) {
                 continue;
             }
 
-            size_t removed = exp_create_damage(scenario, s.temp, n, rate, RANDOM_SEED,
-                                               damaged, mask);
-
-            size_t target_removed = (size_t)llround(rate * (double)n);
-            if (removed < target_removed && removed > 0) {
-                printf("  [upozorenje] Ciljano %zu uklonjenih, stvarno %zu "
-                       "(rubna pravila ili velicina bloka)\n",
-                       target_removed, removed);
+            for (size_t mi = 0; mi < EXP_NUM_METHODS; mi++) {
+                acc_count[mi] = 0;
             }
 
-            print_run_block_header(scenario, rate, removed, n);
+            for (r = 0; r < n_reps; r++) {
+                const Series *sr = use_windows ? &windows[r] : &windows[0];
+                unsigned long long seed = RANDOM_SEED + (unsigned long long)r * 7919ULL;
 
-            exp_run_methods(&s, s.temp, damaged, mask, n, out, results);
-            print_methods_table(results, EXP_NUM_METHODS);
+                removed = exp_create_damage(scenario, sr->temp, sr->n, rate, seed,
+                                            damaged, mask);
 
-            const char *best_name = NULL;
-            double best_mae = INFINITY;
-            find_best_method(results, EXP_NUM_METHODS, &best_name, &best_mae);
+                if (r == 0) {
+                    size_t target_removed = (size_t)llround(rate * (double)sr->n);
+                    if (removed < target_removed && removed > 0) {
+                        printf("  [upozorenje] Ciljano %zu uklonjenih, stvarno %zu "
+                               "(rubna pravila ili velicina bloka)\n",
+                               target_removed, removed);
+                    }
+                    print_run_block_header(scenario, rate, removed, sr->n);
+                }
+
+                exp_run_methods(sr, sr->temp, damaged, mask, sr->n, out, results);
+
+                for (size_t mi = 0; mi < EXP_NUM_METHODS; mi++) {
+                    total_method_runs++;
+                    if (!results[mi].ok) {
+                        continue;
+                    }
+                    acc_mae[mi][acc_count[mi]] = results[mi].metrics.mae;
+                    acc_rmse[mi][acc_count[mi]] = results[mi].metrics.rmse;
+                    acc_r2[mi][acc_count[mi]] = results[mi].metrics.r2;
+                    acc_count[mi]++;
+                    evaluated = results[mi].metrics.count;
+
+                    fprintf(fp_runs, "%d,%d,%llu,%s,%s,%.2f,%s,%.6f,%.6f,%.6f,%zu,%zu\n",
+                            r, use_windows ? r : 0, seed,
+                            exp_scenario_name(scenario),
+                            exp_block_position_name(scenario),
+                            rate, results[mi].name,
+                            results[mi].metrics.mae, results[mi].metrics.rmse,
+                            results[mi].metrics.r2, removed,
+                            results[mi].metrics.count);
+                }
+
+                if (r == 0 && fabs(rate - EXP_RECON_SNAPSHOT_RATE) < 1e-9) {
+                    export_best_worst_reconstructions(results_dir, scenario, rate,
+                                                      sr, sr->temp, damaged, mask,
+                                                      sr->n, out, results,
+                                                      EXP_NUM_METHODS);
+                }
+            }
+
+            /* Agregat po ponavljanjima -> tablica na ekranu i glavni CSV. */
+            for (size_t mi = 0; mi < EXP_NUM_METHODS; mi++) {
+                ExpStat st_mae = exp_stat(acc_mae[mi], acc_count[mi]);
+                ExpStat st_rmse = exp_stat(acc_rmse[mi], acc_count[mi]);
+                ExpStat st_r2 = exp_stat(acc_r2[mi], acc_count[mi]);
+
+                agg[mi].name = EXP_METHOD_TABLE[mi].name;
+                agg[mi].ok = (acc_count[mi] > 0);
+                agg[mi].metrics.mae = st_mae.mean;
+                agg[mi].metrics.rmse = st_rmse.mean;
+                agg[mi].metrics.r2 = st_r2.mean;
+                agg[mi].metrics.count = evaluated;
+
+                if (acc_count[mi] == 0) {
+                    continue;
+                }
+
+                fprintf(fp_main,
+                        "%s,%s,%.2f,%s,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%d,%zu,%zu\n",
+                        exp_scenario_name(scenario),
+                        exp_block_position_name(scenario),
+                        rate, agg[mi].name,
+                        st_mae.mean, st_rmse.mean, st_r2.mean,
+                        st_mae.sd, st_rmse.sd, st_r2.sd,
+                        st_mae.min, st_mae.max, acc_count[mi],
+                        removed, evaluated);
+
+                fprintf(fp_mae, "%s,%.6f,%s,%s,%.2f\n",
+                        agg[mi].name, st_mae.mean,
+                        exp_scenario_name(scenario),
+                        exp_block_position_name(scenario), rate);
+
+                fprintf(fp_err, "%s,%s,%.2f,%s,%.6f,%.6f,%.6f\n",
+                        exp_scenario_name(scenario),
+                        exp_block_position_name(scenario),
+                        rate, agg[mi].name,
+                        st_mae.mean, st_rmse.mean, st_r2.mean);
+            }
+
+            print_methods_table(agg, EXP_NUM_METHODS);
+            find_best_method(agg, EXP_NUM_METHODS, &best_name, &best_mae);
 
             if (summary_count < sizeof(summary) / sizeof(summary[0])) {
                 summary[summary_count].scenario = scenario;
@@ -889,51 +1104,27 @@ int exp_run_all(const char *source, const char *city, const char *results_dir,
                 summary[summary_count].has_best = (best_name != NULL);
                 summary_count++;
             }
-
-            for (size_t mi = 0; mi < EXP_NUM_METHODS; mi++) {
-                total_method_runs++;
-                if (!results[mi].ok) {
-                    continue;
-                }
-
-                fprintf(fp_main, "%s,%s,%.2f,%s,%.6f,%.6f,%.6f,%zu,%zu\n",
-                        exp_scenario_name(scenario),
-                        exp_block_position_name(scenario),
-                        rate, results[mi].name,
-                        results[mi].metrics.mae, results[mi].metrics.rmse,
-                        results[mi].metrics.r2, removed, results[mi].metrics.count);
-
-                fprintf(fp_mae, "%s,%.6f,%s,%s,%.2f\n",
-                        results[mi].name, results[mi].metrics.mae,
-                        exp_scenario_name(scenario),
-                        exp_block_position_name(scenario), rate);
-
-                fprintf(fp_err, "%s,%s,%.2f,%s,%.6f,%.6f,%.6f\n",
-                        exp_scenario_name(scenario),
-                        exp_block_position_name(scenario),
-                        rate, results[mi].name,
-                        results[mi].metrics.mae, results[mi].metrics.rmse,
-                        results[mi].metrics.r2);
-            }
-
-            if (fabs(rate - EXP_RECON_SNAPSHOT_RATE) < 1e-9) {
-                export_best_worst_reconstructions(results_dir, scenario, rate,
-                                                  &s, s.temp, damaged, mask, n, out,
-                                                  results, EXP_NUM_METHODS);
-            }
         }
     }
 
     fclose(fp_main);
     fclose(fp_mae);
     fclose(fp_err);
+    fclose(fp_runs);
 
     print_experiment_footer(results_dir, main_csv, mae_csv, error_csv,
                             summary, summary_count, total_method_runs, n);
+    if (n_reps > 1) {
+        printf("  %s\n", runs_csv);
+        printf("    -> svi pojedinacni rezultati (%d ponavljanja) za testove "
+               "znacajnosti\n\n", n_reps);
+    }
 
     free(damaged);
     free(mask);
     free(out);
-    series_free(&s);
+    for (r = 0; r < (use_windows ? n_reps : 1); r++) {
+        series_free(&windows[r]);
+    }
     return 0;
 }

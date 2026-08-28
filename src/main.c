@@ -13,12 +13,15 @@ static void print_usage(void) {
     printf("  diplomski --compare --scenario block_start       block na pocetku niza\n");
     printf("  diplomski --compare --missing-rate 0.2 --export  + CSV za graf (linear)\n");
     printf("  diplomski --experiment-all                       puni eksperiment -> CSV\n");
+    printf("  diplomski --experiment-all --repeats 20          20 tjedana + seedova, sa sd\n");
     printf("  diplomski --experiment                             alias za --experiment-all\n");
     printf("  diplomski --experiment-all --scenario random --missing-rate 0.20\n");
     printf("  diplomski --compare --source demo --city Split\n\n");
     printf("Scenariji (--scenario): random | block | block_start | block_middle | block_end\n");
     printf("Missing rate (--missing-rate): 0.10 | 0.20 | 0.30 | 0.40 | 0.50 | 0.60 | 0.70 | 0.80\n");
     printf("Izvori (--source): jena_quick | processed | demo\n");
+    printf("Ponavljanja (--repeats N): N tjednih prozora iz data/processed/jena_windows\n");
+    printf("  (pripremi ih s: python scripts/prepare_jena_windows.py N)\n");
 }
 
 int main(int argc, char **argv) {
@@ -30,6 +33,7 @@ int main(int argc, char **argv) {
     double missing_rate = 0.4;
     ExpScenario scenario = EXP_SCENARIO_RANDOM;
     ExpRunFilter filter = {0};
+    int repeats = 1;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--compare") == 0) {
@@ -43,6 +47,8 @@ int main(int argc, char **argv) {
             source = argv[++i];
         } else if (strcmp(argv[i], "--city") == 0 && i + 1 < argc) {
             city = argv[++i];
+        } else if (strcmp(argv[i], "--repeats") == 0 && i + 1 < argc) {
+            repeats = atoi(argv[++i]);
         } else if (strcmp(argv[i], "--missing-rate") == 0 && i + 1 < argc) {
             missing_rate = atof(argv[++i]);
             filter.has_rate = 1;
@@ -71,7 +77,7 @@ int main(int argc, char **argv) {
         if (filter.has_scenario || filter.has_rate) {
             filter_ptr = &filter;
         }
-        return exp_run_all(source, city, RESULTS_DIR, filter_ptr);
+        return exp_run_all(source, city, RESULTS_DIR, filter_ptr, repeats);
     }
 
     if (!do_compare) {

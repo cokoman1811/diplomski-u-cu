@@ -33,6 +33,20 @@ typedef struct {
     double missing_rate;
 } ExpRunFilter;
 
+/*
+ * Najveci podrzani broj ponavljanja i mapa s tjednim prozorima.
+ *
+ * Ponavljanje ide po DVIJE osi istovremeno:
+ *   - drugi tjedan podataka (window_NN.csv)  -> daje varijabilnost i na
+ *     block_start/middle/end, koji su za fiksni tjedan potpuno determinirani
+ *   - drugi seed maske                        -> daje uzorkovacku varijabilnost
+ *     na scenarijima random i block
+ *
+ * Prozore priprema scripts/prepare_jena_windows.py.
+ */
+#define EXP_MAX_REPEATS 64
+#define EXP_WINDOW_DIR "data/processed/jena_windows"
+
 /* Naziv scenarija za ispis i CSV. */
 const char *exp_scenario_name(ExpScenario scenario);
 
@@ -82,8 +96,13 @@ int exp_run_compare(const char *source, const char *city, ExpScenario scenario,
 /*
  * Pun eksperiment: svi scenariji, missing rateovi 10-80%, sve metode.
  * filter == NULL ili prazni filter pokrece sve kombinacije.
+ *
+ * repeats <= 1 zadrzava dosadasnje ponasanje (jedan tjedan, jedan seed).
+ * repeats > 1 vrti svaku kombinaciju nad `repeats` razlicitih tjednih prozora,
+ * svaki sa svojim seedom, te u experiment_results.csv upisuje srednju vrijednost
+ * i standardnu devijaciju, a sve pojedinacne rezultate u experiment_runs.csv.
  */
 int exp_run_all(const char *source, const char *city, const char *results_dir,
-                const ExpRunFilter *filter);
+                const ExpRunFilter *filter, int repeats);
 
 #endif /* EXPERIMENT_H */

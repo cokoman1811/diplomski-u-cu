@@ -19,176 +19,176 @@
 
 ### 1. Najbolja metoda po MAE (po scenariju i rateu)
 
-- **random** @ 10%: spline_interpolation (MAE=0.0470)
-- **random** @ 20%: spline_interpolation (MAE=0.0635)
-- **random** @ 30%: linear_interpolation (MAE=0.0834)
-- **random** @ 40%: spline_interpolation (MAE=0.0908)
-- **random** @ 50%: spline_interpolation (MAE=0.0997)
-- **random** @ 60%: cubic_interpolation (MAE=0.1230)
-- **random** @ 70%: linear_interpolation (MAE=0.1774)
-- **random** @ 80%: linear_interpolation (MAE=0.1785)
-- **block** @ 10%: random_forest (MAE=1.0145)
-- **block** @ 20%: decision_tree (MAE=1.4761)
-- **block** @ 30%: neural_net (MAE=3.4236)
-- **block** @ 40%: decision_tree (MAE=2.7163)
-- **block** @ 50%: neural_net (MAE=5.3664)
-- **block** @ 60%: neural_net (MAE=5.1730)
-- **block** @ 70%: moving_average (MAE=3.4009)
-- **block** @ 80%: neural_net (MAE=4.7335)
-- **block_start** @ 10%: decision_tree (MAE=0.7313)
-- **block_start** @ 20%: linear_interpolation (MAE=0.6991)
-- **block_start** @ 30%: adaptive_imputation (MAE=1.9325)
-- **block_start** @ 40%: linear_interpolation (MAE=1.8038)
-- **block_start** @ 50%: neural_net (MAE=1.3679)
-- **block_start** @ 60%: cubic_interpolation (MAE=1.5243)
-- **block_start** @ 70%: cubic_interpolation (MAE=3.5094)
-- **block_start** @ 80%: moving_average (MAE=4.2301)
-- **block_middle** @ 10%: random_forest (MAE=0.4707)
-- **block_middle** @ 20%: neural_net (MAE=1.1338)
-- **block_middle** @ 30%: cubic_interpolation (MAE=3.9194)
-- **block_middle** @ 40%: moving_average (MAE=3.6225)
-- **block_middle** @ 50%: cubic_interpolation (MAE=1.2192)
-- **block_middle** @ 60%: moving_average (MAE=3.3220)
-- **block_middle** @ 70%: moving_average (MAE=3.7491)
-- **block_middle** @ 80%: moving_average (MAE=4.5123)
-- **block_end** @ 10%: decision_tree (MAE=2.6289)
-- **block_end** @ 20%: cubic_interpolation (MAE=4.1828)
-- **block_end** @ 30%: spline_interpolation (MAE=4.8486)
-- **block_end** @ 40%: decision_tree (MAE=5.4621)
-- **block_end** @ 50%: neural_net (MAE=4.5343)
-- **block_end** @ 60%: linear_interpolation (MAE=4.9650)
-- **block_end** @ 70%: linear_interpolation (MAE=5.2253)
-- **block_end** @ 80%: cubic_interpolation (MAE=4.0472)
+- **random** @ 10%: spline_interpolation (MAE=0.0721)
+- **random** @ 20%: spline_interpolation (MAE=0.0821)
+- **random** @ 30%: cubic_interpolation (MAE=0.0923)
+- **random** @ 40%: cubic_interpolation (MAE=0.1055)
+- **random** @ 50%: linear_interpolation (MAE=0.1184)
+- **random** @ 60%: linear_interpolation (MAE=0.1381)
+- **random** @ 70%: linear_interpolation (MAE=0.1684)
+- **random** @ 80%: linear_interpolation (MAE=0.2116)
+- **block** @ 10%: neural_net (MAE=2.1311)
+- **block** @ 20%: neural_net (MAE=2.5198)
+- **block** @ 30%: neural_net (MAE=3.7507)
+- **block** @ 40%: random_forest (MAE=2.8163)
+- **block** @ 50%: random_forest (MAE=3.0882)
+- **block** @ 60%: neural_net (MAE=3.7285)
+- **block** @ 70%: decision_tree (MAE=3.7657)
+- **block** @ 80%: decision_tree (MAE=3.5502)
+- **block_start** @ 10%: cubic_interpolation (MAE=2.0883)
+- **block_start** @ 20%: knn_upgraded (MAE=2.7903)
+- **block_start** @ 30%: linear_interpolation (MAE=3.1027)
+- **block_start** @ 40%: linear_interpolation (MAE=3.1895)
+- **block_start** @ 50%: linear_interpolation (MAE=3.0703)
+- **block_start** @ 60%: linear_interpolation (MAE=3.5792)
+- **block_start** @ 70%: linear_interpolation (MAE=3.9971)
+- **block_start** @ 80%: linear_interpolation (MAE=3.6322)
+- **block_middle** @ 10%: knn_upgraded (MAE=2.4864)
+- **block_middle** @ 20%: neural_net (MAE=2.4173)
+- **block_middle** @ 30%: decision_tree (MAE=2.9535)
+- **block_middle** @ 40%: neural_net (MAE=3.3719)
+- **block_middle** @ 50%: knn_upgraded (MAE=3.2569)
+- **block_middle** @ 60%: linear_interpolation (MAE=3.2926)
+- **block_middle** @ 70%: knn_upgraded (MAE=3.9330)
+- **block_middle** @ 80%: decision_tree (MAE=3.6115)
+- **block_end** @ 10%: knn_upgraded (MAE=2.2315)
+- **block_end** @ 20%: knn_upgraded (MAE=2.5292)
+- **block_end** @ 30%: linear_interpolation (MAE=2.6552)
+- **block_end** @ 40%: linear_interpolation (MAE=2.8122)
+- **block_end** @ 50%: knn_upgraded (MAE=2.9683)
+- **block_end** @ 60%: knn_upgraded (MAE=3.1501)
+- **block_end** @ 70%: linear_interpolation (MAE=3.1762)
+- **block_end** @ 80%: linear_interpolation (MAE=3.2232)
 
 ### 2. Najbolja metoda po RMSE
 
-- **random** @ 10%: spline_interpolation (RMSE=0.0828)
-- **random** @ 20%: cubic_interpolation (RMSE=0.1052)
-- **random** @ 30%: random_forest (RMSE=0.1368)
-- **random** @ 40%: random_forest (RMSE=0.1519)
-- **random** @ 50%: random_forest (RMSE=0.1650)
-- **random** @ 60%: cubic_interpolation (RMSE=0.2369)
-- **random** @ 70%: linear_interpolation (RMSE=0.3320)
-- **random** @ 80%: linear_interpolation (RMSE=0.3145)
-- **block** @ 10%: neural_net (RMSE=1.1710)
-- **block** @ 20%: decision_tree (RMSE=1.6957)
-- **block** @ 30%: linear_interpolation (RMSE=4.0453)
-- **block** @ 40%: neural_net (RMSE=3.3750)
-- **block** @ 50%: decision_tree (RMSE=6.9366)
-- **block** @ 60%: neural_net (RMSE=6.7561)
-- **block** @ 70%: moving_average (RMSE=4.7069)
-- **block** @ 80%: neural_net (RMSE=6.0506)
-- **block_start** @ 10%: decision_tree (RMSE=0.8856)
-- **block_start** @ 20%: linear_interpolation (RMSE=0.8889)
-- **block_start** @ 30%: adaptive_imputation (RMSE=2.1842)
-- **block_start** @ 40%: linear_interpolation (RMSE=2.1093)
-- **block_start** @ 50%: neural_net (RMSE=1.7544)
-- **block_start** @ 60%: cubic_interpolation (RMSE=1.8189)
-- **block_start** @ 70%: moving_average (RMSE=4.5339)
-- **block_start** @ 80%: moving_average (RMSE=4.7813)
-- **block_middle** @ 10%: random_forest (RMSE=0.5657)
-- **block_middle** @ 20%: neural_net (RMSE=1.2839)
-- **block_middle** @ 30%: neural_net (RMSE=4.2144)
-- **block_middle** @ 40%: moving_average (RMSE=4.0178)
-- **block_middle** @ 50%: cubic_interpolation (RMSE=1.7261)
-- **block_middle** @ 60%: moving_average (RMSE=4.6986)
-- **block_middle** @ 70%: moving_average (RMSE=5.2530)
-- **block_middle** @ 80%: moving_average (RMSE=6.2311)
-- **block_end** @ 10%: decision_tree (RMSE=2.9110)
-- **block_end** @ 20%: cubic_interpolation (RMSE=4.5838)
-- **block_end** @ 30%: spline_interpolation (RMSE=5.9726)
-- **block_end** @ 40%: decision_tree (RMSE=6.6719)
-- **block_end** @ 50%: decision_tree (RMSE=5.8106)
-- **block_end** @ 60%: random_forest (RMSE=5.8173)
-- **block_end** @ 70%: neural_net (RMSE=6.0477)
-- **block_end** @ 80%: neural_net (RMSE=5.2041)
+- **random** @ 10%: spline_interpolation (RMSE=0.1114)
+- **random** @ 20%: spline_interpolation (RMSE=0.1321)
+- **random** @ 30%: cubic_interpolation (RMSE=0.1511)
+- **random** @ 40%: linear_interpolation (RMSE=0.1690)
+- **random** @ 50%: linear_interpolation (RMSE=0.1850)
+- **random** @ 60%: random_forest (RMSE=0.2245)
+- **random** @ 70%: linear_interpolation (RMSE=0.2747)
+- **random** @ 80%: linear_interpolation (RMSE=0.3424)
+- **block** @ 10%: neural_net (RMSE=2.5063)
+- **block** @ 20%: neural_net (RMSE=3.1131)
+- **block** @ 30%: neural_net (RMSE=4.4459)
+- **block** @ 40%: random_forest (RMSE=3.5018)
+- **block** @ 50%: random_forest (RMSE=3.8701)
+- **block** @ 60%: linear_interpolation (RMSE=4.5401)
+- **block** @ 70%: decision_tree (RMSE=4.5868)
+- **block** @ 80%: decision_tree (RMSE=4.4147)
+- **block_start** @ 10%: cubic_interpolation (RMSE=2.4984)
+- **block_start** @ 20%: knn_upgraded (RMSE=3.4767)
+- **block_start** @ 30%: linear_interpolation (RMSE=3.8831)
+- **block_start** @ 40%: linear_interpolation (RMSE=3.8872)
+- **block_start** @ 50%: linear_interpolation (RMSE=3.8144)
+- **block_start** @ 60%: linear_interpolation (RMSE=4.3585)
+- **block_start** @ 70%: linear_interpolation (RMSE=4.8378)
+- **block_start** @ 80%: linear_interpolation (RMSE=4.5405)
+- **block_middle** @ 10%: knn_upgraded (RMSE=2.9165)
+- **block_middle** @ 20%: neural_net (RMSE=3.0136)
+- **block_middle** @ 30%: decision_tree (RMSE=3.6183)
+- **block_middle** @ 40%: knn_upgraded (RMSE=4.0436)
+- **block_middle** @ 50%: knn_upgraded (RMSE=3.9244)
+- **block_middle** @ 60%: linear_interpolation (RMSE=4.0603)
+- **block_middle** @ 70%: knn_upgraded (RMSE=4.7945)
+- **block_middle** @ 80%: decision_tree (RMSE=4.5303)
+- **block_end** @ 10%: random_forest (RMSE=2.7117)
+- **block_end** @ 20%: knn_upgraded (RMSE=3.0747)
+- **block_end** @ 30%: linear_interpolation (RMSE=3.2323)
+- **block_end** @ 40%: linear_interpolation (RMSE=3.4494)
+- **block_end** @ 50%: knn_upgraded (RMSE=3.7025)
+- **block_end** @ 60%: knn_upgraded (RMSE=3.8980)
+- **block_end** @ 70%: linear_interpolation (RMSE=3.9139)
+- **block_end** @ 80%: linear_interpolation (RMSE=3.9508)
 
 ### 3. Najbolja metoda po R²
 
-- **random** @ 10%: cubic_interpolation (R²=0.9998)
-- **random** @ 20%: cubic_interpolation (R²=0.9997)
-- **random** @ 30%: random_forest (R²=0.9995)
-- **random** @ 40%: random_forest (R²=0.9994)
-- **random** @ 50%: random_forest (R²=0.9992)
-- **random** @ 60%: cubic_interpolation (R²=0.9985)
-- **random** @ 70%: linear_interpolation (R²=0.9971)
-- **random** @ 80%: linear_interpolation (R²=0.9974)
-- **block** @ 10%: neural_net (R²=-1.5564)
-- **block** @ 20%: decision_tree (R²=-2.6736)
-- **block** @ 30%: linear_interpolation (R²=0.3980)
-- **block** @ 40%: neural_net (R²=0.7589)
-- **block** @ 50%: decision_tree (R²=0.1684)
-- **block** @ 60%: neural_net (R²=0.1664)
-- **block** @ 70%: moving_average (R²=0.0057)
-- **block** @ 80%: neural_net (R²=0.1820)
-- **block_start** @ 10%: decision_tree (R²=0.6088)
-- **block_start** @ 20%: linear_interpolation (R²=0.7639)
-- **block_start** @ 30%: adaptive_imputation (R²=-0.2000)
-- **block_start** @ 40%: linear_interpolation (R²=0.0554)
-- **block_start** @ 50%: neural_net (R²=0.4808)
-- **block_start** @ 60%: cubic_interpolation (R²=0.4898)
-- **block_start** @ 70%: moving_average (R²=-2.1084)
-- **block_start** @ 80%: moving_average (R²=-0.3767)
-- **block_middle** @ 10%: random_forest (R²=-2.1814)
-- **block_middle** @ 20%: neural_net (R²=-2.5297)
-- **block_middle** @ 30%: neural_net (R²=-10.0895)
-- **block_middle** @ 40%: moving_average (R²=-1.2784)
-- **block_middle** @ 50%: cubic_interpolation (R²=0.7966)
-- **block_middle** @ 60%: moving_average (R²=-0.0628)
-- **block_middle** @ 70%: moving_average (R²=-0.0208)
-- **block_middle** @ 80%: moving_average (R²=-0.0139)
-- **block_end** @ 10%: decision_tree (R²=0.6776)
-- **block_end** @ 20%: cubic_interpolation (R²=0.2258)
-- **block_end** @ 30%: spline_interpolation (R²=-0.7742)
-- **block_end** @ 40%: decision_tree (R²=-0.1895)
-- **block_end** @ 50%: decision_tree (R²=0.3353)
-- **block_end** @ 60%: random_forest (R²=0.3576)
-- **block_end** @ 70%: neural_net (R²=0.2272)
-- **block_end** @ 80%: neural_net (R²=0.3890)
+- **random** @ 10%: spline_interpolation (R²=0.9990)
+- **random** @ 20%: spline_interpolation (R²=0.9985)
+- **random** @ 30%: cubic_interpolation (R²=0.9981)
+- **random** @ 40%: linear_interpolation (R²=0.9976)
+- **random** @ 50%: linear_interpolation (R²=0.9972)
+- **random** @ 60%: random_forest (R²=0.9957)
+- **random** @ 70%: random_forest (R²=0.9938)
+- **random** @ 80%: linear_interpolation (R²=0.9902)
+- **block** @ 10%: neural_net (R²=-0.6337)
+- **block** @ 20%: knn_upgraded (R²=-0.3600)
+- **block** @ 30%: neural_net (R²=-1.1276)
+- **block** @ 40%: knn_upgraded (R²=-0.6663)
+- **block** @ 50%: knn_upgraded (R²=-0.2114)
+- **block** @ 60%: linear_interpolation (R²=-0.7819)
+- **block** @ 70%: decision_tree (R²=-1.1037)
+- **block** @ 80%: decision_tree (R²=-0.5277)
+- **block_start** @ 10%: cubic_interpolation (R²=-0.4797)
+- **block_start** @ 20%: knn_upgraded (R²=-0.4325)
+- **block_start** @ 30%: linear_interpolation (R²=-0.4297)
+- **block_start** @ 40%: random_forest (R²=-0.5001)
+- **block_start** @ 50%: linear_interpolation (R²=-0.2076)
+- **block_start** @ 60%: linear_interpolation (R²=-0.5799)
+- **block_start** @ 70%: knn_upgraded (R²=-1.0196)
+- **block_start** @ 80%: linear_interpolation (R²=-0.5088)
+- **block_middle** @ 10%: knn_upgraded (R²=-0.7950)
+- **block_middle** @ 20%: linear_interpolation (R²=-0.3214)
+- **block_middle** @ 30%: neural_net (R²=-0.9123)
+- **block_middle** @ 40%: decision_tree (R²=-1.0437)
+- **block_middle** @ 50%: knn_upgraded (R²=-0.4088)
+- **block_middle** @ 60%: linear_interpolation (R²=-0.4461)
+- **block_middle** @ 70%: knn_upgraded (R²=-1.0048)
+- **block_middle** @ 80%: decision_tree (R²=-0.4314)
+- **block_end** @ 10%: random_forest (R²=-0.4908)
+- **block_end** @ 20%: linear_interpolation (R²=-0.3547)
+- **block_end** @ 30%: linear_interpolation (R²=-0.6430)
+- **block_end** @ 40%: linear_interpolation (R²=-0.3589)
+- **block_end** @ 50%: knn_upgraded (R²=-0.4941)
+- **block_end** @ 60%: decision_tree (R²=-0.5818)
+- **block_end** @ 70%: linear_interpolation (R²=-0.2615)
+- **block_end** @ 80%: linear_interpolation (R²=-0.2344)
 
 ### 4. Kako se MAE mijenja (10 % → 80 %)?
 
-Prosječni MAE svih metoda i scenarija: 1.4278 (10 %) → 5.5728 (80 %).
+Prosječni MAE svih metoda i scenarija: 2.0207 (10 %) → 5.7572 (80 %).
 Na **random** scenariju: 0,079 → 0,224. Na **block_end**: 0,422 → 3,468.
 
 ### 5. Kako se RMSE mijenja?
 
-Prosjek svih metoda: 1.7021 (10 %) → 6.8539 (80 %).
+Prosjek svih metoda: 2.3929 (10 %) → 6.8197 (80 %).
 
 ### 6. Kako se R² mijenja?
 
-Prosjek svih metoda: -1.0156 (10 %) → -2.6931 (80 %).
+Prosjek svih metoda: -0.7543 (10 %) → -18.3252 (80 %).
 Na random scenariju klasične metode zadržavaju R² > 0,99. Na block scenarijima mnoge metode imaju negativan R².
 
 ### 7. Najteži scenarij pri 80 %?
 
-**block_end** — prosječni MAE svih metoda = **4.6081** °C.
-Slijedi block_middle (6.4350), block (7.8999), block_start (8.6816), random (0.2392).
+**block_end** — prosječni MAE svih metoda = **6.6304** °C.
+Slijedi block_middle (7.6425), block (8.7853), block_start (5.4544), random (0.2733).
 
 ### 8. Najstabilnija pojedinačna metoda (10–80 %)?
 
-**linear_interpolation** / **time_interpolation** — prosječni MAE = 3.1315, σ = 2.3467.
+**linear_interpolation** / **time_interpolation** — prosječni MAE = 2.5121, σ = 1.2938.
 
 ### 8b. Najbolja metoda ukupno?
 
-**adaptive_imputation** — prosječni MAE = 2.7046, pobjeđuje u **1 od 40** kombinacija scenarij/rate.
+**adaptive_imputation** — prosječni MAE = 4.0563, pobjeđuje u **0 od 40** kombinacija scenarij/rate.
 
 ### 9. Usporedba osnovnog i naprednog KNN
 
-Osnovni KNN prosječni MAE = **3.1315** °C.
-Napredni KNN prosječni MAE = **3.1278** °C.
-**Osnovni KNN je bolji u prosjeku** (razlika -0.0037 °C).
+Osnovni KNN prosječni MAE = **2.5121** °C.
+Napredni KNN prosječni MAE = **2.5232** °C.
+**Osnovni KNN je bolji u prosjeku** (razlika 0.0112 °C).
 
 Po scenariju:
-- **random**: osnovni MAE=0.1124, napredni MAE=0.1365 → bolji: knn (osnovni)
-- **block**: osnovni MAE=3.7733, napredni MAE=3.7651 → bolji: knn_upgraded (napredni)
-- **block_start**: osnovni MAE=2.3795, napredni MAE=2.4494 → bolji: knn (osnovni)
-- **block_middle**: osnovni MAE=4.2521, napredni MAE=4.2309 → bolji: knn_upgraded (napredni)
-- **block_end**: osnovni MAE=5.1400, napredni MAE=5.0570 → bolji: knn_upgraded (napredni)
+- **random**: osnovni MAE=0.1260, napredni MAE=0.1446 → bolji: knn (osnovni)
+- **block**: osnovni MAE=3.1828, napredni MAE=3.1769 → bolji: knn_upgraded (napredni)
+- **block_start**: osnovni MAE=3.2001, napredni MAE=3.2609 → bolji: knn (osnovni)
+- **block_middle**: osnovni MAE=3.1754, napredni MAE=3.1701 → bolji: knn_upgraded (napredni)
+- **block_end**: osnovni MAE=2.8762, napredni MAE=2.8637 → bolji: knn_upgraded (napredni)
 
 ### 10. Pomični prosjek (moving_average)
 
-Prosječni MAE = **3.6985** °C (linear = 3.1315 °C).
+Prosječni MAE = **3.2492** °C (linear = 2.5121 °C).
 Pomični prosjek koristi prozor ±6 uzoraka (1 sat pri 10-min intervalima).
 Bolji od forward_fill i KNN na random scenariju, ali lošiji od linear interpolacije.
 
@@ -200,7 +200,7 @@ Bolji od forward_fill i KNN na random scenariju, ali lošiji od linear interpola
 
 ### 12. Ostaje li linear_interpolation najbolja pojedinačna metoda?
 
-**Da.** Pobjeđuje u **7 od 40** kombinacija scenarij/rate po MAE (bez adaptive).
+**Da.** Pobjeđuje u **15 od 40** kombinacija scenarij/rate po MAE (bez adaptive).
 
 ### 13. Ostaje li cubic_interpolation najbolja za random?
 
@@ -213,13 +213,13 @@ Na **block** scenarijima: MAE **1,95–3,52** °C (vrlo loše). R² često jako 
 
 ### 15. Decision Tree i Random Forest pri 50–80 %?
 
-Prosječni MAE: DT = 3.9422 °C, RF = 3.9332 °C.
+Prosječni MAE: DT = 2.8754 °C, RF = 2.8336 °C.
 DT je nešto bolji u prosjeku. Obje metode znatno gore od linear interpolacije na block scenarijima.
 
 ### 16. Negativan R² pri većim rateovima?
 
-**Da.** Ukupno **253** od 480 rezultata ima R² < 0.
-Pri 80 %: **30** od 40 kombinacija (po najboljoj metodi po scenariju). Najčešće: knn_upgraded, forward_fill, cubic/spline na block scenarijima.
+**Da.** Ukupno **384** od 480 rezultata ima R² < 0.
+Pri 80 %: **48** od 40 kombinacija (po najboljoj metodi po scenariju). Najčešće: knn_upgraded, forward_fill, cubic/spline na block scenarijima.
 
 ---
 
@@ -227,46 +227,46 @@ Pri 80 %: **30** od 40 kombinacija (po najboljoj metodi po scenariju). Najčeš�
 
 | scenario | block_position | missing_rate | najbolja metoda po MAE | MAE | RMSE | R² |
 |----------|----------------|--------------|------------------------|-----|------|-----|
-| block | none | 0.10 | random_forest | 1.0145 | 1.1739 | -1.5687 |
-| block | none | 0.20 | decision_tree | 1.4761 | 1.6957 | -2.6736 |
-| block | none | 0.30 | neural_net | 3.4236 | 4.0464 | 0.3977 |
-| block | none | 0.40 | decision_tree | 2.7163 | 3.3872 | 0.7571 |
-| block | none | 0.50 | neural_net | 5.3664 | 6.9675 | 0.1610 |
-| block | none | 0.60 | neural_net | 5.1730 | 6.7561 | 0.1664 |
-| block | none | 0.70 | moving_average | 3.4009 | 4.7069 | 0.0057 |
-| block | none | 0.80 | neural_net | 4.7335 | 6.0506 | 0.1820 |
-| block_end | end | 0.10 | decision_tree | 2.6289 | 2.9110 | 0.6776 |
-| block_end | end | 0.20 | cubic_interpolation | 4.1828 | 4.5838 | 0.2258 |
-| block_end | end | 0.30 | spline_interpolation | 4.8486 | 5.9726 | -0.7742 |
-| block_end | end | 0.40 | decision_tree | 5.4621 | 6.6719 | -0.1895 |
-| block_end | end | 0.50 | neural_net | 4.5343 | 6.1421 | 0.2573 |
-| block_end | end | 0.60 | linear_interpolation | 4.9650 | 6.0693 | 0.3007 |
-| block_end | end | 0.70 | linear_interpolation | 5.2253 | 6.0540 | 0.2256 |
-| block_end | end | 0.80 | cubic_interpolation | 4.0472 | 5.7523 | 0.2535 |
-| block_middle | middle | 0.10 | random_forest | 0.4707 | 0.5657 | -2.1814 |
-| block_middle | middle | 0.20 | neural_net | 1.1338 | 1.2839 | -2.5297 |
-| block_middle | middle | 0.30 | cubic_interpolation | 3.9194 | 4.8003 | -13.3868 |
-| block_middle | middle | 0.40 | moving_average | 3.6225 | 4.0178 | -1.2784 |
-| block_middle | middle | 0.50 | cubic_interpolation | 1.2192 | 1.7261 | 0.7966 |
-| block_middle | middle | 0.60 | moving_average | 3.3220 | 4.6986 | -0.0628 |
-| block_middle | middle | 0.70 | moving_average | 3.7491 | 5.2530 | -0.0208 |
-| block_middle | middle | 0.80 | moving_average | 4.5123 | 6.2311 | -0.0139 |
-| block_start | start | 0.10 | decision_tree | 0.7313 | 0.8856 | 0.6088 |
-| block_start | start | 0.20 | linear_interpolation | 0.6991 | 0.8889 | 0.7639 |
-| block_start | start | 0.30 | adaptive_imputation | 1.9325 | 2.1842 | -0.2000 |
-| block_start | start | 0.40 | linear_interpolation | 1.8038 | 2.1093 | 0.0554 |
-| block_start | start | 0.50 | neural_net | 1.3679 | 1.7544 | 0.4808 |
-| block_start | start | 0.60 | cubic_interpolation | 1.5243 | 1.8189 | 0.4898 |
-| block_start | start | 0.70 | cubic_interpolation | 3.5094 | 4.7387 | -2.3956 |
-| block_start | start | 0.80 | moving_average | 4.2301 | 4.7813 | -0.3767 |
-| random | none | 0.10 | spline_interpolation | 0.0470 | 0.0828 | 0.9998 |
-| random | none | 0.20 | spline_interpolation | 0.0635 | 0.1052 | 0.9997 |
-| random | none | 0.30 | linear_interpolation | 0.0834 | 0.1401 | 0.9995 |
-| random | none | 0.40 | spline_interpolation | 0.0908 | 0.1724 | 0.9992 |
-| random | none | 0.50 | spline_interpolation | 0.0997 | 0.2109 | 0.9988 |
-| random | none | 0.60 | cubic_interpolation | 0.1230 | 0.2369 | 0.9985 |
-| random | none | 0.70 | linear_interpolation | 0.1774 | 0.3320 | 0.9971 |
-| random | none | 0.80 | linear_interpolation | 0.1785 | 0.3145 | 0.9974 |
+| block | none | 0.10 | neural_net | 2.1311 | 2.5063 | -0.6337 |
+| block | none | 0.20 | neural_net | 2.5198 | 3.1131 | -0.3658 |
+| block | none | 0.30 | neural_net | 3.7507 | 4.4459 | -1.1276 |
+| block | none | 0.40 | random_forest | 2.8163 | 3.5018 | -0.6697 |
+| block | none | 0.50 | random_forest | 3.0882 | 3.8701 | -0.2135 |
+| block | none | 0.60 | neural_net | 3.7285 | 4.5471 | -0.7923 |
+| block | none | 0.70 | decision_tree | 3.7657 | 4.5868 | -1.1037 |
+| block | none | 0.80 | decision_tree | 3.5502 | 4.4147 | -0.5277 |
+| block_end | end | 0.10 | knn_upgraded | 2.2315 | 2.7191 | -0.5752 |
+| block_end | end | 0.20 | knn_upgraded | 2.5292 | 3.0747 | -0.3597 |
+| block_end | end | 0.30 | linear_interpolation | 2.6552 | 3.2323 | -0.6430 |
+| block_end | end | 0.40 | linear_interpolation | 2.8122 | 3.4494 | -0.3589 |
+| block_end | end | 0.50 | knn_upgraded | 2.9683 | 3.7025 | -0.4941 |
+| block_end | end | 0.60 | knn_upgraded | 3.1501 | 3.8980 | -0.5832 |
+| block_end | end | 0.70 | linear_interpolation | 3.1762 | 3.9139 | -0.2615 |
+| block_end | end | 0.80 | linear_interpolation | 3.2232 | 3.9508 | -0.2344 |
+| block_middle | middle | 0.10 | knn_upgraded | 2.4864 | 2.9165 | -0.7950 |
+| block_middle | middle | 0.20 | neural_net | 2.4173 | 3.0136 | -0.3261 |
+| block_middle | middle | 0.30 | decision_tree | 2.9535 | 3.6183 | -0.9175 |
+| block_middle | middle | 0.40 | neural_net | 3.3719 | 4.0516 | -1.0600 |
+| block_middle | middle | 0.50 | knn_upgraded | 3.2569 | 3.9244 | -0.4088 |
+| block_middle | middle | 0.60 | linear_interpolation | 3.2926 | 4.0603 | -0.4461 |
+| block_middle | middle | 0.70 | knn_upgraded | 3.9330 | 4.7945 | -1.0048 |
+| block_middle | middle | 0.80 | decision_tree | 3.6115 | 4.5303 | -0.4314 |
+| block_start | start | 0.10 | cubic_interpolation | 2.0883 | 2.4984 | -0.4797 |
+| block_start | start | 0.20 | knn_upgraded | 2.7903 | 3.4767 | -0.4325 |
+| block_start | start | 0.30 | linear_interpolation | 3.1027 | 3.8831 | -0.4297 |
+| block_start | start | 0.40 | linear_interpolation | 3.1895 | 3.8872 | -0.5076 |
+| block_start | start | 0.50 | linear_interpolation | 3.0703 | 3.8144 | -0.2076 |
+| block_start | start | 0.60 | linear_interpolation | 3.5792 | 4.3585 | -0.5799 |
+| block_start | start | 0.70 | linear_interpolation | 3.9971 | 4.8378 | -1.0472 |
+| block_start | start | 0.80 | linear_interpolation | 3.6322 | 4.5405 | -0.5088 |
+| random | none | 0.10 | spline_interpolation | 0.0721 | 0.1114 | 0.9990 |
+| random | none | 0.20 | spline_interpolation | 0.0821 | 0.1321 | 0.9985 |
+| random | none | 0.30 | cubic_interpolation | 0.0923 | 0.1511 | 0.9981 |
+| random | none | 0.40 | cubic_interpolation | 0.1055 | 0.1745 | 0.9974 |
+| random | none | 0.50 | linear_interpolation | 0.1184 | 0.1850 | 0.9972 |
+| random | none | 0.60 | linear_interpolation | 0.1381 | 0.2257 | 0.9957 |
+| random | none | 0.70 | linear_interpolation | 0.1684 | 0.2747 | 0.9938 |
+| random | none | 0.80 | linear_interpolation | 0.2116 | 0.3424 | 0.9902 |
 
 ---
 
@@ -274,102 +274,102 @@ Pri 80 %: **30** od 40 kombinacija (po najboljoj metodi po scenariju). Najčeš�
 
 | missing_rate | method | MAE | RMSE | R² |
 |-------------|--------|-----|------|-----|
-| 0.10 | spline_interpolation | 0.0470 | 0.0828 | 0.9998 |
-| 0.10 | adaptive_imputation | 0.0470 | 0.0828 | 0.9998 |
-| 0.10 | cubic_interpolation | 0.0472 | 0.0829 | 0.9998 |
-| 0.10 | linear_interpolation | 0.0626 | 0.0983 | 0.9997 |
-| 0.10 | time_interpolation | 0.0626 | 0.0983 | 0.9997 |
-| 0.10 | knn | 0.0626 | 0.0983 | 0.9997 |
-| 0.10 | random_forest | 0.0657 | 0.1051 | 0.9997 |
-| 0.10 | knn_upgraded | 0.0696 | 0.1060 | 0.9997 |
-| 0.10 | neural_net | 0.0724 | 0.1175 | 0.9996 |
-| 0.10 | decision_tree | 0.0761 | 0.1209 | 0.9996 |
-| 0.10 | moving_average | 0.1464 | 0.2212 | 0.9986 |
-| 0.10 | forward_fill | 0.1587 | 0.2867 | 0.9976 |
-| 0.20 | spline_interpolation | 0.0635 | 0.1052 | 0.9997 |
-| 0.20 | adaptive_imputation | 0.0635 | 0.1052 | 0.9997 |
-| 0.20 | cubic_interpolation | 0.0635 | 0.1052 | 0.9997 |
-| 0.20 | linear_interpolation | 0.0730 | 0.1185 | 0.9996 |
-| 0.20 | time_interpolation | 0.0730 | 0.1185 | 0.9996 |
-| 0.20 | knn | 0.0730 | 0.1185 | 0.9996 |
-| 0.20 | random_forest | 0.0782 | 0.1259 | 0.9996 |
-| 0.20 | decision_tree | 0.0819 | 0.1334 | 0.9995 |
-| 0.20 | neural_net | 0.0871 | 0.1357 | 0.9995 |
-| 0.20 | knn_upgraded | 0.0922 | 0.1464 | 0.9994 |
-| 0.20 | forward_fill | 0.1635 | 0.2588 | 0.9982 |
-| 0.20 | moving_average | 0.1796 | 0.2998 | 0.9976 |
-| 0.30 | linear_interpolation | 0.0834 | 0.1401 | 0.9995 |
-| 0.30 | time_interpolation | 0.0834 | 0.1401 | 0.9995 |
-| 0.30 | knn | 0.0834 | 0.1401 | 0.9995 |
-| 0.30 | adaptive_imputation | 0.0834 | 0.1401 | 0.9995 |
-| 0.30 | random_forest | 0.0840 | 0.1368 | 0.9995 |
-| 0.30 | spline_interpolation | 0.0879 | 0.1789 | 0.9991 |
-| 0.30 | cubic_interpolation | 0.0879 | 0.1789 | 0.9991 |
-| 0.30 | decision_tree | 0.0930 | 0.1494 | 0.9994 |
-| 0.30 | neural_net | 0.0950 | 0.1524 | 0.9994 |
-| 0.30 | knn_upgraded | 0.1015 | 0.1598 | 0.9993 |
-| 0.30 | forward_fill | 0.1820 | 0.2989 | 0.9975 |
-| 0.30 | moving_average | 0.1986 | 0.3207 | 0.9972 |
-| 0.40 | spline_interpolation | 0.0908 | 0.1724 | 0.9992 |
-| 0.40 | adaptive_imputation | 0.0908 | 0.1724 | 0.9992 |
-| 0.40 | cubic_interpolation | 0.0909 | 0.1726 | 0.9992 |
-| 0.40 | random_forest | 0.0938 | 0.1519 | 0.9994 |
-| 0.40 | linear_interpolation | 0.0950 | 0.1596 | 0.9993 |
-| 0.40 | time_interpolation | 0.0950 | 0.1596 | 0.9993 |
-| 0.40 | knn | 0.0950 | 0.1596 | 0.9993 |
-| 0.40 | decision_tree | 0.1062 | 0.1822 | 0.9991 |
-| 0.40 | knn_upgraded | 0.1214 | 0.1867 | 0.9990 |
-| 0.40 | neural_net | 0.1238 | 0.1882 | 0.9990 |
-| 0.40 | moving_average | 0.2038 | 0.3281 | 0.9970 |
-| 0.40 | forward_fill | 0.2157 | 0.3499 | 0.9966 |
-| 0.50 | spline_interpolation | 0.0997 | 0.2109 | 0.9988 |
-| 0.50 | adaptive_imputation | 0.0997 | 0.2109 | 0.9988 |
-| 0.50 | cubic_interpolation | 0.0998 | 0.2110 | 0.9988 |
-| 0.50 | random_forest | 0.1002 | 0.1650 | 0.9992 |
-| 0.50 | linear_interpolation | 0.1020 | 0.1809 | 0.9991 |
-| 0.50 | time_interpolation | 0.1020 | 0.1809 | 0.9991 |
-| 0.50 | knn | 0.1020 | 0.1809 | 0.9991 |
-| 0.50 | decision_tree | 0.1266 | 0.2178 | 0.9987 |
-| 0.50 | knn_upgraded | 0.1364 | 0.2146 | 0.9987 |
-| 0.50 | neural_net | 0.1429 | 0.2385 | 0.9984 |
-| 0.50 | moving_average | 0.2293 | 0.3686 | 0.9962 |
-| 0.50 | forward_fill | 0.2415 | 0.3979 | 0.9956 |
-| 0.60 | cubic_interpolation | 0.1230 | 0.2369 | 0.9985 |
-| 0.60 | adaptive_imputation | 0.1230 | 0.2369 | 0.9985 |
-| 0.60 | spline_interpolation | 0.1232 | 0.2371 | 0.9985 |
-| 0.60 | linear_interpolation | 0.1276 | 0.2484 | 0.9983 |
-| 0.60 | time_interpolation | 0.1276 | 0.2484 | 0.9983 |
-| 0.60 | knn | 0.1276 | 0.2484 | 0.9983 |
-| 0.60 | random_forest | 0.1291 | 0.2528 | 0.9983 |
-| 0.60 | decision_tree | 0.1501 | 0.2654 | 0.9981 |
-| 0.60 | knn_upgraded | 0.1614 | 0.2741 | 0.9980 |
-| 0.60 | neural_net | 0.1754 | 0.2798 | 0.9979 |
-| 0.60 | moving_average | 0.2323 | 0.3733 | 0.9962 |
-| 0.60 | forward_fill | 0.2741 | 0.4235 | 0.9951 |
-| 0.70 | linear_interpolation | 0.1774 | 0.3320 | 0.9971 |
-| 0.70 | time_interpolation | 0.1774 | 0.3320 | 0.9971 |
-| 0.70 | knn | 0.1774 | 0.3320 | 0.9971 |
-| 0.70 | adaptive_imputation | 0.1774 | 0.3320 | 0.9971 |
-| 0.70 | random_forest | 0.1904 | 0.3628 | 0.9965 |
-| 0.70 | knn_upgraded | 0.2082 | 0.3630 | 0.9965 |
-| 0.70 | decision_tree | 0.2095 | 0.3992 | 0.9958 |
-| 0.70 | cubic_interpolation | 0.2138 | 0.4691 | 0.9941 |
-| 0.70 | spline_interpolation | 0.2140 | 0.4692 | 0.9941 |
-| 0.70 | neural_net | 0.2181 | 0.3737 | 0.9963 |
-| 0.70 | moving_average | 0.2955 | 0.5134 | 0.9930 |
-| 0.70 | forward_fill | 0.4076 | 0.7183 | 0.9863 |
-| 0.80 | linear_interpolation | 0.1785 | 0.3145 | 0.9974 |
-| 0.80 | time_interpolation | 0.1785 | 0.3145 | 0.9974 |
-| 0.80 | knn | 0.1785 | 0.3145 | 0.9974 |
-| 0.80 | adaptive_imputation | 0.1785 | 0.3145 | 0.9974 |
-| 0.80 | random_forest | 0.1829 | 0.3146 | 0.9974 |
-| 0.80 | spline_interpolation | 0.1936 | 0.3443 | 0.9968 |
-| 0.80 | cubic_interpolation | 0.1939 | 0.3446 | 0.9968 |
-| 0.80 | knn_upgraded | 0.2013 | 0.3327 | 0.9970 |
-| 0.80 | decision_tree | 0.2368 | 0.3748 | 0.9962 |
-| 0.80 | neural_net | 0.2531 | 0.3886 | 0.9960 |
-| 0.80 | moving_average | 0.3528 | 0.6606 | 0.9883 |
-| 0.80 | forward_fill | 0.5416 | 0.9838 | 0.9741 |
+| 0.10 | spline_interpolation | 0.0721 | 0.1114 | 0.9990 |
+| 0.10 | adaptive_imputation | 0.0721 | 0.1114 | 0.9990 |
+| 0.10 | cubic_interpolation | 0.0721 | 0.1115 | 0.9990 |
+| 0.10 | random_forest | 0.0796 | 0.1209 | 0.9988 |
+| 0.10 | linear_interpolation | 0.0802 | 0.1216 | 0.9988 |
+| 0.10 | time_interpolation | 0.0802 | 0.1216 | 0.9988 |
+| 0.10 | knn | 0.0802 | 0.1216 | 0.9988 |
+| 0.10 | decision_tree | 0.0857 | 0.1302 | 0.9986 |
+| 0.10 | knn_upgraded | 0.0871 | 0.1298 | 0.9986 |
+| 0.10 | neural_net | 0.0913 | 0.1388 | 0.9984 |
+| 0.10 | forward_fill | 0.1771 | 0.2579 | 0.9947 |
+| 0.10 | moving_average | 0.1941 | 0.2822 | 0.9933 |
+| 0.20 | spline_interpolation | 0.0821 | 0.1321 | 0.9985 |
+| 0.20 | adaptive_imputation | 0.0821 | 0.1321 | 0.9985 |
+| 0.20 | cubic_interpolation | 0.0821 | 0.1322 | 0.9985 |
+| 0.20 | linear_interpolation | 0.0887 | 0.1382 | 0.9984 |
+| 0.20 | time_interpolation | 0.0887 | 0.1382 | 0.9984 |
+| 0.20 | knn | 0.0887 | 0.1382 | 0.9984 |
+| 0.20 | random_forest | 0.0892 | 0.1378 | 0.9984 |
+| 0.20 | decision_tree | 0.0974 | 0.1517 | 0.9981 |
+| 0.20 | knn_upgraded | 0.0993 | 0.1508 | 0.9981 |
+| 0.20 | neural_net | 0.1019 | 0.1573 | 0.9980 |
+| 0.20 | forward_fill | 0.1903 | 0.2808 | 0.9936 |
+| 0.20 | moving_average | 0.1990 | 0.2889 | 0.9932 |
+| 0.30 | cubic_interpolation | 0.0923 | 0.1511 | 0.9981 |
+| 0.30 | spline_interpolation | 0.0923 | 0.1512 | 0.9981 |
+| 0.30 | linear_interpolation | 0.0960 | 0.1521 | 0.9980 |
+| 0.30 | time_interpolation | 0.0960 | 0.1521 | 0.9980 |
+| 0.30 | knn | 0.0960 | 0.1521 | 0.9980 |
+| 0.30 | adaptive_imputation | 0.0960 | 0.1521 | 0.9980 |
+| 0.30 | random_forest | 0.0969 | 0.1531 | 0.9980 |
+| 0.30 | decision_tree | 0.1044 | 0.1636 | 0.9976 |
+| 0.30 | neural_net | 0.1109 | 0.1705 | 0.9975 |
+| 0.30 | knn_upgraded | 0.1109 | 0.1709 | 0.9975 |
+| 0.30 | moving_average | 0.2080 | 0.3054 | 0.9923 |
+| 0.30 | forward_fill | 0.2121 | 0.3210 | 0.9916 |
+| 0.40 | cubic_interpolation | 0.1055 | 0.1745 | 0.9974 |
+| 0.40 | spline_interpolation | 0.1055 | 0.1746 | 0.9974 |
+| 0.40 | adaptive_imputation | 0.1055 | 0.1746 | 0.9974 |
+| 0.40 | linear_interpolation | 0.1067 | 0.1690 | 0.9976 |
+| 0.40 | time_interpolation | 0.1067 | 0.1690 | 0.9976 |
+| 0.40 | knn | 0.1067 | 0.1690 | 0.9976 |
+| 0.40 | random_forest | 0.1079 | 0.1705 | 0.9975 |
+| 0.40 | decision_tree | 0.1188 | 0.1875 | 0.9971 |
+| 0.40 | knn_upgraded | 0.1264 | 0.1918 | 0.9969 |
+| 0.40 | neural_net | 0.1326 | 0.2019 | 0.9966 |
+| 0.40 | moving_average | 0.2199 | 0.3192 | 0.9916 |
+| 0.40 | forward_fill | 0.2453 | 0.3803 | 0.9884 |
+| 0.50 | linear_interpolation | 0.1184 | 0.1850 | 0.9972 |
+| 0.50 | time_interpolation | 0.1184 | 0.1850 | 0.9972 |
+| 0.50 | knn | 0.1184 | 0.1850 | 0.9972 |
+| 0.50 | random_forest | 0.1202 | 0.1859 | 0.9971 |
+| 0.50 | cubic_interpolation | 0.1219 | 0.2017 | 0.9965 |
+| 0.50 | spline_interpolation | 0.1220 | 0.2018 | 0.9965 |
+| 0.50 | adaptive_imputation | 0.1220 | 0.2018 | 0.9965 |
+| 0.50 | decision_tree | 0.1352 | 0.2099 | 0.9964 |
+| 0.50 | knn_upgraded | 0.1479 | 0.2208 | 0.9960 |
+| 0.50 | neural_net | 0.1504 | 0.2251 | 0.9959 |
+| 0.50 | moving_average | 0.2342 | 0.3408 | 0.9907 |
+| 0.50 | forward_fill | 0.2808 | 0.4354 | 0.9854 |
+| 0.60 | linear_interpolation | 0.1381 | 0.2257 | 0.9957 |
+| 0.60 | time_interpolation | 0.1381 | 0.2257 | 0.9957 |
+| 0.60 | knn | 0.1381 | 0.2257 | 0.9957 |
+| 0.60 | random_forest | 0.1403 | 0.2245 | 0.9957 |
+| 0.60 | cubic_interpolation | 0.1466 | 0.2411 | 0.9952 |
+| 0.60 | adaptive_imputation | 0.1466 | 0.2411 | 0.9952 |
+| 0.60 | spline_interpolation | 0.1466 | 0.2411 | 0.9952 |
+| 0.60 | decision_tree | 0.1642 | 0.2573 | 0.9945 |
+| 0.60 | knn_upgraded | 0.1673 | 0.2550 | 0.9946 |
+| 0.60 | neural_net | 0.1835 | 0.2754 | 0.9937 |
+| 0.60 | moving_average | 0.2549 | 0.3778 | 0.9885 |
+| 0.60 | forward_fill | 0.3343 | 0.5297 | 0.9782 |
+| 0.70 | linear_interpolation | 0.1684 | 0.2747 | 0.9938 |
+| 0.70 | time_interpolation | 0.1684 | 0.2747 | 0.9938 |
+| 0.70 | knn | 0.1684 | 0.2747 | 0.9938 |
+| 0.70 | adaptive_imputation | 0.1684 | 0.2747 | 0.9938 |
+| 0.70 | random_forest | 0.1714 | 0.2767 | 0.9938 |
+| 0.70 | cubic_interpolation | 0.1812 | 0.3063 | 0.9924 |
+| 0.70 | spline_interpolation | 0.1812 | 0.3062 | 0.9924 |
+| 0.70 | knn_upgraded | 0.1907 | 0.2963 | 0.9928 |
+| 0.70 | decision_tree | 0.2007 | 0.3183 | 0.9917 |
+| 0.70 | neural_net | 0.2274 | 0.3465 | 0.9904 |
+| 0.70 | moving_average | 0.2955 | 0.4520 | 0.9846 |
+| 0.70 | forward_fill | 0.4246 | 0.6898 | 0.9645 |
+| 0.80 | linear_interpolation | 0.2116 | 0.3424 | 0.9902 |
+| 0.80 | time_interpolation | 0.2116 | 0.3424 | 0.9902 |
+| 0.80 | knn | 0.2116 | 0.3424 | 0.9902 |
+| 0.80 | adaptive_imputation | 0.2116 | 0.3424 | 0.9902 |
+| 0.80 | random_forest | 0.2193 | 0.3446 | 0.9902 |
+| 0.80 | knn_upgraded | 0.2272 | 0.3521 | 0.9898 |
+| 0.80 | cubic_interpolation | 0.2356 | 0.4015 | 0.9859 |
+| 0.80 | spline_interpolation | 0.2357 | 0.4017 | 0.9859 |
+| 0.80 | decision_tree | 0.2666 | 0.3996 | 0.9872 |
+| 0.80 | neural_net | 0.2964 | 0.4488 | 0.9831 |
+| 0.80 | moving_average | 0.3761 | 0.6111 | 0.9717 |
+| 0.80 | forward_fill | 0.5769 | 0.9487 | 0.9333 |
 
 ---
 
@@ -377,102 +377,102 @@ Pri 80 %: **30** od 40 kombinacija (po najboljoj metodi po scenariju). Najčeš�
 
 | missing_rate | method | MAE | RMSE | R² |
 |-------------|--------|-----|------|-----|
-| 0.10 | random_forest | 1.0145 | 1.1739 | -1.5687 |
-| 0.10 | neural_net | 1.0249 | 1.1710 | -1.5564 |
-| 0.10 | decision_tree | 1.0268 | 1.1854 | -1.6195 |
-| 0.10 | linear_interpolation | 1.0285 | 1.1880 | -1.6311 |
-| 0.10 | time_interpolation | 1.0285 | 1.1880 | -1.6311 |
-| 0.10 | knn | 1.0285 | 1.1880 | -1.6311 |
-| 0.10 | adaptive_imputation | 1.0285 | 1.1880 | -1.6311 |
-| 0.10 | knn_upgraded | 1.0387 | 1.1966 | -1.6692 |
-| 0.10 | cubic_interpolation | 1.1604 | 1.3978 | -2.6421 |
-| 0.10 | spline_interpolation | 1.1604 | 1.3978 | -2.6421 |
-| 0.10 | moving_average | 1.4884 | 1.6774 | -4.2453 |
-| 0.10 | forward_fill | 1.5435 | 1.7084 | -4.4409 |
-| 0.20 | decision_tree | 1.4761 | 1.6957 | -2.6736 |
-| 0.20 | random_forest | 1.4763 | 1.6961 | -2.6753 |
-| 0.20 | linear_interpolation | 1.4765 | 1.6968 | -2.6787 |
-| 0.20 | time_interpolation | 1.4765 | 1.6968 | -2.6787 |
-| 0.20 | knn | 1.4765 | 1.6968 | -2.6787 |
-| 0.20 | adaptive_imputation | 1.4765 | 1.6968 | -2.6787 |
-| 0.20 | neural_net | 1.4780 | 1.7466 | -2.8976 |
-| 0.20 | knn_upgraded | 1.4877 | 1.7057 | -2.7171 |
-| 0.20 | moving_average | 1.5990 | 1.8308 | -3.2827 |
-| 0.20 | forward_fill | 1.6054 | 1.8330 | -3.2929 |
-| 0.20 | cubic_interpolation | 4.2442 | 5.0983 | -32.2091 |
-| 0.20 | spline_interpolation | 4.2442 | 5.0983 | -32.2091 |
-| 0.30 | neural_net | 3.4236 | 4.0464 | 0.3977 |
-| 0.30 | linear_interpolation | 3.4286 | 4.0453 | 0.3980 |
-| 0.30 | time_interpolation | 3.4286 | 4.0453 | 0.3980 |
-| 0.30 | knn | 3.4286 | 4.0453 | 0.3980 |
-| 0.30 | adaptive_imputation | 3.4286 | 4.0453 | 0.3980 |
-| 0.30 | knn_upgraded | 3.4334 | 4.0528 | 0.3958 |
-| 0.30 | random_forest | 3.4364 | 4.0565 | 0.3947 |
-| 0.30 | decision_tree | 3.5234 | 4.1382 | 0.3701 |
-| 0.30 | moving_average | 3.8178 | 6.1890 | -0.4090 |
-| 0.30 | forward_fill | 4.1018 | 6.5393 | -0.5729 |
-| 0.30 | cubic_interpolation | 7.7599 | 9.5520 | -2.3562 |
-| 0.30 | spline_interpolation | 7.7599 | 9.5520 | -2.3562 |
-| 0.40 | decision_tree | 2.7163 | 3.3872 | 0.7571 |
-| 0.40 | neural_net | 2.7429 | 3.3750 | 0.7589 |
-| 0.40 | random_forest | 2.7685 | 3.4427 | 0.7491 |
-| 0.40 | knn_upgraded | 2.8677 | 3.5369 | 0.7352 |
-| 0.40 | linear_interpolation | 2.9308 | 3.6053 | 0.7248 |
-| 0.40 | time_interpolation | 2.9308 | 3.6053 | 0.7248 |
-| 0.40 | knn | 2.9308 | 3.6053 | 0.7248 |
-| 0.40 | adaptive_imputation | 2.9308 | 3.6053 | 0.7248 |
-| 0.40 | moving_average | 7.0965 | 9.7645 | -1.0184 |
-| 0.40 | forward_fill | 7.3827 | 10.0695 | -1.1464 |
-| 0.40 | cubic_interpolation | 27.7372 | 31.8543 | -20.4801 |
-| 0.40 | spline_interpolation | 27.7372 | 31.8543 | -20.4801 |
-| 0.50 | neural_net | 5.3664 | 6.9675 | 0.1610 |
-| 0.50 | decision_tree | 5.3983 | 6.9366 | 0.1684 |
-| 0.50 | random_forest | 5.4200 | 6.9994 | 0.1533 |
-| 0.50 | linear_interpolation | 5.4362 | 7.0441 | 0.1425 |
-| 0.50 | time_interpolation | 5.4362 | 7.0441 | 0.1425 |
-| 0.50 | knn | 5.4362 | 7.0441 | 0.1425 |
-| 0.50 | adaptive_imputation | 5.4362 | 7.0441 | 0.1425 |
-| 0.50 | knn_upgraded | 5.4447 | 7.0452 | 0.1422 |
-| 0.50 | cubic_interpolation | 6.0174 | 7.4492 | 0.0410 |
-| 0.50 | spline_interpolation | 6.0174 | 7.4492 | 0.0410 |
-| 0.50 | moving_average | 8.1601 | 10.9449 | -1.0703 |
-| 0.50 | forward_fill | 8.2467 | 10.9793 | -1.0833 |
-| 0.60 | neural_net | 5.1730 | 6.7561 | 0.1664 |
-| 0.60 | random_forest | 5.3146 | 6.8543 | 0.1420 |
-| 0.60 | knn_upgraded | 5.3496 | 6.8887 | 0.1334 |
-| 0.60 | linear_interpolation | 5.3499 | 6.8720 | 0.1376 |
-| 0.60 | time_interpolation | 5.3499 | 6.8720 | 0.1376 |
-| 0.60 | knn | 5.3499 | 6.8720 | 0.1376 |
-| 0.60 | adaptive_imputation | 5.3499 | 6.8720 | 0.1376 |
-| 0.60 | decision_tree | 5.3601 | 6.9710 | 0.1126 |
-| 0.60 | moving_average | 6.6641 | 9.1634 | -0.5334 |
-| 0.60 | forward_fill | 6.7044 | 9.1770 | -0.5379 |
-| 0.60 | cubic_interpolation | 12.8316 | 15.8642 | -3.5960 |
-| 0.60 | spline_interpolation | 12.8316 | 15.8642 | -3.5960 |
-| 0.70 | moving_average | 3.4009 | 4.7069 | 0.0057 |
-| 0.70 | forward_fill | 3.5043 | 4.8567 | -0.0586 |
-| 0.70 | adaptive_imputation | 3.5043 | 4.8567 | -0.0586 |
-| 0.70 | neural_net | 5.5727 | 6.8960 | -1.1343 |
-| 0.70 | decision_tree | 5.6223 | 6.9391 | -1.1610 |
-| 0.70 | random_forest | 5.6928 | 7.0058 | -1.2028 |
-| 0.70 | knn_upgraded | 5.6963 | 7.0022 | -1.2006 |
-| 0.70 | linear_interpolation | 5.7381 | 7.0407 | -1.2248 |
-| 0.70 | time_interpolation | 5.7381 | 7.0407 | -1.2248 |
-| 0.70 | knn | 5.7381 | 7.0407 | -1.2248 |
-| 0.70 | cubic_interpolation | 10.1423 | 11.1737 | -4.6034 |
-| 0.70 | spline_interpolation | 10.1423 | 11.1737 | -4.6034 |
-| 0.80 | neural_net | 4.7335 | 6.0506 | 0.1820 |
-| 0.80 | random_forest | 4.7788 | 6.0769 | 0.1749 |
-| 0.80 | linear_interpolation | 4.7975 | 6.1094 | 0.1660 |
-| 0.80 | time_interpolation | 4.7975 | 6.1094 | 0.1660 |
-| 0.80 | knn | 4.7975 | 6.1094 | 0.1660 |
-| 0.80 | adaptive_imputation | 4.7975 | 6.1094 | 0.1660 |
-| 0.80 | decision_tree | 4.7976 | 6.1093 | 0.1660 |
-| 0.80 | knn_upgraded | 4.8028 | 6.1130 | 0.1650 |
-| 0.80 | moving_average | 5.3070 | 7.4487 | -0.2397 |
-| 0.80 | forward_fill | 5.3337 | 7.4566 | -0.2424 |
-| 0.80 | cubic_interpolation | 22.9276 | 28.3087 | -16.9062 |
-| 0.80 | spline_interpolation | 22.9276 | 28.3087 | -16.9062 |
+| 0.10 | neural_net | 2.1311 | 2.5063 | -0.6337 |
+| 0.10 | decision_tree | 2.1369 | 2.5103 | -0.6646 |
+| 0.10 | knn_upgraded | 2.1504 | 2.5247 | -0.6509 |
+| 0.10 | random_forest | 2.1507 | 2.5245 | -0.6515 |
+| 0.10 | linear_interpolation | 2.1669 | 2.5400 | -0.6694 |
+| 0.10 | time_interpolation | 2.1669 | 2.5400 | -0.6694 |
+| 0.10 | knn | 2.1669 | 2.5400 | -0.6694 |
+| 0.10 | adaptive_imputation | 2.1669 | 2.5400 | -0.6694 |
+| 0.10 | cubic_interpolation | 2.2159 | 2.7342 | -2.5604 |
+| 0.10 | spline_interpolation | 2.2159 | 2.7342 | -2.5604 |
+| 0.10 | moving_average | 3.1873 | 3.8070 | -1.8208 |
+| 0.10 | forward_fill | 3.4311 | 4.0140 | -2.0658 |
+| 0.20 | neural_net | 2.5198 | 3.1131 | -0.3658 |
+| 0.20 | knn_upgraded | 2.5281 | 3.1140 | -0.3600 |
+| 0.20 | random_forest | 2.5299 | 3.1174 | -0.3611 |
+| 0.20 | linear_interpolation | 2.5336 | 3.1165 | -0.3624 |
+| 0.20 | time_interpolation | 2.5336 | 3.1165 | -0.3624 |
+| 0.20 | knn | 2.5336 | 3.1165 | -0.3624 |
+| 0.20 | decision_tree | 2.5355 | 3.1254 | -0.3672 |
+| 0.20 | adaptive_imputation | 2.6286 | 3.2177 | -0.4873 |
+| 0.20 | moving_average | 3.1532 | 3.8480 | -1.1418 |
+| 0.20 | forward_fill | 3.2575 | 3.9366 | -1.2617 |
+| 0.20 | cubic_interpolation | 6.7633 | 8.0402 | -11.9963 |
+| 0.20 | spline_interpolation | 6.7633 | 8.0402 | -11.9963 |
+| 0.30 | neural_net | 3.7507 | 4.4459 | -1.1276 |
+| 0.30 | knn_upgraded | 3.7551 | 4.4470 | -1.1302 |
+| 0.30 | linear_interpolation | 3.7564 | 4.4475 | -1.1330 |
+| 0.30 | time_interpolation | 3.7564 | 4.4475 | -1.1330 |
+| 0.30 | knn | 3.7564 | 4.4475 | -1.1330 |
+| 0.30 | random_forest | 3.7656 | 4.4580 | -1.1396 |
+| 0.30 | decision_tree | 3.7704 | 4.4610 | -1.1290 |
+| 0.30 | moving_average | 4.6951 | 5.4889 | -1.8393 |
+| 0.30 | forward_fill | 4.7738 | 5.5457 | -1.8891 |
+| 0.30 | adaptive_imputation | 5.6602 | 6.6625 | -6.2216 |
+| 0.30 | cubic_interpolation | 9.1979 | 10.7027 | -14.6333 |
+| 0.30 | spline_interpolation | 9.1979 | 10.7027 | -14.6333 |
+| 0.40 | random_forest | 2.8163 | 3.5018 | -0.6697 |
+| 0.40 | knn_upgraded | 2.8223 | 3.5072 | -0.6663 |
+| 0.40 | decision_tree | 2.8276 | 3.5164 | -0.6885 |
+| 0.40 | neural_net | 2.8297 | 3.5198 | -0.6877 |
+| 0.40 | adaptive_imputation | 2.8299 | 3.5155 | -0.6770 |
+| 0.40 | linear_interpolation | 2.8349 | 3.5204 | -0.6839 |
+| 0.40 | time_interpolation | 2.8349 | 3.5204 | -0.6839 |
+| 0.40 | knn | 2.8349 | 3.5204 | -0.6839 |
+| 0.40 | moving_average | 3.9736 | 4.7874 | -1.3872 |
+| 0.40 | forward_fill | 4.0476 | 4.8470 | -1.4412 |
+| 0.40 | cubic_interpolation | 11.4708 | 13.5059 | -30.8877 |
+| 0.40 | spline_interpolation | 11.4708 | 13.5059 | -30.8877 |
+| 0.50 | random_forest | 3.0882 | 3.8701 | -0.2135 |
+| 0.50 | neural_net | 3.0885 | 3.8732 | -0.2157 |
+| 0.50 | linear_interpolation | 3.0897 | 3.8749 | -0.2134 |
+| 0.50 | time_interpolation | 3.0897 | 3.8749 | -0.2134 |
+| 0.50 | knn | 3.0897 | 3.8749 | -0.2134 |
+| 0.50 | knn_upgraded | 3.0903 | 3.8729 | -0.2114 |
+| 0.50 | decision_tree | 3.0915 | 3.8730 | -0.2155 |
+| 0.50 | moving_average | 3.9649 | 4.8081 | -0.7849 |
+| 0.50 | forward_fill | 4.0175 | 4.8459 | -0.8167 |
+| 0.50 | adaptive_imputation | 4.8938 | 5.9512 | -4.4041 |
+| 0.50 | cubic_interpolation | 12.4437 | 14.4897 | -28.1072 |
+| 0.50 | spline_interpolation | 12.4437 | 14.4897 | -28.1072 |
+| 0.60 | neural_net | 3.7285 | 4.5471 | -0.7923 |
+| 0.60 | linear_interpolation | 3.7336 | 4.5401 | -0.7819 |
+| 0.60 | time_interpolation | 3.7336 | 4.5401 | -0.7819 |
+| 0.60 | knn | 3.7336 | 4.5401 | -0.7819 |
+| 0.60 | knn_upgraded | 3.7346 | 4.5431 | -0.7841 |
+| 0.60 | decision_tree | 3.7402 | 4.5503 | -0.7871 |
+| 0.60 | random_forest | 3.7481 | 4.5574 | -0.8020 |
+| 0.60 | adaptive_imputation | 4.3340 | 5.1401 | -1.5458 |
+| 0.60 | moving_average | 5.6654 | 6.5276 | -2.9424 |
+| 0.60 | forward_fill | 5.7158 | 6.5606 | -2.9819 |
+| 0.60 | cubic_interpolation | 21.3524 | 24.6079 | -68.9215 |
+| 0.60 | spline_interpolation | 21.3970 | 24.6600 | -69.5461 |
+| 0.70 | decision_tree | 3.7657 | 4.5868 | -1.1037 |
+| 0.70 | random_forest | 3.7718 | 4.5904 | -1.1070 |
+| 0.70 | knn_upgraded | 3.7799 | 4.5993 | -1.1126 |
+| 0.70 | neural_net | 3.7822 | 4.6177 | -1.1366 |
+| 0.70 | linear_interpolation | 3.7852 | 4.6027 | -1.1138 |
+| 0.70 | time_interpolation | 3.7852 | 4.6027 | -1.1138 |
+| 0.70 | knn | 3.7852 | 4.6027 | -1.1138 |
+| 0.70 | moving_average | 4.2395 | 5.0447 | -1.5173 |
+| 0.70 | forward_fill | 4.2738 | 5.0736 | -1.5385 |
+| 0.70 | adaptive_imputation | 4.3185 | 5.1378 | -1.5666 |
+| 0.70 | cubic_interpolation | 16.9042 | 19.7851 | -55.0985 |
+| 0.70 | spline_interpolation | 16.9042 | 19.7851 | -55.0985 |
+| 0.80 | decision_tree | 3.5502 | 4.4147 | -0.5277 |
+| 0.80 | random_forest | 3.5510 | 4.4152 | -0.5290 |
+| 0.80 | knn_upgraded | 3.5544 | 4.4192 | -0.5309 |
+| 0.80 | neural_net | 3.5561 | 4.4239 | -0.5281 |
+| 0.80 | linear_interpolation | 3.5617 | 4.4259 | -0.5369 |
+| 0.80 | time_interpolation | 3.5617 | 4.4259 | -0.5369 |
+| 0.80 | knn | 3.5617 | 4.4259 | -0.5369 |
+| 0.80 | moving_average | 5.0404 | 5.9042 | -2.1914 |
+| 0.80 | forward_fill | 5.0784 | 5.9290 | -2.2239 |
+| 0.80 | adaptive_imputation | 11.6266 | 13.5576 | -110.0308 |
+| 0.80 | cubic_interpolation | 29.3598 | 33.6612 | -181.9469 |
+| 0.80 | spline_interpolation | 29.4213 | 33.7329 | -183.2164 |
 
 ---
 
@@ -480,30 +480,30 @@ Pri 80 %: **30** od 40 kombinacija (po najboljoj metodi po scenariju). Najčeš�
 
 | scenario | block_position | missing_rate | najbolja metoda | MAE | RMSE | R² |
 |----------|----------------|--------------|-----------------|-----|------|-----|
-| block_end | end | 0.10 | decision_tree | 2.6289 | 2.9110 | 0.6776 |
-| block_end | end | 0.20 | cubic_interpolation | 4.1828 | 4.5838 | 0.2258 |
-| block_end | end | 0.30 | spline_interpolation | 4.8486 | 5.9726 | -0.7742 |
-| block_end | end | 0.40 | decision_tree | 5.4621 | 6.6719 | -0.1895 |
-| block_end | end | 0.50 | neural_net | 4.5343 | 6.1421 | 0.2573 |
-| block_end | end | 0.60 | linear_interpolation | 4.9650 | 6.0693 | 0.3007 |
-| block_end | end | 0.70 | linear_interpolation | 5.2253 | 6.0540 | 0.2256 |
-| block_end | end | 0.80 | cubic_interpolation | 4.0472 | 5.7523 | 0.2535 |
-| block_middle | middle | 0.10 | random_forest | 0.4707 | 0.5657 | -2.1814 |
-| block_middle | middle | 0.20 | neural_net | 1.1338 | 1.2839 | -2.5297 |
-| block_middle | middle | 0.30 | cubic_interpolation | 3.9194 | 4.8003 | -13.3868 |
-| block_middle | middle | 0.40 | moving_average | 3.6225 | 4.0178 | -1.2784 |
-| block_middle | middle | 0.50 | cubic_interpolation | 1.2192 | 1.7261 | 0.7966 |
-| block_middle | middle | 0.60 | moving_average | 3.3220 | 4.6986 | -0.0628 |
-| block_middle | middle | 0.70 | moving_average | 3.7491 | 5.2530 | -0.0208 |
-| block_middle | middle | 0.80 | moving_average | 4.5123 | 6.2311 | -0.0139 |
-| block_start | start | 0.10 | decision_tree | 0.7313 | 0.8856 | 0.6088 |
-| block_start | start | 0.20 | linear_interpolation | 0.6991 | 0.8889 | 0.7639 |
-| block_start | start | 0.30 | adaptive_imputation | 1.9325 | 2.1842 | -0.2000 |
-| block_start | start | 0.40 | linear_interpolation | 1.8038 | 2.1093 | 0.0554 |
-| block_start | start | 0.50 | neural_net | 1.3679 | 1.7544 | 0.4808 |
-| block_start | start | 0.60 | cubic_interpolation | 1.5243 | 1.8189 | 0.4898 |
-| block_start | start | 0.70 | cubic_interpolation | 3.5094 | 4.7387 | -2.3956 |
-| block_start | start | 0.80 | moving_average | 4.2301 | 4.7813 | -0.3767 |
+| block_end | end | 0.10 | knn_upgraded | 2.2315 | 2.7191 | -0.5752 |
+| block_end | end | 0.20 | knn_upgraded | 2.5292 | 3.0747 | -0.3597 |
+| block_end | end | 0.30 | linear_interpolation | 2.6552 | 3.2323 | -0.6430 |
+| block_end | end | 0.40 | linear_interpolation | 2.8122 | 3.4494 | -0.3589 |
+| block_end | end | 0.50 | knn_upgraded | 2.9683 | 3.7025 | -0.4941 |
+| block_end | end | 0.60 | knn_upgraded | 3.1501 | 3.8980 | -0.5832 |
+| block_end | end | 0.70 | linear_interpolation | 3.1762 | 3.9139 | -0.2615 |
+| block_end | end | 0.80 | linear_interpolation | 3.2232 | 3.9508 | -0.2344 |
+| block_middle | middle | 0.10 | knn_upgraded | 2.4864 | 2.9165 | -0.7950 |
+| block_middle | middle | 0.20 | neural_net | 2.4173 | 3.0136 | -0.3261 |
+| block_middle | middle | 0.30 | decision_tree | 2.9535 | 3.6183 | -0.9175 |
+| block_middle | middle | 0.40 | neural_net | 3.3719 | 4.0516 | -1.0600 |
+| block_middle | middle | 0.50 | knn_upgraded | 3.2569 | 3.9244 | -0.4088 |
+| block_middle | middle | 0.60 | linear_interpolation | 3.2926 | 4.0603 | -0.4461 |
+| block_middle | middle | 0.70 | knn_upgraded | 3.9330 | 4.7945 | -1.0048 |
+| block_middle | middle | 0.80 | decision_tree | 3.6115 | 4.5303 | -0.4314 |
+| block_start | start | 0.10 | cubic_interpolation | 2.0883 | 2.4984 | -0.4797 |
+| block_start | start | 0.20 | knn_upgraded | 2.7903 | 3.4767 | -0.4325 |
+| block_start | start | 0.30 | linear_interpolation | 3.1027 | 3.8831 | -0.4297 |
+| block_start | start | 0.40 | linear_interpolation | 3.1895 | 3.8872 | -0.5076 |
+| block_start | start | 0.50 | linear_interpolation | 3.0703 | 3.8144 | -0.2076 |
+| block_start | start | 0.60 | linear_interpolation | 3.5792 | 4.3585 | -0.5799 |
+| block_start | start | 0.70 | linear_interpolation | 3.9971 | 4.8378 | -1.0472 |
+| block_start | start | 0.80 | linear_interpolation | 3.6322 | 4.5405 | -0.5088 |
 
 ---
 
@@ -511,18 +511,18 @@ Pri 80 %: **30** od 40 kombinacija (po najboljoj metodi po scenariju). Najčeš�
 
 | method | prosječni MAE | prosječni RMSE | prosječni R² | std. dev. MAE | komentar |
 |--------|---------------|----------------|--------------|---------------|----------|
-| adaptive_imputation | 2.7046 | 3.4003 | -0.4576 | 2.0231 | Hibridna metoda — najniži prosječni MAE; pobjeđuje u svim scenarij/rate kombinacijama |
-| neural_net | 3.0741 | 3.7168 | -0.5739 | 2.2909 |  |
-| random_forest | 3.1012 | 3.7010 | -0.5752 | 2.2646 | Manja varijabilnost od DT, ali veći prosječni MAE |
-| decision_tree | 3.1118 | 3.7060 | -0.5952 | 2.2325 | Ponekad dobra na block_middle; nestabilna na visokim rateovima |
-| knn_upgraded | 3.1278 | 3.7516 | -0.5953 | 2.2738 | Napredni KNN (cikličke značajke, težinski prosjek); lošiji od osnovnog KNN-a |
-| time_interpolation | 3.1315 | 3.7835 | -0.6188 | 2.3467 | Identična linear interpolaciji (ravnomjerni 10-min intervali) |
-| linear_interpolation | 3.1315 | 3.7835 | -0.6188 | 2.3467 | Najbolja pojedinačna metoda; stabilna na svim scenarijima |
-| knn | 3.1315 | 3.7835 | -0.6188 | 2.3467 | Osnovni KNN (k=5); bolji od knn_upgraded u prosjeku |
-| moving_average | 3.6985 | 4.6792 | -1.5228 | 2.7777 | Pomični prosjek (prozor 6 = 1 sat); bolja od forward fill, lošija od linear |
-| forward_fill | 3.7863 | 4.7590 | -1.5813 | 2.8185 | Loša na block scenarijima |
-| cubic_interpolation | 5.8704 | 7.0044 | -5.1028 | 6.6487 | Odlična na random 10-30%; loša na block pri visokim rateovima |
-| spline_interpolation | 6.6240 | 7.8068 | -6.9507 | 7.4899 | Prirodni spline; razlikuje se od cubic (clamped) |
+| linear_interpolation | 2.5121 | 3.0835 | -0.2785 | 1.2938 | Najbolja pojedinačna metoda; stabilna na svim scenarijima |
+| knn | 2.5121 | 3.0835 | -0.2785 | 1.2938 | Osnovni KNN (k=5); bolji od knn_upgraded u prosjeku |
+| time_interpolation | 2.5121 | 3.0835 | -0.2785 | 1.2938 | Identična linear interpolaciji (ravnomjerni 10-min intervali) |
+| knn_upgraded | 2.5232 | 3.0950 | -0.2723 | 1.2956 | Napredni KNN (cikličke značajke, težinski prosjek); lošiji od osnovnog KNN-a |
+| neural_net | 2.5354 | 3.1142 | -0.2935 | 1.2885 |  |
+| random_forest | 2.5440 | 3.1107 | -0.2846 | 1.3115 | Manja varijabilnost od DT, ali veći prosječni MAE |
+| decision_tree | 2.5853 | 3.1533 | -0.3079 | 1.3230 | Ponekad dobra na block_middle; nestabilna na visokim rateovima |
+| moving_average | 3.2492 | 3.8783 | -1.0181 | 1.6539 | Pomični prosjek (prozor 6 = 1 sat); bolja od forward fill, lošija od linear |
+| forward_fill | 3.3238 | 3.9482 | -1.0765 | 1.6523 | Loša na block scenarijima |
+| adaptive_imputation | 4.0563 | 4.8419 | -8.6344 | 3.5904 | Hibridna metoda — najniži prosječni MAE; pobjeđuje u svim scenarij/rate kombinacijama |
+| cubic_interpolation | 8.5056 | 10.0054 | -28.1000 | 7.4623 | Odlična na random 10-30%; loša na block pri visokim rateovima |
+| spline_interpolation | 9.8159 | 11.3137 | -38.2037 | 8.4577 | Prirodni spline; razlikuje se od cubic (clamped) |
 
 ---
 

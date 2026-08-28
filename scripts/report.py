@@ -235,10 +235,20 @@ def plot_mae_bars(df, scenario: str, rate: float, out_path: Path):
     label = SCENARIO_LABELS.get(scenario, scenario)
     pairs = identical_mae_pairs_at_rate(sub)
 
+    # Uz ponovljeni eksperiment prikazi i rasprsenje po tjednima — bez toga
+    # stupci izgledaju razlicito i kad razlika nije razaznatljiva od suma.
+    errors = sub["mae_sd"].tolist() if "mae_sd" in sub.columns else None
+    n_rep = int(sub["n_repeats"].max()) if "n_repeats" in sub.columns else 1
+
     fig, ax = plt.subplots(figsize=(12, 5))
-    ax.bar(methods, values, color=colors, edgecolor="#333333", linewidth=0.5)
+    ax.bar(methods, values, color=colors, edgecolor="#333333", linewidth=0.5,
+           yerr=errors if n_rep > 1 else None,
+           error_kw={"ecolor": "#333333", "elinewidth": 1.0, "capsize": 3})
     ax.set_ylabel("MAE (°C)")
-    ax.set_title(f"MAE po metodama — {label}, {rate:.0%} missing", fontsize=11)
+    title = f"MAE po metodama — {label}, {rate:.0%} missing"
+    if n_rep > 1:
+        title += f"  (prosjek {n_rep} tjedana, stupci pogreške = ±1 sd)"
+    ax.set_title(title, fontsize=11)
     ax.tick_params(axis="x", rotation=35, labelsize=8)
     ax.grid(True, axis="y", alpha=0.25)
 

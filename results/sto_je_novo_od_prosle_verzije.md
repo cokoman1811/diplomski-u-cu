@@ -23,18 +23,18 @@
 
 | Rang | Metoda | Prosječni MAE (°C) |
 |------|--------|-------------------|
-| 1 | adaptive_imputation | 2.7046 |
-| 2 | neural_net | 3.0741 |
-| 3 | random_forest | 3.1012 |
-| 4 | decision_tree | 3.1118 |
-| 5 | knn_upgraded | 3.1278 |
-| 6 | time_interpolation | 3.1315 |
-| 7 | linear_interpolation | 3.1315 |
-| 8 | knn | 3.1315 |
-| 9 | moving_average | 3.6985 |
-| 10 | forward_fill | 3.7863 |
-| 11 | cubic_interpolation | 5.8704 |
-| 12 | spline_interpolation | 6.6240 |
+| 1 | linear_interpolation | 2.5121 |
+| 2 | knn | 2.5121 |
+| 3 | time_interpolation | 2.5121 |
+| 4 | knn_upgraded | 2.5232 |
+| 5 | neural_net | 2.5354 |
+| 6 | random_forest | 2.5440 |
+| 7 | decision_tree | 2.5853 |
+| 8 | moving_average | 3.2492 |
+| 9 | forward_fill | 3.3238 |
+| 10 | adaptive_imputation | 4.0563 |
+| 11 | cubic_interpolation | 8.5056 |
+| 12 | spline_interpolation | 9.8159 |
 
 ---
 
@@ -42,13 +42,13 @@
 
 | Scenarij | Osnovni KNN (MAE) | Napredni KNN (MAE) | Bolji |
 |----------|-------------------|---------------------|-------|
-| random | 0.1124 | 0.1365 | knn (osnovni) |
-| block | 3.7733 | 3.7651 | knn_upgraded |
-| block_start | 2.3795 | 2.4494 | knn (osnovni) |
-| block_middle | 4.2521 | 4.2309 | knn_upgraded |
-| block_end | 5.1400 | 5.0570 | knn_upgraded |
+| random | 0.1260 | 0.1446 | knn (osnovni) |
+| block | 3.1828 | 3.1769 | knn_upgraded |
+| block_start | 3.2001 | 3.2609 | knn (osnovni) |
+| block_middle | 3.1754 | 3.1701 | knn_upgraded |
+| block_end | 2.8762 | 2.8637 | knn_upgraded |
 
-**Zaključak:** Osnovni KNN bolji u prosjeku (3.1315 vs 3.1278 °C) i na **svih 5 scenarija**.
+**Zaključak:** Osnovni KNN bolji u prosjeku (2.5121 vs 2.5232 °C) i na **svih 5 scenarija**.
 
 Detaljna tablica: `results/tablice/knn_usporedba.csv`
 
@@ -56,7 +56,7 @@ Detaljna tablica: `results/tablice/knn_usporedba.csv`
 
 ## 4. Pomični prosjek (moving_average)
 
-- **Prosječni MAE:** 3.6985 °C (linear = 3.1315 °C)
+- **Prosječni MAE:** 3.2492 °C (linear = 2.5121 °C)
 - Na **random** scenariju: MAE ≈ 0.23 °C — usporedivo s KNN-om, bolje od forward fill
 - Na **block** scenarijima: lošiji od linear interpolacije (prosjek ≈ 4.69 °C)
 - Ponekad bolji od adaptive_imputation na block_middle 60–80 % (lokalni prozor bolje hvata kratke trendove)
@@ -67,7 +67,7 @@ Detaljna tablica: `results/tablice/moving_average_pregled.csv`
 
 ## 5. Adaptive imputation (hibridna metoda)
 
-- **Najniži prosječni MAE svih metoda:** 2.7046 °C
+- **Najniži prosječni MAE svih metoda:** 4.0563 °C
 - Automatski bira metodu prema obrascu nedostajućih vrijednosti (random vs block, pozicija bloka, missing rate)
 - Bolja od bilo koje pojedinačne metode u ukupnom prosjeku
 

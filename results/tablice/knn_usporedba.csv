@@ -1,6 +1,6 @@
 scenario,knn_osnovni_mae,knn_napredni_mae,bolji
-random,0.1124,0.1365,knn (osnovni)
-block,3.7733,3.7651,knn_upgraded
-block_start,2.3795,2.4494,knn (osnovni)
-block_middle,4.2521,4.2309,knn_upgraded
-block_end,5.14,5.057,knn_upgraded
+random,0.126,0.1446,knn (osnovni)
+block,3.1828,3.1769,knn_upgraded
+block_start,3.2001,3.2609,knn (osnovni)
+block_middle,3.1754,3.1701,knn_upgraded
+block_end,2.8762,2.8637,knn_upgraded
