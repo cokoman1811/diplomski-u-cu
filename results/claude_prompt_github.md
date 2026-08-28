@@ -178,14 +178,6 @@ neuspio eksperiment.
 
 ---
 
-## Format odgovora
-
-1. **Sažetak** — 5 do 8 rečenica, glavni zaključak
-2. **Provjera hipoteza** — po točkama, slažem se / ne slažem se + dokaz iz koda
-3. **Pronađeni problemi u kodu** — poredani po ozbiljnosti, s referencom na datoteku i liniju
-4. **Prijedlozi poboljšanja** — tablica: prijedlog / datoteka / očekivani učinak / rizik / složenost
-5. **Preporučeni redoslijed implementacije**
-6. **Odgovor na pitanje iz zadatka 5**
-
+## Format odgovora+                    
 Ako predlažeš izmjenu koda, napiši **konkretan C kod** koji se uklapa u postojeći stil
 (C99, bez vanjskih biblioteka, `Series` struktura iz `src/series.h`).

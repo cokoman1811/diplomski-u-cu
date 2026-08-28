@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Presjeci rezultata za raspravu: gdje ML dobiva, gdje gubi i koliko."""
+"""Presjeci ponovljenog eksperimenta za raspravu u diplomskom radu."""
 
 from __future__ import annotations
 
@@ -7,87 +7,100 @@ import numpy as np
 import pandas as pd
 
 SCEN = ["random", "block", "block_start", "block_middle", "block_end"]
-ML = ["neural_net", "random_forest", "decision_tree", "knn_upgraded"]
+REF = "linear_interpolation"
+ML = ["neural_net", "knn_upgraded", "random_forest", "decision_tree"]
+KEY = ["repeat", "scenario", "missing_rate"]
 
 
 def main() -> None:
-    df = pd.read_csv("results/experiment_results.csv")
-    lin = df[df.method == "linear_interpolation"].set_index(["scenario", "missing_rate"]).mae
+    runs = pd.read_csv("results/experiment_runs.csv")
+    idx = pd.read_csv("data/processed/jena_windows/index.csv")
+    n_rep = runs["repeat"].nunique()
+    sd_all = float(idx.sd_temp.mean())
 
-    print("=" * 78)
-    print("1. MAE po missing rateu — neural_net vs linear (svi scenariji zajedno)")
-    print("=" * 78)
-    print(f"{'rate':>6}{'linear':>10}{'neural_net':>12}{'razlika':>10}{'skill':>9}")
-    for r in sorted(df.missing_rate.unique()):
-        a = df[(df.method == "linear_interpolation") & (df.missing_rate == r)].mae.mean()
-        b = df[(df.method == "neural_net") & (df.missing_rate == r)].mae.mean()
-        print(f"{r:>6.0%}{a:>10.3f}{b:>12.3f}{b - a:>+10.3f}{1 - b / a:>+9.3f}")
-
-    print()
-    print("=" * 78)
-    print("2. Skill score neuronske mreze po scenariju i rateu (+ = bolja od linear)")
-    print("=" * 78)
-    nn = df[df.method == "neural_net"].set_index(["scenario", "missing_rate"]).mae
-    tab = pd.concat([nn.rename("nn"), lin.rename("lin")], axis=1)
-    tab["skill"] = 1 - tab.nn / tab.lin
-    piv = tab.skill.unstack(level=1)
-    print(f"{'scenarij':<14}" + "".join(f"{c:>9.0%}" for c in piv.columns))
-    for s in SCEN:
-        print(f"{s:<14}" + "".join(f"{piv.loc[s, c]:>+9.3f}" for c in piv.columns))
+    print("=" * 96)
+    print(f"1. UKUPNI RANG ({n_rep} tjedana x 5 scenarija x 8 stopa = "
+          f"{len(runs) // runs.method.nunique()} testova po metodi)")
+    print("=" * 96)
+    piv = runs.pivot_table(index="method", columns="scenario", values="mae")
+    piv["PROSJEK"] = runs.groupby("method").mae.mean()
+    piv["nMAE"] = piv["PROSJEK"] / sd_all
+    piv = piv[SCEN + ["PROSJEK", "nMAE"]].sort_values("PROSJEK")
+    hdr = f"{'metoda':<23}" + "".join(f"{c[:9]:>10}" for c in SCEN) + f"{'PROSJEK':>10}{'nMAE':>8}"
+    print(hdr)
+    print("-" * len(hdr))
+    for m, row in piv.iterrows():
+        mark = "  <-- referenca" if m == REF else ""
+        print(f"{m:<23}" + "".join(f"{row[c]:>10.3f}" for c in SCEN)
+              + f"{row['PROSJEK']:>10.4f}{row['nMAE']:>8.3f}{mark}")
 
     print()
-    print("=" * 78)
-    print("3. Koliko su ML metode medusobno slicne (korelacija MAE po testovima)")
-    print("=" * 78)
-    wide = df.pivot_table(index=["scenario", "missing_rate"], columns="method", values="mae")
-    cols = ML + ["linear_interpolation"]
-    print(wide[cols].corr().round(4).to_string())
+    print("=" * 96)
+    print("2. UPARENA RAZLIKA PREMA LINEARNOJ, PO STOPI NEDOSTAJUCIH VRIJEDNOSTI")
+    print("=" * 96)
+    wide = runs.pivot_table(index=KEY, columns="method", values="mae")
+    rates = sorted(runs.missing_rate.unique())
+    print(f"{'metoda':<20}" + "".join(f"{r:>9.0%}" for r in rates))
+    print("-" * (20 + 9 * len(rates)))
+    for m in ML:
+        cells = []
+        for r in rates:
+            sel = wide.xs(r, level="missing_rate")
+            cells.append(f"{(sel[m] - sel[REF]).mean():>+9.4f}")
+        print(f"{m:<20}" + "".join(cells))
+    print("\nNegativno = ML bolji. Pozitivno = linearna bolja.")
 
     print()
-    print("=" * 78)
-    print("4. Raspon MAE medu 5 najboljih metoda (koliko je natjecanje tijesno)")
-    print("=" * 78)
-    top = ["neural_net", "random_forest", "decision_tree", "knn_upgraded",
-           "linear_interpolation"]
-    for s in SCEN:
-        sub = df[(df.scenario == s) & (df.method.isin(top))].groupby("method").mae.mean()
-        spread = sub.max() - sub.min()
-        print(f"  {s:<14} min {sub.min():.3f}  max {sub.max():.3f}  "
-              f"raspon {spread:.3f} C  ({spread / sub.min() * 100:.1f} %)")
+    print("=" * 96)
+    print("3. UDIO TESTOVA U KOJIMA JE RAZLIKA PREMA LINEARNOJ MANJA OD 0,01 C")
+    print("=" * 96)
+    for m in ML + ["moving_average", "forward_fill", "adaptive_imputation"]:
+        d = (wide[m] - wide[REF]).abs()
+        print(f"  {m:<22} |d| < 0,01: {100 * (d < 0.01).mean():>5.1f} %   "
+              f"|d| < 0,10: {100 * (d < 0.10).mean():>5.1f} %   "
+              f"medijan |d|: {d.median():.4f}")
 
     print()
-    print("=" * 78)
-    print("5. R2: koliko je negativnih po scenariju (problem metrike)")
-    print("=" * 78)
-    for s in SCEN:
-        sub = df[df.scenario == s]
-        neg = int((sub.r2 < 0).sum())
-        print(f"  {s:<14} negativnih {neg:>3}/{len(sub):<4} min {sub.r2.min():>10.2f}"
-              f"  max {sub.r2.max():>7.3f}")
+    print("=" * 96)
+    print("4. NAJBOLJA METODA PO KOMBINACIJI (svih 800 testova)")
+    print("=" * 96)
+    best = runs.loc[runs.groupby(KEY).mae.idxmin()]
+    vc = best.method.value_counts()
+    for m, c in vc.items():
+        print(f"  {m:<24}{c:>5} / {len(best)}  ({100 * c / len(best):>5.1f} %)")
+    print("\n  Napomena: linear = time = knn imaju identican MAE, pa se pobjeda")
+    print("  dodjeljuje prvoj po redu u tablici — trojka zajedno drzi ta mjesta.")
 
     print()
-    print("=" * 78)
-    print("6. Najbolja metoda po svakoj kombinaciji (bez adaptive)")
-    print("=" * 78)
-    noad = df[df.method != "adaptive_imputation"]
-    win = noad.loc[noad.groupby(["scenario", "missing_rate"]).mae.idxmin()]
-    print(win.method.value_counts().to_string())
+    print("=" * 96)
+    print("5. STABILNOST: koliko se rang mijenja od tjedna do tjedna")
+    print("=" * 96)
+    per_win = runs.groupby(["repeat", "method"]).mae.mean().unstack()
+    ranks = per_win.rank(axis=1)
+    for m in [REF] + ML + ["adaptive_imputation"]:
+        rr = ranks[m]
+        print(f"  {m:<22} rang po tjednu: {int(rr.min())}. - {int(rr.max())}."
+              f"   prosjek {rr.mean():.2f}   prvi u {int((rr == rr.min().min()).sum())} tjedana")
 
     print()
-    print("=" * 78)
-    print("7. Prosjecna |pogreska| u kontekstu signala")
-    print("=" * 78)
-    ts = pd.read_csv("data/processed/jena_temperature_7d.csv")
-    col = [c for c in ts.columns if "T" in c or "temp" in c.lower()][-1]
-    v = ts[col].to_numpy(dtype=float)
-    sd = float(np.std(v))
-    print(f"  sd cijelog niza:            {sd:.4f} C")
-    print(f"  raspon:                     {v.max() - v.min():.4f} C")
-    print(f"  prosjecna |promjena| 10 min: {np.mean(np.abs(np.diff(v))):.4f} C")
-    print(f"  lag-1 autokorelacija:       {np.corrcoef(v[:-1], v[1:])[0, 1]:.6f}")
-    for m in ["neural_net", "linear_interpolation", "forward_fill"]:
-        mm = df[df.method == m].mae.mean()
-        print(f"  nMAE ({m:<20}) = {mm / sd:.4f}")
+    print("=" * 96)
+    print("6. R2 PO SCENARIJU (i dalje neupotrebljiv na blokovima)")
+    print("=" * 96)
+    for sc in SCEN:
+        sub = runs[runs.scenario == sc]
+        print(f"  {sc:<14} negativnih {int((sub.r2 < 0).sum()):>5}/{len(sub):<6}"
+              f" medijan {sub.r2.median():>8.3f}   min {sub.r2.min():>12.1f}")
+
+    print()
+    print("=" * 96)
+    print("7. GDJE JE POGRESKA NAJVECA (prosjek svih metoda osim spline/cubic)")
+    print("=" * 96)
+    core = runs[~runs.method.isin(["cubic_interpolation", "spline_interpolation",
+                                   "adaptive_imputation"])]
+    hm = core.pivot_table(index="scenario", columns="missing_rate", values="mae")
+    print(f"{'scenarij':<14}" + "".join(f"{c:>9.0%}" for c in hm.columns))
+    for sc in SCEN:
+        print(f"{sc:<14}" + "".join(f"{hm.loc[sc, c]:>9.3f}" for c in hm.columns))
 
 
 if __name__ == "__main__":
