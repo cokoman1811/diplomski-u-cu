@@ -15,6 +15,9 @@ import re
 import sys
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 try:
     import docx
 except ImportError:
@@ -55,6 +58,9 @@ def razina_naslova(p: Paragraph) -> int | None:
     if ime in ("title", "naslov"):
         return 0
     return None
+
+
+IZLAZ = ROOT / "results" / "_word_sadrzaj.md"
 
 
 def main() -> None:
@@ -115,6 +121,35 @@ def main() -> None:
             zaglavlje = zaglavlje[:93] + "..."
         print(f"  [{i}] {r}x{c}   pod naslovom: {gdje}")
         print(f"       zaglavlje: {zaglavlje}")
+
+    ispisi_sadrzaj(d, put)
+    print(f"\nCijeli sadrzaj zapisan u: {IZLAZ.relative_to(ROOT)}")
+
+
+def ispisi_sadrzaj(d: DocxDocument, put: Path) -> None:
+    """Zapisuje cijeli tekst i sve tablice u UTF-8 markdown, radi usporedbe brojeva."""
+    red: list[str] = [f"# Sadrzaj dokumenta `{put.name}`", ""]
+    n_tbl = 0
+    for blok in blokovi(d):
+        if isinstance(blok, Paragraph):
+            t = blok.text.strip()
+            if not t:
+                continue
+            lvl = razina_naslova(blok)
+            if lvl is not None:
+                red += ["", "#" * min(lvl + 1, 6) + f" {t}", ""]
+            else:
+                red.append(t)
+        else:
+            n_tbl += 1
+            red += ["", f"**TABLICA {n_tbl}**", ""]
+            for j, row in enumerate(blok.rows):
+                celije = [cl.text.strip().replace("\n", " ") for cl in row.cells]
+                red.append("| " + " | ".join(celije) + " |")
+                if j == 0:
+                    red.append("|" + "---|" * len(celije))
+            red.append("")
+    IZLAZ.write_text("\n".join(red), encoding="utf-8")
 
 
 if __name__ == "__main__":
