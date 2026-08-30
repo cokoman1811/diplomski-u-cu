@@ -29,6 +29,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from azuriraj_word import norm, podesi_broj_redaka, upisi_celiju, upisi_odlomak  # noqa: E402
+from dodaj_sliku_nn import umetni_sliku  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 DOK = ROOT / "docs" / "Diplomski-Toni_Jakelic_azurirano.docx"
@@ -528,6 +529,9 @@ def main() -> None:
         "neural network",
         "keywords",
     )
+
+    if umetni_sliku(doc):
+        brojac["umetnuto"] += 2
 
     doc.save(str(DOK))
     print(f"\nzamijenjeno odlomaka: {brojac['zamjena']}, umetnuto novih: {brojac['umetnuto']}")
