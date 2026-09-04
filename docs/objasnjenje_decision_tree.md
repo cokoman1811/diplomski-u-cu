@@ -322,6 +322,118 @@ Zato ML na scenariju `random` (kratke rupe) nema što popraviti — i zato u rez
 
 ---
 
+## Veliki primjer: 20 uzoraka, cijelo stablo, sve rupe
+
+Izračunato skriptom `scripts/_primjer_stablo_20.py` na `window_01.csv` (3. lipnja 2009., uzorak svaki sat). Skripta koristi `min_leaf = 2` i veću dubinu kako bi stablo imalo više listova i moglo se nacrtati; pravi kod ima `min_leaf = 4` i dubinu 8.
+
+### Niz
+
+| i | sat | istina °C | | i | sat | istina °C | |
+|---|-----|-----------|---|---|-----|-----------|---|
+| 0 | 08:20 | 10.56 | | 10 | 18:20 | 11.78 | |
+| 1 | 09:20 | 10.53 | | 11 | 19:20 | 11.10 | **RUPA** |
+| 2 | 10:20 | 11.34 | | 12 | 20:20 | 9.88 | |
+| 3 | 11:20 | 10.97 | **RUPA** | 13 | 21:20 | 9.64 | |
+| 4 | 12:20 | 11.93 | **RUPA** | 14 | 22:20 | 9.72 | |
+| 5 | 13:20 | 12.38 | | 15 | 23:20 | 9.33 | |
+| 6 | 14:20 | 12.86 | | 16 | 00:20 | 8.88 | **RUPA** |
+| 7 | 15:20 | 12.82 | | 17 | 01:20 | 7.84 | |
+| 8 | 16:20 | 13.73 | | 18 | 02:20 | 7.39 | |
+| 9 | 17:20 | 12.15 | | 19 | 03:20 | 7.36 | |
+
+16 poznatih, 4 rupe.
+
+### Tablica grešaka (samo 16 poznatih)
+
+| i | sat | T | crta | greška | alpha |
+|---|-----|---|------|--------|-------|
+| 0 | 08:20 | 10.56 | 10.53 | +0.030 | 0.00 |
+| 1 | 09:20 | 10.53 | 10.95 | −0.420 | 0.50 |
+| 2 | 10:20 | 11.34 | 10.99 | +0.348 | 0.25 |
+| 5 | 13:20 | 12.38 | 12.48 | −0.100 | 0.75 |
+| 6 | 14:20 | 12.86 | 12.60 | +0.260 | 0.50 |
+| 7 | 15:20 | 12.82 | 13.29 | −0.475 | 0.50 |
+| 8 | 16:20 | 13.73 | 12.48 | **+1.245** | 0.50 |
+| 9 | 17:20 | 12.15 | 12.75 | −0.605 | 0.50 |
+| 10 | 18:20 | 11.78 | 11.39 | +0.387 | 0.33 |
+| 12 | 20:20 | 9.88 | 10.35 | −0.473 | 0.67 |
+| 13 | 21:20 | 9.64 | 9.80 | −0.160 | 0.50 |
+| 14 | 22:20 | 9.72 | 9.48 | +0.235 | 0.50 |
+| 15 | 23:20 | 9.33 | 9.09 | +0.237 | 0.33 |
+| 17 | 01:20 | 7.84 | 8.04 | −0.197 | 0.67 |
+| 18 | 02:20 | 7.39 | 7.60 | −0.210 | 0.50 |
+| 19 | 03:20 | 7.36 | 7.39 | −0.030 | 1.00 |
+
+### Stablo koje je izašlo — 6 listova, ne 8
+
+Dubina 8 **ne znači** 8 listova. Broj listova ne biraš, ispadne iz podataka. Ovdje se grupe potroše na 6.
+
+```
+korijen: prev_val ≤ 12.84 ?
+├─ DA: prev_val ≤ 11.965 ?
+│   ├─ DA: alpha ≤ 0.4167 ?
+│   │   ├─ DA:  LIST 1  +0.205   (n=3)
+│   │   └─ NE: position_norm ≤ 0.6579 ?
+│   │       ├─ DA:  LIST 2  −0.331   (n=3)
+│   │       └─ NE: hour_cos ≤ 0.866 ?
+│   │           ├─ DA:  LIST 3  +0.015   (n=3)
+│   │           └─ NE:  LIST 4  −0.203   (n=2)
+│   └─ NE:  LIST 5  +0.631   (n=3)
+└─ NE:  LIST 6  −0.540   (n=2)
+```
+
+Odakle brojevi na listovima — svaki je prosjek grešaka svojih točaka:
+
+| list | poznate točke | njihove greške | prosjek |
+|------|---------------|----------------|---------|
+| 1 | 0, 2, 15 | +0.030, +0.348, +0.237 | **+0.205** |
+| 2 | 1, 5, 12 | −0.420, −0.100, −0.473 | **−0.331** |
+| 3 | 13, 19, 14 | −0.160, −0.030, +0.235 | **+0.015** |
+| 4 | 18, 17 | −0.210, −0.197 | **−0.203** |
+| 5 | 10, 6, 8 | +0.387, +0.260, +1.245 | **+0.631** |
+| 6 | 7, 9 | −0.475, −0.605 | **−0.540** |
+
+Grane su različite dužine: do lista 6 stigneš u **1** pitanju, do lista 4 u **5**.
+
+### Put zadnje rupe (i = 16, 00:20)
+
+![Put rupe 16 do lista](slike/stablo_rupa16_put.png)
+
+| pitanje | njezina vrijednost | prag | odgovor |
+|---------|-------------------|------|---------|
+| `prev_val` | 9.33 | ≤ 12.84 | DA |
+| `prev_val` | 9.33 | ≤ 11.965 | DA |
+| `alpha` | 0.50 | ≤ 0.4167 | NE |
+| `position_norm` | 0.842 | ≤ 0.6579 | NE |
+| `hour_cos` | 1.00 | ≤ 0.866 | NE |
+
+→ **LIST 4 = −0.203**
+
+```
+8.59 − 0.203 = 8.38 °C      (istina 8.88)
+```
+
+Odakle njezini brojevi:
+
+- `prev_val` = 9.33 → zadnja poznata prije rupe (23:20)
+- `position_norm` = 16/19 = 0.842 → rupa je blizu kraja niza
+- `hour_cos` = 1.0 → u ponoć je kosinus na vrhu ciklusa
+
+### Sve četiri rupe — stablo je ovdje pogoršalo rezultat
+
+| rupa | istina | crta | greška crte | stablo | greška stabla |
+|------|--------|------|-------------|--------|---------------|
+| 3 | 10.97 | 11.69 | 0.72 | 11.89 | 0.92 |
+| 4 | 11.93 | 12.03 | 0.10 | 11.70 | 0.23 |
+| 11 | 11.10 | 10.83 | 0.27 | 10.50 | 0.60 |
+| 16 | 8.88 | 8.59 | 0.29 | 8.38 | 0.50 |
+
+MAE crte **0.345 °C**, MAE stabla **0.563 °C**.
+
+Ovo nije greška u primjeru — to je nalaz rada. Na kratkim rupama crta je već dobra, a naučena korekcija unosi šum. Zato `decision_tree` (2.585 °C) gubi od `linear_interpolation` (2.512 °C).
+
+---
+
 ## Zapamti
 
 ```
