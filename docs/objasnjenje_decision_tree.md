@@ -197,3 +197,91 @@ Zato nema jednog stabla za cijeli diplomski. Ima ga po jedno za svaki tjedan i s
 ## 10. Jedna rečenica za obranu
 
 > Regresijsko stablo se trenira samo na poznatim mjerenjima: uči koliko linearna interpolacija griješi u određenoj situaciji. Nedostajuće točke zatim prođu to stablo i dobiju korekciju koja se doda na ravnu crtu.
+
+---
+
+## 11. Cijeli primjer s 20 vrijednosti
+
+20 mjerenja. **12 poznatih**, **8 rupa**. U kodu treba barem 8 poznatih da bi se stablo uopće rascijepilo (4 lijevo + 4 desno), pa ovdje to prolazi.
+
+### Niz koji vidimo (oštećen)
+
+```
+indeks:  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19
+T (°C):  8   9   ?   ?  13  14  15   ?   ?   ?  19  17  16   ?  14  12   ?  10   ?   8
+         ▲   ▲          ▲   ▲   ▲                  ▲   ▲   ▲      ▲   ▲      ▲      ▲
+                      poznate = 12 točaka                    rupe = 8 točaka
+```
+
+Istina (samo da vidiš što fali; stablo ovo NE vidi):
+
+```
+         8   9  10  11  13  14  15  17  19  20  19  17  16  15  14  12  11  10   9   8
+```
+
+Sredina dana (7, 8, 9) je vrh — ravna crta od 15 do 19 to ne vidi.
+
+### Korak 1 — od 12 poznatih se pravi stablo
+
+Za svaku poznatu točku: ravna crta između njezinih susjeda **bez nje**, pa greška = stvarna − crta.
+
+| indeks | T | alpha (gdje si u rupi) | greška crte |
+|--------|---|------------------------|-------------|
+| 0 | 8 | 0.00 (početak) | −1.00 |
+| 1 | 9 | 0.25 | −0.25 |
+| 4 | 13 | 0.75 | +0.25 |
+| 5 | 14 | 0.50 | 0.00 |
+| 6 | 15 | 0.20 | 0.00 |
+| 10 | 19 | 0.80 | **+2.40** |
+| 11 | 17 | 0.50 | −0.50 |
+| 12 | 16 | 0.33 | 0.00 |
+| 14 | 14 | 0.67 | +0.67 |
+| 15 | 12 | 0.33 | −0.67 |
+| 17 | 10 | 0.50 | 0.00 |
+| 19 | 8 | 1.00 (kraj) | −2.00 |
+
+Najbolje pitanje na korijenu (primjer koji prolazi pravilo 4+4):
+
+> je li `alpha ≤ 0.4`? (jesi li bliže **lijevom** rubu rupe)
+
+- **DA** (5 točaka): greške −1.00, −0.25, 0.00, 0.00, −0.67 → prosjek **−0.38** → LIST
+- **NE** (7 točaka): greške +0.25, 0.00, +2.40, −0.50, +0.67, 0.00, −2.00 → prosjek **+0.12** → LIST
+
+Lijeva hrpa ima 5 točaka, desna 7. Za novi rez treba 8, zato se **ovdje stane**. Stablo ima točno 3 čvora u memoriji: 1 pitanje + 2 lista.
+
+```mermaid
+flowchart TD
+  R["KORIJEN<br/>je li alpha ≤ 0.4?"]
+  R -->|"DA — bliže lijevom rubu"| L["LIST A: −0.38 °C"]
+  R -->|"NE — sredina ili desni rub"| D["LIST B: +0.12 °C"]
+```
+
+Ova dva broja, −0.38 i +0.12, **jesu** listovi. Spremljeni su u `DtNode.value` u RAM-u, ne u datoteci.
+
+### Korak 2 — 8 rupa prolazi to isto stablo
+
+Svaka rupa: izračunaj svoju ravnu crtu i svoj `alpha`, odgovori na pitanje, uzmi list, zbroji.
+
+| rupa | susjedi | ravna crta | alpha | koji list | temperatura |
+|------|---------|------------|-------|-----------|-------------|
+| 2 | 9 i 13 | 10.33 | 0.33 ≤ 0.4 | A (−0.38) | 10.33 − 0.38 = **9.95** |
+| 3 | 9 i 13 | 11.67 | 0.67 > 0.4 | B (+0.12) | 11.67 + 0.12 = **11.79** |
+| 7 | 15 i 19 | 16.00 | 0.25 ≤ 0.4 | A (−0.38) | 16.00 − 0.38 = **15.62** |
+| 8 | 15 i 19 | 17.00 | 0.50 > 0.4 | B (+0.12) | 17.00 + 0.12 = **17.12** |
+| 9 | 15 i 19 | 18.00 | 0.75 > 0.4 | B (+0.12) | 18.00 + 0.12 = **18.12** |
+| 13 | 16 i 14 | 15.00 | 0.50 > 0.4 | B (+0.12) | 15.00 + 0.12 = **15.12** |
+| 16 | 12 i 10 | 11.00 | 0.50 > 0.4 | B (+0.12) | 11.00 + 0.12 = **11.12** |
+| 18 | 10 i 8 | 9.00 | 0.50 > 0.4 | B (+0.12) | 9.00 + 0.12 = **9.12** |
+
+Isto stablo. Dva lista. Osam rupa. Rupe 2 i 7 pale su u list A, ostale u list B. Temperature su ipak različite jer svaka ima **svoju** ravnu crtu.
+
+### Gotov niz
+
+```
+indeks:  0     1     2      3      4     5     6      7      8      9     10    11    12     13     14    15     16     17     18     19
+T:       8     9    9.95  11.79   13    14    15   15.62  17.12  18.12   19    17    16   15.12   14    12   11.12   10    9.12    8
+                ▲      ▲                      ▲      ▲      ▲                      ▲              ▲              ▲
+              popunjeno iz lista A ili B + ravna crta
+```
+
+Na vrhu dana (7–9) stablo malo podigne crtu (+0.12), ali ne do pravih 17, 19, 20. Zato jedno plitko stablo nije dovoljno — zato u pravom kodu dubina ide do 8, i zato šuma ima 24 stabla.
