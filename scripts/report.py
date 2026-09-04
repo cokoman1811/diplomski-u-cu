@@ -509,12 +509,10 @@ def find_presentation_window(df, window: int = 55):
     return best_start, window
 
 
-def find_block_presentation_window(df, window: int = 90):
-    """Za block missing: centriraj prozor na najduži kontinuirani blok rupa."""
-    import numpy as np
-
+def find_block_presentation_window(df, padding: int = 55):
+    """Za block missing: prikaži cijeli blok rupa + kontekst s obje strane."""
     mask = (df["mask"] == 1).to_numpy(dtype=int)
-    if len(mask) <= window:
+    if mask.size == 0:
         return 0, len(mask)
 
     best_len = 0
@@ -535,14 +533,14 @@ def find_block_presentation_window(df, window: int = 90):
         best_len = cur_len
         best_start = cur_start
 
-    center = best_start + best_len // 2
-    start = max(0, min(center - window // 2, len(mask) - window))
-    return start, window
+    start = max(0, best_start - padding)
+    end = min(len(mask), best_start + best_len + padding)
+    return start, end - start
 
 
 def choose_presentation_window(df, scenario: str, window: int = 55):
     if scenario == "block":
-        return find_block_presentation_window(df, window=90)
+        return find_block_presentation_window(df)
     return find_presentation_window(df, window=window)
 
 
@@ -585,6 +583,9 @@ def plot_reconstruction_presentation_on_ax(
     recon = zoom[recon_col].to_numpy(dtype=float)
     mask = zoom["mask"].to_numpy(dtype=int)
 
+    wide_view = slice_len > 120
+    line_w = 2.8 if wide_view else 3.5
+
     # Svijetla pozadina gdje su vrijednosti nedostajale
     in_gap = False
     gap_start = 0
@@ -598,12 +599,12 @@ def plot_reconstruction_presentation_on_ax(
     if in_gap:
         ax.axvspan(gap_start - 0.5, len(mask) - 0.5, color="#fff3cd", alpha=0.55, zorder=0)
 
-    ax.plot(x, orig, color="#0d47a1", linewidth=3.5, label="Stvarni niz", zorder=3, solid_capstyle="round")
+    ax.plot(x, orig, color="#0d47a1", linewidth=line_w, label="Stvarni niz", zorder=3, solid_capstyle="round")
     ax.plot(
         x,
         recon,
         color=method_color,
-        linewidth=3.5,
+        linewidth=line_w,
         linestyle="-",
         label="Rekonstrukcija",
         zorder=4,
@@ -611,7 +612,7 @@ def plot_reconstruction_presentation_on_ax(
     )
 
     masked_idx = np.where(mask == 1)[0]
-    if masked_idx.size:
+    if masked_idx.size and not wide_view:
         ax.scatter(
             x[masked_idx],
             orig[masked_idx],
@@ -620,6 +621,19 @@ def plot_reconstruction_presentation_on_ax(
             edgecolors="#d32f2f",
             linewidths=2.5,
             label="Stvarna T° (bila skrivena)",
+            zorder=6,
+        )
+    elif masked_idx.size:
+        step = max(1, masked_idx.size // 20)
+        sample = masked_idx[::step]
+        ax.scatter(
+            x[sample],
+            orig[sample],
+            s=55,
+            facecolors="white",
+            edgecolors="#d32f2f",
+            linewidths=1.2,
+            label="Stvarna T° (uzorak u bloku)",
             zorder=6,
         )
 
@@ -684,7 +698,8 @@ def plot_best_worst_reconstruction_clear(
         }
     )
 
-    fig, axes = plt.subplots(2, 1, figsize=(14, 11), sharex=True)
+    fig_w, fig_h = (22, 12) if scenario == "block" else (14, 11)
+    fig, axes = plt.subplots(2, 1, figsize=(fig_w, fig_h), sharex=True, sharey=(scenario == "block"))
     plot_reconstruction_presentation_on_ax(
         best_df,
         axes[0],
@@ -704,7 +719,11 @@ def plot_best_worst_reconstruction_clear(
 
     fig.suptitle(
         f"{scenario_label} @ {rate * 100:.0f}% nedostajućih vrijednosti\n"
-        "Žuto = mjesta gdje su podaci bili uklonjeni  |  Crveni krug = stvarna temperatura na skrivenim mjestima",
+        + (
+            "Žuto = cijeli uklonjeni blok  |  Plava = stvarni niz  |  Obojena linija = rekonstrukcija"
+            if scenario == "block"
+            else "Žuto = mjesta gdje su podaci bili uklonjeni  |  Crveni krug = stvarna temperatura na skrivenim mjestima"
+        ),
         fontsize=17,
         fontweight="bold",
         y=0.98,
