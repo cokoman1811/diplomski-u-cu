@@ -14,7 +14,7 @@ Razlikuju se samo u jednom pravilu na **prvoj i zadnjoj poznatoj točki cijelog 
 ---
 
 ## 1. Što obje rade (30 sekundi)
-
+image.png
 Imaš temperaturni niz. Neke vrijednosti nedostaju (NaN).
 
 1. Uzmeš sve **poznate** temperature.
