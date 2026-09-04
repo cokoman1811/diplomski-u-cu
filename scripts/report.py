@@ -470,6 +470,146 @@ def plot_best_worst_reconstruction(
     return True
 
 
+def find_best_zoom_slice(df, window: int = 140):
+    """Odaberi prozor indeksa gdje je najviše maskiranih točaka (najbolje za prikaz)."""
+    import numpy as np
+
+    mask = (df["mask"] == 1).to_numpy(dtype=int)
+    if len(mask) <= window:
+        return df.copy()
+
+    best_start = 0
+    best_score = -1
+    kernel = np.ones(8, dtype=int)
+    for start in range(0, len(mask) - window + 1):
+        chunk = mask[start : start + window]
+        conv = np.convolve(chunk, kernel, mode="valid")
+        longest_run = int(conv.max()) if conv.size else 0
+        score = int(chunk.sum()) * 10 + longest_run
+        if score > best_score:
+            best_score = score
+            best_start = start
+
+    return df.iloc[best_start : best_start + window].copy()
+
+
+def plot_reconstruction_clear_on_ax(df, ax, title: str, method_color: str = "#e65100"):
+    """Jasniji prikaz: deblje linije, zum, naglašene rekonstruirane točke."""
+    orig_col = "original_temperature" if "original_temperature" in df.columns else "original"
+    recon_col = (
+        "reconstructed_temperature"
+        if "reconstructed_temperature" in df.columns
+        else "reconstructed"
+    )
+
+    zoom = find_best_zoom_slice(df)
+    x = zoom["index"]
+
+    ax.plot(x, zoom[orig_col], color="#1565c0", linewidth=2.4, label="originalni niz", zorder=2)
+    ax.plot(
+        x,
+        zoom[recon_col],
+        color=method_color,
+        linewidth=2.4,
+        linestyle="--",
+        label="rekonstruirani niz",
+        zorder=3,
+    )
+
+    masked = zoom[zoom["mask"] == 1]
+    if not masked.empty:
+        ax.scatter(
+            masked["index"],
+            masked[orig_col],
+            s=42,
+            facecolors="none",
+            edgecolors="#c62828",
+            linewidths=1.6,
+            label="stvarna vrijednost (nedostajala)",
+            zorder=5,
+        )
+        ax.scatter(
+            masked["index"],
+            masked[recon_col],
+            s=55,
+            c=method_color,
+            edgecolors="#212121",
+            linewidths=0.8,
+            marker="D",
+            label="rekonstruirana točka",
+            zorder=6,
+        )
+        for _, row in masked.iterrows():
+            ax.plot(
+                [row["index"], row["index"]],
+                [row[orig_col], row[recon_col]],
+                color="#9e9e9e",
+                alpha=0.55,
+                linewidth=1.0,
+                zorder=1,
+            )
+
+    ax.set_xlabel("Indeks uzorka", fontsize=11)
+    ax.set_ylabel("Temperatura (°C)", fontsize=11)
+    ax.set_title(title, fontsize=11, fontweight="bold", pad=10)
+    ax.legend(loc="upper right", fontsize=8, framealpha=0.92)
+    ax.grid(True, alpha=0.35, linestyle=":")
+
+
+def plot_best_worst_reconstruction_clear(
+    scenario: str,
+    rate: float,
+    best_method: str,
+    worst_method: str,
+    best_mae: float,
+    worst_mae: float,
+    out_path: Path,
+    scenario_label: str,
+):
+    """Usporedni prikaz najbolje i najgore metode — zumiran, za prezentacije."""
+    import matplotlib.pyplot as plt
+
+    best_csv = RESULTS / f"reconstruction_{best_method}_{scenario}_{rate:.2f}.csv"
+    worst_csv = RESULTS / f"reconstruction_{worst_method}_{scenario}_{rate:.2f}.csv"
+    if not best_csv.exists() or not worst_csv.exists():
+        return False
+
+    best_color = METHOD_COLORS.get(best_method, "#2ca02c")
+    worst_color = METHOD_COLORS.get(worst_method, "#8c564b")
+
+    fig, axes = plt.subplots(1, 2, figsize=(16, 5.2), sharey=True)
+    plot_reconstruction_clear_on_ax(
+        pd_read_csv(best_csv),
+        axes[0],
+        f"NAJBOLJA: {best_method}\nMAE = {best_mae:.3f} °C",
+        method_color=best_color,
+    )
+    plot_reconstruction_clear_on_ax(
+        pd_read_csv(worst_csv),
+        axes[1],
+        f"NAJGORA: {worst_method}\nMAE = {worst_mae:.3f} °C",
+        method_color=worst_color,
+    )
+
+    fig.suptitle(
+        f"{scenario_label} — najbolja i najgora rekonstrukcija @ {rate * 100:.0f}% nedostajućih vrijednosti\n"
+        "(zum na dio niza; crveni krug = stvarna temperatura, romb = rekonstrukcija)",
+        fontsize=13,
+        fontweight="bold",
+        y=1.05,
+    )
+    plt.tight_layout()
+    fig.savefig(out_path, dpi=200, bbox_inches="tight")
+    plt.close(fig)
+    return True
+
+
+def pd_read_csv(path: Path):
+    import pandas as pd
+
+    return pd.read_csv(path)
+
+
 def fmt_table(df) -> str:
     lines = ["| metoda | MAE | RMSE | R² |", "|--------|-----|------|-----|"]
     for _, row in df.iterrows():
