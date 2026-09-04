@@ -509,6 +509,43 @@ def find_presentation_window(df, window: int = 55):
     return best_start, window
 
 
+def find_block_presentation_window(df, window: int = 90):
+    """Za block missing: centriraj prozor na najduži kontinuirani blok rupa."""
+    import numpy as np
+
+    mask = (df["mask"] == 1).to_numpy(dtype=int)
+    if len(mask) <= window:
+        return 0, len(mask)
+
+    best_len = 0
+    best_start = 0
+    cur_len = 0
+    cur_start = 0
+    for i, m in enumerate(mask):
+        if m == 1:
+            if cur_len == 0:
+                cur_start = i
+            cur_len += 1
+        elif cur_len > 0:
+            if cur_len > best_len:
+                best_len = cur_len
+                best_start = cur_start
+            cur_len = 0
+    if cur_len > best_len:
+        best_len = cur_len
+        best_start = cur_start
+
+    center = best_start + best_len // 2
+    start = max(0, min(center - window // 2, len(mask) - window))
+    return start, window
+
+
+def choose_presentation_window(df, scenario: str, window: int = 55):
+    if scenario == "block":
+        return find_block_presentation_window(df, window=90)
+    return find_presentation_window(df, window=window)
+
+
 def _method_label(method: str) -> str:
     labels = {
         "spline_interpolation": "spline interpolacija",
@@ -516,6 +553,9 @@ def _method_label(method: str) -> str:
         "forward_fill": "forward fill (zadnja vrijednost)",
         "linear_interpolation": "linearna interpolacija",
         "moving_average": "pomični prosjek",
+        "random_forest": "random forest",
+        "decision_tree": "decision tree",
+        "neural_net": "neuronska mreža",
     }
     return labels.get(method, method.replace("_", " "))
 
@@ -629,7 +669,7 @@ def plot_best_worst_reconstruction_clear(
     worst_df = pd_read_csv(worst_csv)
 
     # Isti prozor za obje metode (fer usporedba)
-    slice_start, slice_len = find_presentation_window(worst_df, window=55)
+    slice_start, slice_len = choose_presentation_window(worst_df, scenario)
 
     best_color = METHOD_COLORS.get(best_method, "#2e7d32")
     worst_color = METHOD_COLORS.get(worst_method, "#6d4c41")
