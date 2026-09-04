@@ -582,17 +582,6 @@ def plot_reconstruction_presentation_on_ax(
             label="Stvarna T° (bila skrivena)",
             zorder=6,
         )
-        ax.scatter(
-            x[masked_idx],
-            recon[masked_idx],
-            s=180,
-            c=method_color,
-            edgecolors="black",
-            linewidths=1.5,
-            marker="X",
-            label="Rekonstruirana T°",
-            zorder=7,
-        )
 
     y_min = float(np.min([orig.min(), recon.min()]))
     y_max = float(np.max([orig.max(), recon.max()]))
@@ -675,7 +664,7 @@ def plot_best_worst_reconstruction_clear(
 
     fig.suptitle(
         f"{scenario_label} @ {rate * 100:.0f}% nedostajućih vrijednosti\n"
-        "Žuto = mjesta gdje su podaci bili uklonjeni  |  Crveni krug = stvarna temperatura  |  X = što je metoda upisala",
+        "Žuto = mjesta gdje su podaci bili uklonjeni  |  Crveni krug = stvarna temperatura na skrivenim mjestima",
         fontsize=17,
         fontweight="bold",
         y=0.98,
