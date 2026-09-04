@@ -75,128 +75,108 @@ Dobijemo popis: *u takvoj-i-takvoj situaciji crta je griješila za toliko*.
 
 ---
 
-## Korak 5 — čemu stablo
+## Korak 5 — imamo tablicu, ne stablo
 
-Imamo popis grešaka na poznatim mjestima.  
-Rupa nema grešku, jer nema stvarnu temperaturu.
+Nakon koraka 4 imaš samo ovo. Još uvijek **nema stabla**.
 
-Želimo pravilo:
+| poznato mjesto | situacija | greška crte |
+|----------------|-----------|-------------|
+| A | uz rub rupe | 0 |
+| B | uz rub rupe | 0 |
+| C | sredina rupe | +2 |
+| D | sredina rupe | +2 |
 
-> ako rupa izgleda kao neka poznata mjesta,  
-> uzmi njihovu grešku i dodaj je na crtu rupe.
+Čita se: kad je crta rasla kroz **sredinu** rupe, bila je 2 preniska.  
+Kad je točka bila **uz rub**, crta je pogodila.
 
-To pravilo spremamo kao **stablo pitanja** (da / ne).
-
-Bez stabla bi za svaku rupu iznova pretraživali sve poznate točke.  
-Stablo je gotov upitnik: rupa samo odgovara i dobije broj.
-
----
-
-## Korak 6 — što je stablo
-
-Binarno stablo. Svaki unutarnji čvor je pitanje.
-
-```
-                 [pitanje]
-                 /        \
-              DA /          \ NE
-               /              \
-           [pitanje]         [LIST]
-            /      \
-        [LIST]    [LIST]
-```
-
-**List nije temperatura.**  
-List je **greška crte**, npr. `+1.2`.
-
-Kad dođeš do lista, račun je:
-
-```
-temperatura rupe = ravna crta te rupe + broj na listu
-```
+Rupa još uvijek nema svoj red u tablici. Njoj fali temperatura, pa ne možemo izračunati njezinu grešku.
 
 ---
 
-## Korak 7 — kako se stablo pravi (trening)
+## Korak 6 — što želimo napraviti s rupom
 
-Samo poznate točke. Rupe još čekaju.
+Rupa ima situaciju (npr. „ja sam u sredini rupe”), ali nema grešku.
 
-1. Sve poznate točke stavi u jednu hrpu. To je korijen.
-2. Nađi da/ne pitanje koje tu hrpu dobro raspolovi  
-   (npr. „jesi li u sredini rupe?”).
-3. DA ide lijevo, NE ide desno.
-4. Ponovi na svakoj novoj hrpi.
-5. Kad je hrpa mala ili imaš dovoljno pitanja, stani.  
-   Ta hrpa postane **list**.  
-   Na list napiši **prosjek grešaka** u toj hrpi.
+Gledamo tablicu i kažemo:
 
-Sada stablo postoji u memoriji.  
-Nije spremljeno u datoteku.  
-Poznate temperature se nisu promijenile.
+> sredina rupe u tablici ima grešku +2,  
+> pa i ovoj rupi dodajem +2 na crtu.
+
+Ako je crta rupe rekla 13:
+
+```
+13 + 2 = 15
+```
+
+To je cijela ideja. Stablo je samo način da se ovo gledanje u tablicu pretvori u da/ne pitanja.
 
 ---
 
-## Korak 8 — kako rupa dobije broj (predikcija)
+## Korak 7 — zašto pitanja, a ne gledanje u tablicu
 
-Tek sada dolaze rupe. Svaka rupa **posebno**.
+Tablicu možeš svaki put pregledati očima.  
+Kod to radi pitanjem koje dijeli redove u dvije skupine:
 
-1. Za tu rupu izračunaj ravnu crtu (korak 2).
-2. Kreni od vrha stabla.
-3. Odgovaraj na pitanja (da = lijevo, ne = desno).
-4. Kad dođeš do lista, uzmi taj broj.
-5. Zbroji: crta + list.
+> Jesi li u sredini rupe?
 
-Druga rupa krene **opet od vrha** istog stabla.  
-Može pasti u drugi list, jer ima drugačiju situaciju.
+- **DA** → skupina C i D, greška +2
+- **NE** → skupina A i B, greška 0
+
+To pitanje + te dvije skupine **jesu** stablo. Ništa više.
+
+```
+          Jesi li u sredini rupe?
+           /                    \
+        DA /                      \ NE
+          /                        \
+    skupina +2                  skupina 0
+    (to zovemo LIST)            (to zovemo LIST)
+```
+
+**List** = skupina redova iz tablice, s jednim brojem: njihovim prosjekom greške.
+
+Nije ladica u koju spremaš rupe.  
+Nije temperatura.  
+To je samo natpis na skupini: „ovdje crta obično griješi za +2”.
 
 ---
 
-## Korak 9 — mali brojevi, 5 mjesta
+## Korak 8 — rupa samo odgovori na pitanje
 
-Niz:
+Rupa **ne ulazi u tablicu**.  
+Ne uči ništa novo.
 
-```
-mjesto:  1     2     3     4     5
-T:       10    ?     ?     16    18
-```
+1. Povuci njezinu ravnu crtu (korak 2). Recimo 13.
+2. Pitaj: jesi li u sredini rupe?
+3. Ako DA, uzmi natpis **+2**.
+4. Upiši 13 + 2 = **15**.
 
-Poznata: 10, 16, 18.  
-Rupe: mjesto 2 i 3.
+Druga rupa: crta 14, nije u sredini → uzme **0** → ostane **14**.
 
-**Gradnja** (samo 10, 16, 18) napravi npr. ovako malo stablo:
+Isto pitanje. Isti listovi. Druga rupa, drugi zbroj.
 
-```
-        [jesi li bliže desnom rubu?]
-         /                         \
-   DA /                               \ NE
-     /                                 \
-LIST: +0.5                         LIST: 0.0
-```
+---
 
-**Rupa 2**
+## Korak 9 — kad ima više pitanja
 
-- crta između 10 i 16, bliže lijevom → crta ≈ 12
-- pitanje: bliže desnom? **NE** → list `0.0`
-- rezultat: 12 + 0 = **12**
+Ako tablica ima puno redova, jedno pitanje nije dovoljno.  
+Svaku skupinu opet raspoloviš novim pitanjem. To postane dublje stablo.
 
-**Rupa 3**
+Za početak ti **nije potrebno**. Dovoljno je zapamtiti:
 
-- crta između 10 i 16, bliže desnom → crta ≈ 14
-- pitanje: bliže desnom? **DA** → list `+0.5`
-- rezultat: 14 + 0.5 = **14.5**
-
-Isto stablo. Dvije rupe. Dva broja.
+- tablica grešaka na poznatim mjestima
+- pitanje dijeli tablicu u skupine
+- skupina ima natpis (list)
+- rupa odgovori na pitanje i uzme natpis
+- temperatura = crta + natpis
 
 ---
 
 ## Korak 10 — što zapamtiti
 
-| | Gradnja | Predikcija |
-|--|---------|------------|
-| tko | poznate točke | samo rupe |
-| što | pravi se stablo | prolazi se gotovo stablo |
-| izlaz | pitanja + listovi (greške) | temperatura = crta + list |
+Poznate točke → naprave tablicu grešaka → od tablice nastanu pitanja.  
+Rupe → ne pune tablicu → samo odgovaraju na pitanja.
 
-Jedna rečenica:
-
-> Od poznatih točaka naučim koliko ravna crta griješi. To spremim kao pitanja. Svaka rupa prođe ta pitanja i dodam tu grešku na njezinu crtu.
+```
+temperatura rupe = ravna crta + greška iz lista
+```
