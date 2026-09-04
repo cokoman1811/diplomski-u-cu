@@ -122,6 +122,35 @@ struct DtNode {
 
 Kao žuti papirić s brojem. Rupa ga pročita. Papirić se ne mijenja.
 
+### Gdje se listovi spremaju
+
+**Ne u listu ni u polje.** Svaki čvor je zaseban blok u memoriji (`calloc`), a čvorovi su povezani pokazivačima `left` i `right`.
+
+Postoji samo jedna varijabla — `tree`, pokazivač na korijen. Sve ostalo visi na njemu:
+
+```
+tree ──► [ pitanje: alpha ≤ 0.4 ]
+              left │      │ right
+                   ▼      ▼
+        [ LIST 0.0 ]   [ pitanje: podne? ]
+                            left │   │ right
+                                 ▼   ▼
+                      [ LIST −0.4 ] [ LIST +1.2 ]
+```
+
+Nema `listovi[]`, nema brojača, nema imena. List `+1.2` postoji samo kao „desno dijete desnog djeteta korijena”.
+
+Zato rupa **mora hodati** od korijena — nema načina da skoči direktno na list:
+
+```c
+while (!node->is_leaf) {
+    node = (znacajka <= prag) ? node->left : node->right;
+}
+return node->value;
+```
+
+Brisanje ide rekurzivno kroz cijelo stablo (`dt_free`): prvo djeca, onda roditelj. Ništa se ne sprema na disk.
+
 ---
 
 ## 5. Rupa dobije broj
