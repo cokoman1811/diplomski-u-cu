@@ -151,6 +151,28 @@ return node->value;
 
 Brisanje ide rekurzivno kroz cijelo stablo (`dt_free`): prvo djeca, onda roditelj. Ništa se ne sprema na disk.
 
+### Hod kroz blokove, s adresama
+
+![Kako rupa dođe do vrijednosti](slike/stablo_blokovi_memorija.png)
+
+Blokovi **ne sadrže** jedan drugoga. Svaki samo zna **adrese** svoje dvoje djece.
+
+Rupa: `alpha = 0.6`, `d_prev = 50`, crta = 14.
+
+| korak | gdje stoji | što vidi | odluka | kamo dalje |
+|-------|-----------|----------|--------|------------|
+| 1 | `0x100` | `is_leaf=0`, pitaj `alpha ≤ 0.4` | 0.6 nije ≤ 0.4 → **NE** | `right` = `0x300` |
+| 2 | `0x300` | `is_leaf=0`, pitaj `d_prev ≤ 20` | 50 nije ≤ 20 → **NE** | `right` = `0x500` |
+| 3 | `0x500` | `is_leaf=1` → **stani** | pročitaj `value` | `+1.2` |
+
+Rezultat: `14 + 1.2 = 15.2 °C`
+
+Blokovi `0x200` i `0x400` postoje u memoriji, ali ta rupa tamo **nikad nije skrenula**.
+
+Program u svakom trenutku pamti samo **jednu** adresu — onu na kojoj stoji. Sljedeća mu je zapisana u bloku na kojem već stoji. Zato blokovi mogu biti razbacani po memoriji; drži ih zajedno samo adresa, ne redoslijed.
+
+Nije lanac `1 → 2 → 3`, nego grananje: na svakom bloku birateš **jednu** stranu, druga se nikad ne posjeti. Od 100 blokova rupa prođe kroz 5 ili 6.
+
 ---
 
 ## 5. Rupa dobije broj
