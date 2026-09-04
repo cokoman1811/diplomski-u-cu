@@ -1,4 +1,4 @@
-# Neural net — objašnjenje sa slikama
+  # Neural net — objašnjenje sa slikama
 
 Kod: `src/neural_net.c`
 
