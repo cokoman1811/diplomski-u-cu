@@ -19,7 +19,7 @@
 
 /* Rasporedi parametara u jednom ravnom vektoru — pojednostavljuje Adam. */
 #define NN_OFF_W1 0
-#define NN_OFF_B1 (NN_OFF_W1 + NN_H1 * NN_IN)
+#define NN_OFF_B1 (NN_OFF_W1 + NN_H1 * NN_IN)  
 #define NN_OFF_W2 (NN_OFF_B1 + NN_H1)
 #define NN_OFF_B2 (NN_OFF_W2 + NN_H2 * NN_H1)
 #define NN_OFF_W3 (NN_OFF_B2 + NN_H2)
