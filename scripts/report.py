@@ -470,31 +470,68 @@ def plot_best_worst_reconstruction(
     return True
 
 
-def find_best_zoom_slice(df, window: int = 140):
-    """Odaberi prozor indeksa gdje je najviše maskiranih točaka (najbolje za prikaz)."""
+def find_presentation_window(df, window: int = 55):
+    """Odaberi kratak prozor gdje ima puno rupa i temperatura se mijenja (dobro za prikaz)."""
     import numpy as np
 
     mask = (df["mask"] == 1).to_numpy(dtype=int)
-    if len(mask) <= window:
-        return df.copy()
+    orig_col = "original_temperature" if "original_temperature" in df.columns else "original"
+    orig = df[orig_col].to_numpy(dtype=float)
 
+    if len(mask) <= window:
+        return 0, window
+
+    kernel = np.ones(6, dtype=int)
     best_start = 0
-    best_score = -1
-    kernel = np.ones(8, dtype=int)
+    best_score = -1.0
+    min_masked = max(12, int(window * 0.35))
+
     for start in range(0, len(mask) - window + 1):
-        chunk = mask[start : start + window]
-        conv = np.convolve(chunk, kernel, mode="valid")
+        chunk_mask = mask[start : start + window]
+        n_masked = int(chunk_mask.sum())
+        if n_masked < min_masked:
+            continue
+
+        chunk_orig = orig[start : start + window]
+        masked_orig = chunk_orig[chunk_mask == 1]
+        if masked_orig.size < 5:
+            continue
+
+        conv = np.convolve(chunk_mask, kernel, mode="valid")
         longest_run = int(conv.max()) if conv.size else 0
-        score = int(chunk.sum()) * 10 + longest_run
+        variation = float(np.std(masked_orig))
+        score = n_masked * 3.0 + longest_run * 8.0 + variation * 25.0
+
         if score > best_score:
             best_score = score
             best_start = start
 
-    return df.iloc[best_start : best_start + window].copy()
+    return best_start, window
 
 
-def plot_reconstruction_clear_on_ax(df, ax, title: str, method_color: str = "#e65100"):
-    """Jasniji prikaz: deblje linije, zum, naglašene rekonstruirane točke."""
+def _method_label(method: str) -> str:
+    labels = {
+        "spline_interpolation": "spline interpolacija",
+        "cubic_interpolation": "kubna interpolacija",
+        "forward_fill": "forward fill (zadnja vrijednost)",
+        "linear_interpolation": "linearna interpolacija",
+        "moving_average": "pomični prosjek",
+    }
+    return labels.get(method, method.replace("_", " "))
+
+
+def plot_reconstruction_presentation_on_ax(
+    df,
+    ax,
+    title: str,
+    method_color: str,
+    slice_start: int,
+    slice_len: int,
+):
+    """Vrlo čitljiv prikaz za prezentacije — veliki fontovi, malo točaka, isti prozor."""
+    import matplotlib.pyplot as plt
+    import numpy as np
+
     orig_col = "original_temperature" if "original_temperature" in df.columns else "original"
     recon_col = (
         "reconstructed_temperature"
@@ -502,58 +539,83 @@ def plot_reconstruction_clear_on_ax(df, ax, title: str, method_color: str = "#e6
         else "reconstructed"
     )
 
-    zoom = find_best_zoom_slice(df)
-    x = zoom["index"]
+    zoom = df.iloc[slice_start : slice_start + slice_len].copy()
+    x = np.arange(len(zoom))
+    orig = zoom[orig_col].to_numpy(dtype=float)
+    recon = zoom[recon_col].to_numpy(dtype=float)
+    mask = zoom["mask"].to_numpy(dtype=int)
 
-    ax.plot(x, zoom[orig_col], color="#1565c0", linewidth=2.4, label="originalni niz", zorder=2)
+    # Svijetla pozadina gdje su vrijednosti nedostajale
+    in_gap = False
+    gap_start = 0
+    for i, m in enumerate(mask):
+        if m == 1 and not in_gap:
+            gap_start = i
+            in_gap = True
+        elif m == 0 and in_gap:
+            ax.axvspan(gap_start - 0.5, i - 0.5, color="#fff3cd", alpha=0.55, zorder=0)
+            in_gap = False
+    if in_gap:
+        ax.axvspan(gap_start - 0.5, len(mask) - 0.5, color="#fff3cd", alpha=0.55, zorder=0)
+
+    ax.plot(x, orig, color="#0d47a1", linewidth=3.5, label="Stvarni niz", zorder=3, solid_capstyle="round")
     ax.plot(
         x,
-        zoom[recon_col],
+        recon,
         color=method_color,
-        linewidth=2.4,
-        linestyle="--",
-        label="rekonstruirani niz",
-        zorder=3,
+        linewidth=3.5,
+        linestyle="-",
+        label="Rekonstrukcija",
+        zorder=4,
+        solid_capstyle="round",
     )
 
-    masked = zoom[zoom["mask"] == 1]
-    if not masked.empty:
+    masked_idx = np.where(mask == 1)[0]
+    if masked_idx.size:
         ax.scatter(
-            masked["index"],
-            masked[orig_col],
-            s=42,
-            facecolors="none",
-            edgecolors="#c62828",
-            linewidths=1.6,
-            label="stvarna vrijednost (nedostajala)",
-            zorder=5,
-        )
-        ax.scatter(
-            masked["index"],
-            masked[recon_col],
-            s=55,
-            c=method_color,
-            edgecolors="#212121",
-            linewidths=0.8,
-            marker="D",
-            label="rekonstruirana točka",
+            x[masked_idx],
+            orig[masked_idx],
+            s=160,
+            facecolors="white",
+            edgecolors="#d32f2f",
+            linewidths=2.5,
+            label="Stvarna T° (bila skrivena)",
             zorder=6,
         )
-        for _, row in masked.iterrows():
-            ax.plot(
-                [row["index"], row["index"]],
-                [row[orig_col], row[recon_col]],
-                color="#9e9e9e",
-                alpha=0.55,
-                linewidth=1.0,
-                zorder=1,
-            )
+        ax.scatter(
+            x[masked_idx],
+            recon[masked_idx],
+            s=180,
+            c=method_color,
+            edgecolors="black",
+            linewidths=1.5,
+            marker="X",
+            label="Rekonstruirana T°",
+            zorder=7,
+        )
 
-    ax.set_xlabel("Indeks uzorka", fontsize=11)
-    ax.set_ylabel("Temperatura (°C)", fontsize=11)
-    ax.set_title(title, fontsize=11, fontweight="bold", pad=10)
-    ax.legend(loc="upper right", fontsize=8, framealpha=0.92)
-    ax.grid(True, alpha=0.35, linestyle=":")
+    y_min = float(np.min([orig.min(), recon.min()]))
+    y_max = float(np.max([orig.max(), recon.max()]))
+    pad = max(0.4, (y_max - y_min) * 0.12)
+    ax.set_ylim(y_min - pad, y_max + pad)
+
+    ax.set_xlabel("Vrijeme u odabranom dijelu niza (uzastopni uzorci)", fontsize=15, fontweight="bold")
+    ax.set_ylabel("Temperatura (°C)", fontsize=15, fontweight="bold")
+    ax.set_title(title, fontsize=16, fontweight="bold", pad=14, color="#212121")
+    ax.tick_params(axis="both", labelsize=13, width=1.5, length=6)
+    ax.legend(loc="upper left", fontsize=12, framealpha=0.95, edgecolor="#bdbdbd")
+    ax.grid(True, which="major", alpha=0.45, linewidth=0.9)
+    ax.set_facecolor("#fafafa")
+
+    for spine in ax.spines.values():
+        spine.set_linewidth(1.4)
+        spine.set_color("#424242")
+
+
+def plot_reconstruction_clear_on_ax(df, ax, title: str, method_color: str = "#e65100"):
+    """Zadržano za kompatibilnost — koristi prezentacijski prikaz."""
+    start, length = find_presentation_window(df)
+    plot_reconstruction_presentation_on_ax(df, ax, title, method_color, start, length)
 
 
 def plot_best_worst_reconstruction_clear(
@@ -566,7 +628,7 @@ def plot_best_worst_reconstruction_clear(
     out_path: Path,
     scenario_label: str,
 ):
-    """Usporedni prikaz najbolje i najgore metode — zumiran, za prezentacije."""
+    """Usporedni prikaz najbolje i najgore metode — isti prozor, veliki fontovi."""
     import matplotlib.pyplot as plt
 
     best_csv = RESULTS / f"reconstruction_{best_method}_{scenario}_{rate:.2f}.csv"
@@ -574,33 +636,54 @@ def plot_best_worst_reconstruction_clear(
     if not best_csv.exists() or not worst_csv.exists():
         return False
 
-    best_color = METHOD_COLORS.get(best_method, "#2ca02c")
-    worst_color = METHOD_COLORS.get(worst_method, "#8c564b")
+    best_df = pd_read_csv(best_csv)
+    worst_df = pd_read_csv(worst_csv)
 
-    fig, axes = plt.subplots(1, 2, figsize=(16, 5.2), sharey=True)
-    plot_reconstruction_clear_on_ax(
-        pd_read_csv(best_csv),
-        axes[0],
-        f"NAJBOLJA: {best_method}\nMAE = {best_mae:.3f} °C",
-        method_color=best_color,
+    # Isti prozor za obje metode (fer usporedba)
+    slice_start, slice_len = find_presentation_window(worst_df, window=55)
+
+    best_color = METHOD_COLORS.get(best_method, "#2e7d32")
+    worst_color = METHOD_COLORS.get(worst_method, "#6d4c41")
+
+    plt.rcParams.update(
+        {
+            "font.size": 13,
+            "axes.titlesize": 16,
+            "axes.labelsize": 15,
+            "legend.fontsize": 12,
+            "figure.facecolor": "white",
+        }
     )
-    plot_reconstruction_clear_on_ax(
-        pd_read_csv(worst_csv),
+
+    fig, axes = plt.subplots(2, 1, figsize=(14, 11), sharex=True)
+    plot_reconstruction_presentation_on_ax(
+        best_df,
+        axes[0],
+        f"NAJBOLJA METODA: {_method_label(best_method).upper()}\nMAE = {best_mae:.3f} °C",
+        best_color,
+        slice_start,
+        slice_len,
+    )
+    plot_reconstruction_presentation_on_ax(
+        worst_df,
         axes[1],
-        f"NAJGORA: {worst_method}\nMAE = {worst_mae:.3f} °C",
-        method_color=worst_color,
+        f"NAJGORA METODA: {_method_label(worst_method).upper()}\nMAE = {worst_mae:.3f} °C",
+        worst_color,
+        slice_start,
+        slice_len,
     )
 
     fig.suptitle(
-        f"{scenario_label} — najbolja i najgora rekonstrukcija @ {rate * 100:.0f}% nedostajućih vrijednosti\n"
-        "(zum na dio niza; crveni krug = stvarna temperatura, romb = rekonstrukcija)",
-        fontsize=13,
+        f"{scenario_label} @ {rate * 100:.0f}% nedostajućih vrijednosti\n"
+        "Žuto = mjesta gdje su podaci bili uklonjeni  |  Crveni krug = stvarna temperatura  |  X = što je metoda upisala",
+        fontsize=17,
         fontweight="bold",
-        y=1.05,
+        y=0.98,
     )
-    plt.tight_layout()
-    fig.savefig(out_path, dpi=200, bbox_inches="tight")
+    plt.tight_layout(rect=[0, 0, 1, 0.94])
+    fig.savefig(out_path, dpi=300, bbox_inches="tight", facecolor="white")
     plt.close(fig)
+    plt.rcdefaults()
     return True
 
 
